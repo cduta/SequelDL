@@ -95,6 +95,7 @@ func (sdlWrap SDLWrap) PrepareFrame() {
 
 func (sdlWrap SDLWrap) RenderFrame() {
   var err error
+  gfx.FramerateDelay(sdlWrap.fpsManager)
 
   err = sdlWrap.RenderFramerate(0,0)
   if err != nil {
@@ -105,8 +106,6 @@ func (sdlWrap SDLWrap) RenderFrame() {
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to render lines: %s\n", err)
   }
-  
-  gfx.FramerateDelay(sdlWrap.fpsManager)
 }
 
 
@@ -165,9 +164,13 @@ func (sdlWrap SDLWrap) RenderFramerate(x, y int32) (error) {
 }
 
 func (sdlWrap SDLWrap) RenderLine(x, y int32) {
-  
+  var i int32
+
   sdlWrap.renderer.SetDrawColor(143, 143, 143, 255)
-  sdlWrap.renderer.DrawLine(x,y,x+30,y)  
+  
+  for i = 0; i < 30; i++ {
+  	sdlWrap.renderer.DrawPoint(x+i,y+i)  
+  }
 }
 
 func (sdlWrap SDLWrap) renderObjects(name string) error {

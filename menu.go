@@ -9,17 +9,19 @@ import (
   "github.com/veandco/go-sdl2/sdl"
 )
 
-func run() int {
+func run() {
   var (
     err               error
     backendHandle     *backend.Handle
+    sdlWrap           *sdlex.SDLWrap
+
     sdlwrapArgs       sdlex.SDLWrapArgs = sdlex.SDLWrapArgs{ 
       DEFAULT_WINDOW_TITLE : "Menu Test", 
       DEFAULT_WINDOW_WIDTH : 1024, 
       DEFAULT_WINDOW_HEIGHT: 786,
       DEFAULT_FONT         : "DejaVuSansMono.ttf",
       DEFAULT_FONT_SIZE    : 30}
-    sdlWrap           *sdlex.SDLWrap
+
     eventHandlers     sdlex.EventHandlers = sdlex.EventHandlers{
       OnQuit            : func(event *sdl.QuitEvent) { sdlWrap.StopRunning() },
       OnKeyboardEvent   : func(event *sdl.KeyboardEvent) {
@@ -47,7 +49,6 @@ func run() int {
         */
 
         if event.Button == sdl.BUTTON_LEFT && event.State == sdlex.BUTTON_PRESSED {
-          //sdlWrap.RenderTestShape(event.X, event.Y)
           err = backendHandle.AddObject("line", event.X, event.Y)
           if err != nil {
             fmt.Fprintf(os.Stderr, "Could not place object at (%d,%d): %s\n", event.X, event.Y, err)
@@ -60,7 +61,7 @@ func run() int {
   backendHandle, err = backend.NewHandle()
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to inizialize backend: %s\n", err)
-    return 1
+    return 
   }
   defer backendHandle.Close()
   sdlwrapArgs.Handle = backendHandle
@@ -71,7 +72,7 @@ func run() int {
   sdlWrap, err = sdlex.NewSDLWrap(sdlwrapArgs)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to inizialize SDL: %s\n", err)
-    return 1
+    return
   }
   defer sdlWrap.Quit()
 
@@ -87,9 +88,9 @@ func run() int {
     sdlWrap.ShowFrame()
   }
 
-  return 0
+  sdl.Quit()
 }
 
 func main() {
-  os.Exit(run())
+  sdl.Main(run)
 }
