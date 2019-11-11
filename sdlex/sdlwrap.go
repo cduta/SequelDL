@@ -15,11 +15,14 @@ type SDLWrapArgs struct {
   DEFAULT_WINDOW_HEIGHT int32 
   DEFAULT_FONT          string
   DEFAULT_FONT_SIZE     int
+  DEFAULT_FPS           uint32 
+  DEFAULT_SHOW_FPS      bool
   Handle                *backend.Handle
 }
 
 type SDLWrap struct {
   running    bool
+  showFPS    bool
   window     *sdl.Window
   renderer   *sdl.Renderer
   font       *ttf.Font
@@ -62,10 +65,11 @@ func NewSDLWrap(args SDLWrapArgs) (*SDLWrap, error) {
   }
 
   gfx.InitFramerate(fpsManager)
-  gfx.SetFramerate(fpsManager, 60)
+  gfx.SetFramerate(fpsManager, args.DEFAULT_FPS)
 
   return &SDLWrap{
     running   : true,
+    showFPS   : args.DEFAULT_SHOW_FPS,
     window    : window,      
     renderer  : renderer,
     font      : font,
@@ -97,10 +101,12 @@ func (sdlWrap SDLWrap) RenderFrame() {
   var err error
   gfx.FramerateDelay(sdlWrap.fpsManager)
 
-  err = sdlWrap.RenderFramerate(0,0)
-  if err != nil {
-    fmt.Fprintf(os.Stderr, "Failed to render FPS: %s\n", err)
-  }
+  if sdlWrap.showFPS {
+	  err = sdlWrap.RenderFramerate(0,0)
+	  if err != nil {
+	    fmt.Fprintf(os.Stderr, "Failed to render FPS: %s\n", err)
+	  }
+	}
 
   err = sdlWrap.renderObjects("line")
   if err != nil {
@@ -169,7 +175,7 @@ func (sdlWrap SDLWrap) RenderLine(x, y int32) {
   sdlWrap.renderer.SetDrawColor(143, 143, 143, 255)
   
   for i = 0; i < 30; i++ {
-  	sdlWrap.renderer.DrawPoint(x+i,y+i)  
+  	sdlWrap.renderer.DrawPoint(x-i,y-i)  
   }
 }
 

@@ -8,6 +8,7 @@ import (
 type EventHandlers struct {
   OnQuit             func(event *sdl.QuitEvent)
   OnKeyboardEvent    func(event *sdl.KeyboardEvent)
+  OnMouseMotionEvent func(event *sdl.MouseMotionEvent)
   OnMouseButtonEvent func(event *sdl.MouseButtonEvent)
 }
 
@@ -20,6 +21,8 @@ func (eventHandlers EventHandlers) ProcessEvents() {
         eventHandlers.OnQuit(event)
       case *sdl.KeyboardEvent:
         eventHandlers.OnKeyboardEvent(event)
+      case *sdl.MouseMotionEvent:
+      	eventHandlers.OnMouseMotionEvent(event)
       case *sdl.MouseButtonEvent:
         eventHandlers.OnMouseButtonEvent(event)
     }

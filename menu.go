@@ -20,7 +20,9 @@ func run() {
       DEFAULT_WINDOW_WIDTH : 1024, 
       DEFAULT_WINDOW_HEIGHT: 786,
       DEFAULT_FONT         : "DejaVuSansMono.ttf",
-      DEFAULT_FONT_SIZE    : 30}
+      DEFAULT_FONT_SIZE    : 30,
+      DEFAULT_FPS          : 60,
+     	DEFAULT_SHOW_FPS     : false}
 
     eventHandlers     sdlex.EventHandlers = sdlex.EventHandlers{
       OnQuit            : func(event *sdl.QuitEvent) { sdlWrap.StopRunning() },
@@ -29,6 +31,16 @@ func run() {
           case sdl.K_ESCAPE:
             sdlWrap.StopRunning()
         }
+      },
+      OnMouseMotionEvent: func(event *sdl.MouseMotionEvent) {
+      	var err error 
+
+      	if event.State == sdl.BUTTON_LEFT {
+          err = backendHandle.AddObject("line", event.X, event.Y)
+          if err != nil {
+            fmt.Fprintf(os.Stderr, "Could not place object at (%d,%d): %s\n", event.X, event.Y, err)
+          }      		
+      	}
       },
       OnMouseButtonEvent: func(event *sdl.MouseButtonEvent) {
         var err error
