@@ -10,19 +10,19 @@ import (
 )
 
 type SDLWrapArgs struct {
-  DEFAULT_WINDOW_TITLE  string
-  DEFAULT_WINDOW_WIDTH  int32
-  DEFAULT_WINDOW_HEIGHT int32 
-  DEFAULT_FONT          string
-  DEFAULT_FONT_SIZE     int
-  DEFAULT_FPS           uint32 
-  DEFAULT_SHOW_FPS      bool
+  DEFAULT_WINDOW_TITLE   string
+  DEFAULT_WINDOW_WIDTH   int32
+  DEFAULT_WINDOW_HEIGHT  int32 
+  DEFAULT_FONT           string
+  DEFAULT_FONT_SIZE      int
+  DEFAULT_FPS            uint32 
+  DEFAULT_SHOW_FPS       bool
   Handle                *backend.Handle
 }
 
 type SDLWrap struct {
-  running    bool
-  showFPS    bool
+  running     bool
+  showFPS     bool
   window     *sdl.Window
   renderer   *sdl.Renderer
   font       *ttf.Font
@@ -32,7 +32,7 @@ type SDLWrap struct {
 
 func NewSDLWrap(args SDLWrapArgs) (*SDLWrap, error) {
   var (
-    err        error
+    err         error
     window     *sdl.Window
     renderer   *sdl.Renderer
     font       *ttf.Font
@@ -99,16 +99,17 @@ func (sdlWrap SDLWrap) PrepareFrame() {
 
 func (sdlWrap SDLWrap) RenderFrame() {
   var err error
+
   gfx.FramerateDelay(sdlWrap.fpsManager)
 
   if sdlWrap.showFPS {
-	  err = sdlWrap.RenderFramerate(0,0)
-	  if err != nil {
-	    fmt.Fprintf(os.Stderr, "Failed to render FPS: %s\n", err)
-	  }
-	}
+    err = sdlWrap.RenderFramerate(0,0)
+    if err != nil {
+      fmt.Fprintf(os.Stderr, "Failed to render FPS: %s\n", err)
+    }
+  }
 
-  err = sdlWrap.renderObjects("line")
+  err = sdlWrap.renderObjects()
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to render lines: %s\n", err)
   }
@@ -121,7 +122,7 @@ func (sdlWrap SDLWrap) ShowFrame() {
 
 func (sdlWrap SDLWrap) newTextTexture(str string) (*sdl.Texture, int32, int32, error) {
   var (
-    err error
+    err      error
     surface *sdl.Surface
     texture *sdl.Texture
   )
@@ -138,8 +139,8 @@ func (sdlWrap SDLWrap) newTextTexture(str string) (*sdl.Texture, int32, int32, e
 
 func (sdlWrap SDLWrap) renderText(text string, x, y int32) (error) {
   var (
-    err error
-    w, h int32
+    err      error
+    w, h     int32
     texture *sdl.Texture
   )
 
@@ -169,40 +170,43 @@ func (sdlWrap SDLWrap) RenderFramerate(x, y int32) (error) {
   return sdlWrap.renderText(framerateString, x, y)
 }
 
-func (sdlWrap SDLWrap) RenderLine(x, y int32) {
-  var i int32
-
+func (sdlWrap SDLWrap) RenderDot(x, y int32) {
   sdlWrap.renderer.SetDrawColor(143, 143, 143, 255)
-  
-  for i = 0; i < 30; i++ {
-  	sdlWrap.renderer.DrawPoint(x-i,y-i)  
-  }
+  sdlWrap.renderer.DrawPoint(x,y)  
 }
 
-func (sdlWrap SDLWrap) renderObjects(name string) error {
+func (sdlWrap SDLWrap) renderDots() error {
   var (
-    err     error 
-    objects *backend.Objects
-    object  *backend.Object
+    err   error 
+    dots *backend.Dots
+    dot  *backend.Dot
   )
 
-  objects, err = sdlWrap.handle.QueryObjects(name)
+  dots, err = sdlWrap.handle.QueryDots()
   if err != nil {
     return err
   }
-  defer objects.Close()
+  defer dots.Close()
 
-  for object, err = objects.NextObject(); err == nil && object != nil; object, err = objects.NextObject() {
-    sdlWrap.RenderLine(object.X,object.Y)
+  for dot, err = dots.Next(); err == nil && dot != nil; dot, err = dots.Next() {
+    sdlWrap.RenderDot(dot.X,dot.Y)
   }
+
+  return err
+}
+
+func (sdlWrap SDLWrap) renderObjects() error {
+  var err error
+
+  err = sdlWrap.renderDots()
 
   return err
 }
 
 func PrintRendererInfos() error {
   var (
-    err     error 
-    drivers int 
+    err      error 
+    drivers  int 
     info    *sdl.RendererInfo = new(sdl.RendererInfo)
   )
 

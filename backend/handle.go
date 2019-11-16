@@ -16,15 +16,21 @@ type Objects struct {
 }
 
 type Object struct {
-  Id           int
-  ObjectTypeId int
-  Name         string
-  X, Y         int32 
+  Id   int
+  X, Y int32 
+}
+
+type Dots struct {
+	*Objects
+}
+
+type Dot struct {
+	Object
 }
 
 func NewHandle() (*Handle, error) {
   var (
-    err      error
+    err       error
     dbhandle *sql.DB
   )
   
@@ -48,7 +54,7 @@ func (handle *Handle) Close() {
 
 func initializeBackend(dbhandle *sql.DB) error {
   var (
-    err       error
+    err         error
     initQuery []byte
   )
 
@@ -65,33 +71,24 @@ func initializeBackend(dbhandle *sql.DB) error {
   return err
 }
 
-func (handle Handle) AddObject(name string, x int32, y int32) error {
+func (handle Handle) AddDot(x int32, y int32) error {
   var err error 
 
   _, err = handle.dbhandle.Exec(`
-INSERT INTO objects(objecttype_id,x,y) 
-SELECT ot.id, ?, ?
-FROM   objecttype AS ot
-WHERE  ot.name = ?;`, x, y, name)
-  if err != nil {
-    return err
-  }
-
+INSERT INTO object(x,y)    VALUES (?, ?);
+INSERT INTO dot(object_id) VALUES (last_insert_rowid());
+`, x, y)
+  
   return err
 }
 
-func (handle Handle) QueryObjects(name string) (*Objects, error) {
+func (handle Handle) queryObjects(query string) (*Objects, error) {
   var ( 
-    err  error
+    err   error
     rows *sql.Rows
   ) 
 
-  rows, err = handle.dbhandle.Query(`
-SELECT o.id, ot.id, ot.name, o.x, o.y
-FROM   objects AS o
-JOIN   objecttype AS ot 
-ON     o.objecttype_id = ot.id 
-WHERE  ot.name = ?;`, name)
+  rows, err = handle.dbhandle.Query(query)
 
   if err != nil {
     return nil, err 
@@ -100,22 +97,44 @@ WHERE  ot.name = ?;`, name)
   return &Objects{ rows: rows }, err
 }
 
-func (objects Objects) Close() {
-  objects.rows.Close()
+func (handle Handle) QueryDots() (*Dots, error) {
+	var (
+		err      error 
+		objects *Objects
+	)
+
+	objects, err = handle.queryObjects(`
+SELECT o.id, o.x, o.y
+FROM   object AS o JOIN dot AS d 
+ON     o.id = d.object_id;`)
+
+	if err != nil {
+		return nil, err 
+	}
+
+	return &Dots{ Objects: objects }, err
 }
 
-func (objects Objects) NextObject() (*Object, error) {
+func (objects *Objects) Close() {
+	objects.rows.Close()
+}
+
+func (dots Dots) Close() {
+  dots.Objects.Close()
+}
+
+func (dots Dots) Next() (*Dot, error) {
   var (
-    err error
-    object *Object = &Object{}
+    err    error
+    object Object = Object{}
   )
 
-  if !objects.rows.Next() {
+  if !dots.Objects.rows.Next() {
     return nil, err
   }
 
-  err = objects.rows.Scan(&object.Id, &object.ObjectTypeId, &object.Name, &object.X, &object.Y)
+  err = dots.Objects.rows.Scan(&object.Id, &object.X, &object.Y)
 
-  return object, err
+  return &Dot{ Object: object }, err
 }
 

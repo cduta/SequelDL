@@ -36,7 +36,7 @@ func run() {
       	var err error 
 
       	if event.State == sdl.BUTTON_LEFT {
-          err = backendHandle.AddObject("line", event.X, event.Y)
+          err = backendHandle.AddDot(event.X, event.Y)
           if err != nil {
             fmt.Fprintf(os.Stderr, "Could not place object at (%d,%d): %s\n", event.X, event.Y, err)
           }      		
@@ -61,7 +61,7 @@ func run() {
         */
 
         if event.Button == sdl.BUTTON_LEFT && event.State == sdlex.BUTTON_PRESSED {
-          err = backendHandle.AddObject("line", event.X, event.Y)
+          err = backendHandle.AddDot(event.X, event.Y)
           if err != nil {
             fmt.Fprintf(os.Stderr, "Could not place object at (%d,%d): %s\n", event.X, event.Y, err)
           }
@@ -88,7 +88,7 @@ func run() {
   }
   defer sdlWrap.Quit()
 
-  err = backendHandle.AddObject("line",100,100)
+  err = backendHandle.AddDot(100,100)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Could not create object: %s\n", err)
   }
