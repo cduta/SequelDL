@@ -170,9 +170,9 @@ func (sdlWrap SDLWrap) RenderFramerate(x, y int32) (error) {
   return sdlWrap.renderText(framerateString, x, y)
 }
 
-func (sdlWrap SDLWrap) RenderDot(x, y int32) {
-  sdlWrap.renderer.SetDrawColor(143, 143, 143, 255)
-  sdlWrap.renderer.DrawPoint(x,y)  
+func (sdlWrap SDLWrap) RenderDot(dot *backend.Dot) {
+  sdlWrap.renderer.SetDrawColor(dot.Color.R, dot.Color.G, dot.Color.B, dot.Color.A)
+  sdlWrap.renderer.DrawPoint(dot.Object.Position.X, dot.Object.Position.Y)  
 }
 
 func (sdlWrap SDLWrap) renderDots() error {
@@ -189,7 +189,7 @@ func (sdlWrap SDLWrap) renderDots() error {
   defer dots.Close()
 
   for dot, err = dots.Next(); err == nil && dot != nil; dot, err = dots.Next() {
-    sdlWrap.RenderDot(dot.X,dot.Y)
+    sdlWrap.RenderDot(dot)
   }
 
   return err

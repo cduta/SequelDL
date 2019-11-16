@@ -15,17 +15,26 @@ type Objects struct {
   rows *sql.Rows
 }
 
-type Object struct {
-  Id   int
-  X, Y int32 
+type Position struct {
+  X, Y int32
+}
+
+type Object struct { 
+  Position
+  Id int
+}
+
+type Color struct {
+  R,G,B,A uint8 
 }
 
 type Dots struct {
-	*Objects
+  *Objects
 }
 
 type Dot struct {
-	Object
+  Object
+  Color 
 }
 
 func NewHandle() (*Handle, error) {
@@ -71,13 +80,24 @@ func initializeBackend(dbhandle *sql.DB) error {
   return err
 }
 
-func (handle Handle) AddDot(x int32, y int32) error {
+func (handle Handle) AddDot(pos Position, color Color) error {
   var err error 
 
   _, err = handle.dbhandle.Exec(`
-INSERT INTO object(x,y)    VALUES (?, ?);
-INSERT INTO dot(object_id) VALUES (last_insert_rowid());
-`, x, y)
+INSERT INTO object(x,y) VALUES (?, ?);
+
+CREATE TEMPORARY TABLE vars (rowid integer); 
+INSERT INTO vars(rowid) VALUES (last_insert_rowid());
+
+INSERT INTO dot(object_id) 
+  SELECT v.rowid 
+  FROM   vars AS v;
+INSERT INTO color(object_id, r, g, b, a) 
+  SELECT v.rowid, ?, ?, ?, ? 
+  FROM   vars AS v;
+
+DROP TABLE vars;
+`, pos.X, pos.Y, color.R, color.G, color.B, color.A)
   
   return err
 }
@@ -98,25 +118,26 @@ func (handle Handle) queryObjects(query string) (*Objects, error) {
 }
 
 func (handle Handle) QueryDots() (*Dots, error) {
-	var (
-		err      error 
-		objects *Objects
-	)
+  var (
+    err      error 
+    objects *Objects
+  )
 
-	objects, err = handle.queryObjects(`
-SELECT o.id, o.x, o.y
-FROM   object AS o JOIN dot AS d 
-ON     o.id = d.object_id;`)
+  objects, err = handle.queryObjects(`
+SELECT o.id, o.x, o.y, c.r, c.g, c.b, c.a
+FROM   object AS o, dot AS d, color AS c  
+WHERE  o.id = d.object_id
+AND    o.id = c.object_id;`)
 
-	if err != nil {
-		return nil, err 
-	}
+  if err != nil {
+    return nil, err 
+  }
 
-	return &Dots{ Objects: objects }, err
+  return &Dots{ Objects: objects }, err
 }
 
 func (objects *Objects) Close() {
-	objects.rows.Close()
+  objects.rows.Close()
 }
 
 func (dots Dots) Close() {
@@ -127,14 +148,15 @@ func (dots Dots) Next() (*Dot, error) {
   var (
     err    error
     object Object = Object{}
+    color  Color  = Color{}
   )
 
   if !dots.Objects.rows.Next() {
     return nil, err
   }
 
-  err = dots.Objects.rows.Scan(&object.Id, &object.X, &object.Y)
+  err = dots.Objects.rows.Scan(&object.Id, &object.Position.X, &object.Position.Y, &color.R, &color.G, &color.B, &color.A)
 
-  return &Dot{ Object: object }, err
+  return &Dot{ Object: object, Color: color }, err
 }
 
