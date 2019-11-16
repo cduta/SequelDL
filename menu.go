@@ -36,7 +36,7 @@ func run() {
       	var err error 
 
       	if event.State == sdl.BUTTON_LEFT {
-          err = backendHandle.AddDot(backend.Position{X: event.X, Y: event.Y}, backend.Color{R: 143, G: 143, B: 143, A: 255})
+          err = backendHandle.AddDot(backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8((event.Y+70)%256), B: uint8((event.X+140)%256), A: 255})
           if err != nil {
             fmt.Fprintf(os.Stderr, "Could not place object at (%d,%d): %s\n", event.X, event.Y, err)
           }      		
@@ -61,7 +61,7 @@ func run() {
         */
 
         if event.Button == sdl.BUTTON_LEFT && event.State == sdlex.BUTTON_PRESSED {
-          err = backendHandle.AddDot(backend.Position{X: event.X, Y: event.Y}, backend.Color{R: 143, G: 143, B: 143, A: 255})
+          err = backendHandle.AddDot(backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8(event.Y%256), B: uint8((event.X+140)%256), A: 255})
           if err != nil {
             fmt.Fprintf(os.Stderr, "Could not place object at (%d,%d): %s\n", event.X, event.Y, err)
           }

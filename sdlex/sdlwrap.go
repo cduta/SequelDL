@@ -93,14 +93,13 @@ func (sdlWrap *SDLWrap) StopRunning() {
 }
 
 func (sdlWrap SDLWrap) PrepareFrame() {
+  gfx.FramerateDelay(sdlWrap.fpsManager)
   sdlWrap.renderer.SetDrawColor(0, 0, 0, 255)
   sdlWrap.renderer.Clear()
 }
 
 func (sdlWrap SDLWrap) RenderFrame() {
   var err error
-
-  gfx.FramerateDelay(sdlWrap.fpsManager)
 
   if sdlWrap.showFPS {
     err = sdlWrap.RenderFramerate(0,0)
