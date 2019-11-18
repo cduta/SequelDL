@@ -77,88 +77,88 @@ func NewWrap(args WrapArgs) (*Wrap, error) {
     handle    : args.Handle}, err
 }
 
-func (wrap Wrap) Quit() {
-  wrap.StopRunning()
-  wrap.window.Destroy()
-  wrap.renderer.Destroy()
-  wrap.font.Close()
+func (sdlWrap Wrap) Quit() {
+  sdlWrap.StopRunning()
+  sdlWrap.window.Destroy()
+  sdlWrap.renderer.Destroy()
+  sdlWrap.font.Close()
 }
 
-func (wrap Wrap) IsRunning() bool {
-  return wrap.running
+func (sdlWrap Wrap) IsRunning() bool {
+  return sdlWrap.running
 }
 
-func (wrap *Wrap) StopRunning() {
-  wrap.running = false
+func (sdlWrap *Wrap) StopRunning() {
+  sdlWrap.running = false
 }
 
-func (wrap Wrap) PrepareFrame() {
-  gfx.FramerateDelay(wrap.fpsManager)
-  wrap.renderer.SetDrawColor(0, 0, 0, 255)
-  wrap.renderer.Clear()
+func (sdlWrap Wrap) PrepareFrame() {
+  gfx.FramerateDelay(sdlWrap.fpsManager)
+  sdlWrap.renderer.SetDrawColor(0, 0, 0, 255)
+  sdlWrap.renderer.Clear()
 }
 
-func (wrap Wrap) RenderFrame() {
+func (sdlWrap Wrap) RenderFrame() {
   var err error
 
-  if wrap.showFPS {
-    err = wrap.RenderFramerate(0,0)
+  if sdlWrap.showFPS {
+    err = sdlWrap.RenderFramerate(0,0)
     if err != nil {
       fmt.Fprintf(os.Stderr, "Failed to render FPS: %s\n", err)
     }
   }
 
-  err = wrap.renderObjects()
+  err = sdlWrap.renderObjects()
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to render lines: %s\n", err)
   }
 }
 
 
-func (wrap Wrap) ShowFrame() {
-  wrap.renderer.Present()
+func (sdlWrap Wrap) ShowFrame() {
+  sdlWrap.renderer.Present()
 }
 
-func (wrap Wrap) newTextTexture(str string) (*sdl.Texture, int32, int32, error) {
+func (sdlWrap Wrap) newTextTexture(str string) (*sdl.Texture, int32, int32, error) {
   var (
     err      error
     surface *sdl.Surface
     texture *sdl.Texture
   )
 
-  surface, err = wrap.font.RenderUTF8Blended(str, sdl.Color{255, 0, 0, 255})
+  surface, err = sdlWrap.font.RenderUTF8Blended(str, sdl.Color{255, 0, 0, 255})
   if err != nil {
     return texture, 0, 0, err
   }
   defer surface.Free()
 
-  texture, err = wrap.renderer.CreateTextureFromSurface(surface)
+  texture, err = sdlWrap.renderer.CreateTextureFromSurface(surface)
   return texture, surface.W, surface.H, err
 }
 
-func (wrap Wrap) renderText(text string, x, y int32) (error) {
+func (sdlWrap Wrap) renderText(text string, x, y int32) (error) {
   var (
     err      error
     w, h     int32
     texture *sdl.Texture
   )
 
-  if texture, w, h, err = wrap.newTextTexture(text); err != nil {
+  if texture, w, h, err = sdlWrap.newTextTexture(text); err != nil {
     return err
   }
   defer texture.Destroy()
 
-  return wrap.renderer.Copy(texture, nil, &sdl.Rect{X: x, Y: y, W: w, H: h})
+  return sdlWrap.renderer.Copy(texture, nil, &sdl.Rect{X: x, Y: y, W: w, H: h})
 }
 
-func (wrap Wrap) RenderFramerate(x, y int32) (error) {
+func (sdlWrap Wrap) RenderFramerate(x, y int32) (error) {
   var (
     success bool
     framerate int
     framerateString string
   )
 
-  framerate, success = gfx.GetFramerate(wrap.fpsManager)
+  framerate, success = gfx.GetFramerate(sdlWrap.fpsManager)
 
   if success {
     framerateString = fmt.Sprintf("%d FPS ", framerate)
@@ -166,38 +166,38 @@ func (wrap Wrap) RenderFramerate(x, y int32) (error) {
     framerateString = "N/A FPS"
   } 
 
-  return wrap.renderText(framerateString, x, y)
+  return sdlWrap.renderText(framerateString, x, y)
 }
 
-func (wrap Wrap) RenderDot(dot *backend.Dot) {
-  wrap.renderer.SetDrawColor(dot.Color.R, dot.Color.G, dot.Color.B, dot.Color.A)
-  wrap.renderer.DrawPoint(dot.Object.Position.X, dot.Object.Position.Y)  
+func (sdlWrap Wrap) RenderDot(dot *backend.Dot) {
+  sdlWrap.renderer.SetDrawColor(dot.Color.R, dot.Color.G, dot.Color.B, dot.Color.A)
+  sdlWrap.renderer.DrawPoint(dot.Object.Position.X, dot.Object.Position.Y)  
 }
 
-func (wrap Wrap) renderDots() error {
+func (sdlWrap Wrap) renderDots() error {
   var (
     err   error 
     dots *backend.Dots
     dot  *backend.Dot
   )
 
-  dots, err = wrap.handle.QueryDots()
+  dots, err = sdlWrap.handle.QueryDots()
   if err != nil {
     return err
   }
   defer dots.Close()
 
   for dot, err = dots.Next(); err == nil && dot != nil; dot, err = dots.Next() {
-    wrap.RenderDot(dot)
+    sdlWrap.RenderDot(dot)
   }
 
   return err
 }
 
-func (wrap Wrap) renderObjects() error {
+func (sdlWrap Wrap) renderObjects() error {
   var err error
 
-  err = wrap.renderDots()
+  err = sdlWrap.renderDots()
 
   return err
 }

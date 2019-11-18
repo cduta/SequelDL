@@ -15,10 +15,10 @@ func run() {
   var (
     err               error
     backendHandle     *backend.Handle
-    wrap              *sdlex.Wrap
+    sdlWrap           *sdlex.Wrap
     processor         *event.Processor
 
-    wrapArgs           sdlex.WrapArgs = sdlex.WrapArgs{ 
+    sdlWrapArgs        sdlex.WrapArgs = sdlex.WrapArgs{ 
       DEFAULT_WINDOW_TITLE : "Menu Test", 
       DEFAULT_WINDOW_WIDTH : 1024, 
       DEFAULT_WINDOW_HEIGHT: 786,
@@ -34,25 +34,25 @@ func run() {
     return 
   }
   defer backendHandle.Close()
-  wrapArgs.Handle = backendHandle
+  sdlWrapArgs.Handle = backendHandle
 
   sdl.Init(sdl.INIT_EVERYTHING)
   defer sdl.Quit()
 
-  wrap, err = sdlex.NewWrap(wrapArgs)
+  sdlWrap, err = sdlex.NewWrap(sdlWrapArgs)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to inizialize SDL: %s\n", err)
     return
   }
-  defer wrap.Quit()
+  defer sdlWrap.Quit()
 
-  processor = event.NewProcessor(state.MakeIdle(backendHandle, wrap))
+  processor = event.NewProcessor(state.MakeIdle(backendHandle, sdlWrap))
 
-  for wrap.IsRunning() {
-    wrap.PrepareFrame()
+  for sdlWrap.IsRunning() {
+    sdlWrap.PrepareFrame()
     processor.ProcessEvents()
-    wrap.RenderFrame()
-    wrap.ShowFrame()
+    sdlWrap.RenderFrame()
+    sdlWrap.ShowFrame()
   }
 
   sdl.Quit()

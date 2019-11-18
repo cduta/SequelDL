@@ -12,17 +12,17 @@ import (
 
 type Idle struct {
   backendHandle *backend.Handle
-  wrap          *sdlex.Wrap
+  sdlWrap       *sdlex.Wrap
 }
 
-func MakeIdle(backendHandle *backend.Handle, wrap *sdlex.Wrap) Idle {
+func MakeIdle(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap) Idle {
 	return Idle{
 		backendHandle: backendHandle,
-		wrap         : wrap}
+		sdlWrap      : sdlWrap}
 }
 
 func (idle Idle) OnQuit(event *sdl.QuitEvent) State {
-	idle.wrap.StopRunning()
+	idle.sdlWrap.StopRunning()
 
 	return idle
 }
@@ -30,7 +30,7 @@ func (idle Idle) OnQuit(event *sdl.QuitEvent) State {
 func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   switch event.Keysym.Sym {
     case sdl.K_ESCAPE:
-      idle.wrap.StopRunning()
+      idle.sdlWrap.StopRunning()
   }
 
   return idle
