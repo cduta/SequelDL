@@ -9,7 +9,7 @@ import (
   "../backend"
 )
 
-type SDLWrapArgs struct {
+type WrapArgs struct {
   DEFAULT_WINDOW_TITLE   string
   DEFAULT_WINDOW_WIDTH   int32
   DEFAULT_WINDOW_HEIGHT  int32 
@@ -20,7 +20,7 @@ type SDLWrapArgs struct {
   Handle                *backend.Handle
 }
 
-type SDLWrap struct {
+type Wrap struct {
   running     bool
   showFPS     bool
   window     *sdl.Window
@@ -30,7 +30,7 @@ type SDLWrap struct {
   handle     *backend.Handle
 }
 
-func NewSDLWrap(args SDLWrapArgs) (*SDLWrap, error) {
+func NewWrap(args WrapArgs) (*Wrap, error) {
   var (
     err         error
     window     *sdl.Window
@@ -67,7 +67,7 @@ func NewSDLWrap(args SDLWrapArgs) (*SDLWrap, error) {
   gfx.InitFramerate(fpsManager)
   gfx.SetFramerate(fpsManager, args.DEFAULT_FPS)
 
-  return &SDLWrap{
+  return &Wrap{
     running   : true,
     showFPS   : args.DEFAULT_SHOW_FPS,
     window    : window,      
@@ -77,88 +77,88 @@ func NewSDLWrap(args SDLWrapArgs) (*SDLWrap, error) {
     handle    : args.Handle}, err
 }
 
-func (sdlWrap SDLWrap) Quit() {
-  sdlWrap.StopRunning()
-  sdlWrap.window.Destroy()
-  sdlWrap.renderer.Destroy()
-  sdlWrap.font.Close()
+func (wrap Wrap) Quit() {
+  wrap.StopRunning()
+  wrap.window.Destroy()
+  wrap.renderer.Destroy()
+  wrap.font.Close()
 }
 
-func (sdlWrap SDLWrap) IsRunning() bool {
-  return sdlWrap.running
+func (wrap Wrap) IsRunning() bool {
+  return wrap.running
 }
 
-func (sdlWrap *SDLWrap) StopRunning() {
-  sdlWrap.running = false
+func (wrap *Wrap) StopRunning() {
+  wrap.running = false
 }
 
-func (sdlWrap SDLWrap) PrepareFrame() {
-  gfx.FramerateDelay(sdlWrap.fpsManager)
-  sdlWrap.renderer.SetDrawColor(0, 0, 0, 255)
-  sdlWrap.renderer.Clear()
+func (wrap Wrap) PrepareFrame() {
+  gfx.FramerateDelay(wrap.fpsManager)
+  wrap.renderer.SetDrawColor(0, 0, 0, 255)
+  wrap.renderer.Clear()
 }
 
-func (sdlWrap SDLWrap) RenderFrame() {
+func (wrap Wrap) RenderFrame() {
   var err error
 
-  if sdlWrap.showFPS {
-    err = sdlWrap.RenderFramerate(0,0)
+  if wrap.showFPS {
+    err = wrap.RenderFramerate(0,0)
     if err != nil {
       fmt.Fprintf(os.Stderr, "Failed to render FPS: %s\n", err)
     }
   }
 
-  err = sdlWrap.renderObjects()
+  err = wrap.renderObjects()
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to render lines: %s\n", err)
   }
 }
 
 
-func (sdlWrap SDLWrap) ShowFrame() {
-  sdlWrap.renderer.Present()
+func (wrap Wrap) ShowFrame() {
+  wrap.renderer.Present()
 }
 
-func (sdlWrap SDLWrap) newTextTexture(str string) (*sdl.Texture, int32, int32, error) {
+func (wrap Wrap) newTextTexture(str string) (*sdl.Texture, int32, int32, error) {
   var (
     err      error
     surface *sdl.Surface
     texture *sdl.Texture
   )
 
-  surface, err = sdlWrap.font.RenderUTF8Blended(str, sdl.Color{255, 0, 0, 255})
+  surface, err = wrap.font.RenderUTF8Blended(str, sdl.Color{255, 0, 0, 255})
   if err != nil {
     return texture, 0, 0, err
   }
   defer surface.Free()
 
-  texture, err = sdlWrap.renderer.CreateTextureFromSurface(surface)
+  texture, err = wrap.renderer.CreateTextureFromSurface(surface)
   return texture, surface.W, surface.H, err
 }
 
-func (sdlWrap SDLWrap) renderText(text string, x, y int32) (error) {
+func (wrap Wrap) renderText(text string, x, y int32) (error) {
   var (
     err      error
     w, h     int32
     texture *sdl.Texture
   )
 
-  if texture, w, h, err = sdlWrap.newTextTexture(text); err != nil {
+  if texture, w, h, err = wrap.newTextTexture(text); err != nil {
     return err
   }
   defer texture.Destroy()
 
-  return sdlWrap.renderer.Copy(texture, nil, &sdl.Rect{X: x, Y: y, W: w, H: h})
+  return wrap.renderer.Copy(texture, nil, &sdl.Rect{X: x, Y: y, W: w, H: h})
 }
 
-func (sdlWrap SDLWrap) RenderFramerate(x, y int32) (error) {
+func (wrap Wrap) RenderFramerate(x, y int32) (error) {
   var (
     success bool
     framerate int
     framerateString string
   )
 
-  framerate, success = gfx.GetFramerate(sdlWrap.fpsManager)
+  framerate, success = gfx.GetFramerate(wrap.fpsManager)
 
   if success {
     framerateString = fmt.Sprintf("%d FPS ", framerate)
@@ -166,38 +166,38 @@ func (sdlWrap SDLWrap) RenderFramerate(x, y int32) (error) {
     framerateString = "N/A FPS"
   } 
 
-  return sdlWrap.renderText(framerateString, x, y)
+  return wrap.renderText(framerateString, x, y)
 }
 
-func (sdlWrap SDLWrap) RenderDot(dot *backend.Dot) {
-  sdlWrap.renderer.SetDrawColor(dot.Color.R, dot.Color.G, dot.Color.B, dot.Color.A)
-  sdlWrap.renderer.DrawPoint(dot.Object.Position.X, dot.Object.Position.Y)  
+func (wrap Wrap) RenderDot(dot *backend.Dot) {
+  wrap.renderer.SetDrawColor(dot.Color.R, dot.Color.G, dot.Color.B, dot.Color.A)
+  wrap.renderer.DrawPoint(dot.Object.Position.X, dot.Object.Position.Y)  
 }
 
-func (sdlWrap SDLWrap) renderDots() error {
+func (wrap Wrap) renderDots() error {
   var (
     err   error 
     dots *backend.Dots
     dot  *backend.Dot
   )
 
-  dots, err = sdlWrap.handle.QueryDots()
+  dots, err = wrap.handle.QueryDots()
   if err != nil {
     return err
   }
   defer dots.Close()
 
   for dot, err = dots.Next(); err == nil && dot != nil; dot, err = dots.Next() {
-    sdlWrap.RenderDot(dot)
+    wrap.RenderDot(dot)
   }
 
   return err
 }
 
-func (sdlWrap SDLWrap) renderObjects() error {
+func (wrap Wrap) renderObjects() error {
   var err error
 
-  err = sdlWrap.renderDots()
+  err = wrap.renderDots()
 
   return err
 }

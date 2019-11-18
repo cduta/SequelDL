@@ -63,7 +63,7 @@ func (handle *Handle) Close() {
 
 func initializeBackend(dbhandle *sql.DB) error {
   var (
-    err         error
+    err       error
     initQuery []byte
   )
 
@@ -81,23 +81,30 @@ func initializeBackend(dbhandle *sql.DB) error {
 }
 
 func (handle Handle) AddDot(pos Position, color Color) error {
-  var err error 
+  var (
+    err          error
+    result       sql.Result
+    lastInsertId int64
+  ) 
+
+  result, err = handle.dbhandle.Exec(`
+INSERT INTO object(x,y) VALUES (?, ?);
+`, pos.X, pos.Y)
+
+  if err != nil {
+    return err 
+  }
+
+  lastInsertId, err = result.LastInsertId()
+
+  if err != nil {
+    return err
+  }
 
   _, err = handle.dbhandle.Exec(`
-INSERT INTO object(x,y) VALUES (?, ?);
-
-CREATE TEMPORARY TABLE vars (rowid integer); 
-INSERT INTO vars(rowid) VALUES (last_insert_rowid());
-
-INSERT INTO dot(object_id) 
-  SELECT v.rowid 
-  FROM   vars AS v;
-INSERT INTO color(object_id, r, g, b, a) 
-  SELECT v.rowid, ?, ?, ?, ? 
-  FROM   vars AS v;
-
-DROP TABLE vars;
-`, pos.X, pos.Y, color.R, color.G, color.B, color.A)
+INSERT INTO dot(object_id) VALUES (?);
+INSERT INTO color(object_id, r, g, b, a) VALUES (?, ?, ?, ?, ?) ;
+`, lastInsertId, lastInsertId, color.R, color.G, color.B, color.A)
   
   return err
 }

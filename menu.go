@@ -5,6 +5,8 @@ import (
   "fmt"
   "./sdlex"
   "./backend"
+  "./event"
+  "./event/state"
 
   "github.com/veandco/go-sdl2/sdl"
 )
@@ -13,9 +15,10 @@ func run() {
   var (
     err               error
     backendHandle     *backend.Handle
-    sdlWrap           *sdlex.SDLWrap
+    wrap              *sdlex.Wrap
+    processor         *event.Processor
 
-    sdlwrapArgs       sdlex.SDLWrapArgs = sdlex.SDLWrapArgs{ 
+    wrapArgs           sdlex.WrapArgs = sdlex.WrapArgs{ 
       DEFAULT_WINDOW_TITLE : "Menu Test", 
       DEFAULT_WINDOW_WIDTH : 1024, 
       DEFAULT_WINDOW_HEIGHT: 786,
@@ -23,51 +26,6 @@ func run() {
       DEFAULT_FONT_SIZE    : 30,
       DEFAULT_FPS          : 60,
      	DEFAULT_SHOW_FPS     : false}
-
-    eventHandlers     sdlex.EventHandlers = sdlex.EventHandlers{
-      OnQuit            : func(event *sdl.QuitEvent) { sdlWrap.StopRunning() },
-      OnKeyboardEvent   : func(event *sdl.KeyboardEvent) {
-        switch event.Keysym.Sym {
-          case sdl.K_ESCAPE:
-            sdlWrap.StopRunning()
-        }
-      },
-      OnMouseMotionEvent: func(event *sdl.MouseMotionEvent) {
-      	var err error 
-
-      	if event.State == sdl.BUTTON_LEFT {
-          err = backendHandle.AddDot(backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8((event.Y+70)%256), B: uint8((event.X+140)%256), A: 255})
-          if err != nil {
-            fmt.Fprintf(os.Stderr, "Could not place object at (%d,%d): %s\n", event.X, event.Y, err)
-          }      		
-      	}
-      },
-      OnMouseButtonEvent: func(event *sdl.MouseButtonEvent) {
-        var err error
-        /*
-        var mouseButton, mouseState string
-
-        switch event.Button {
-          case sdl.BUTTON_LEFT : mouseButton = "Left" 
-          case sdl.BUTTON_RIGHT: mouseButton = "Right"
-          default              : mouseButton = "Unknown" 
-        }
-
-        switch event.State {
-          case sdlex.BUTTON_PRESSED : mouseState = "pressed"
-          case sdlex.BUTTON_RELEASED: mouseState = "released"
-          default                   : mouseState = "unknown"
-        }
-        */
-
-        if event.Button == sdl.BUTTON_LEFT && event.State == sdlex.BUTTON_PRESSED {
-          err = backendHandle.AddDot(backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8(event.Y%256), B: uint8((event.X+140)%256), A: 255})
-          if err != nil {
-            fmt.Fprintf(os.Stderr, "Could not place object at (%d,%d): %s\n", event.X, event.Y, err)
-          }
-
-        } 
-      }}
   )
 
   backendHandle, err = backend.NewHandle()
@@ -76,28 +34,25 @@ func run() {
     return 
   }
   defer backendHandle.Close()
-  sdlwrapArgs.Handle = backendHandle
+  wrapArgs.Handle = backendHandle
 
   sdl.Init(sdl.INIT_EVERYTHING)
   defer sdl.Quit()
 
-  sdlWrap, err = sdlex.NewSDLWrap(sdlwrapArgs)
+  wrap, err = sdlex.NewWrap(wrapArgs)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to inizialize SDL: %s\n", err)
     return
   }
-  defer sdlWrap.Quit()
+  defer wrap.Quit()
 
-  err = backendHandle.AddDot(backend.Position{X: 100, Y: 100}, backend.Color{R: 143, G: 143, B: 143, A: 255})
-  if err != nil {
-    fmt.Fprintf(os.Stderr, "Could not create object: %s\n", err)
-  }
+  processor = event.NewProcessor(state.MakeIdle(backendHandle, wrap))
 
-  for sdlWrap.IsRunning() {
-    sdlWrap.PrepareFrame()
-    eventHandlers.ProcessEvents()
-    sdlWrap.RenderFrame()
-    sdlWrap.ShowFrame()
+  for wrap.IsRunning() {
+    wrap.PrepareFrame()
+    processor.ProcessEvents()
+    wrap.RenderFrame()
+    wrap.ShowFrame()
   }
 
   sdl.Quit()
