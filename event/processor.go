@@ -20,14 +20,10 @@ func (processor *Processor) ProcessEvents() {
   for polledEvent = sdl.PollEvent(); polledEvent != nil; polledEvent = sdl.PollEvent() {
 
     switch event := polledEvent.(type) {
-      case *sdl.QuitEvent:
-        processor.state = processor.state.OnQuit(event)
-      case *sdl.KeyboardEvent:
-        processor.state = processor.state.OnKeyboardEvent(event)
-      case *sdl.MouseMotionEvent:
-      	processor.state = processor.state.OnMouseMotionEvent(event)
-      case *sdl.MouseButtonEvent:
-        processor.state	= processor.state.OnMouseButtonEvent(event)
+      case *sdl.QuitEvent:        processor.state = processor.state.OnQuit(event)
+      case *sdl.KeyboardEvent:    processor.state = processor.state.OnKeyboardEvent(event)
+      case *sdl.MouseMotionEvent: processor.state = processor.state.OnMouseMotionEvent(event)
+      case *sdl.MouseButtonEvent: processor.state	= processor.state.OnMouseButtonEvent(event)
     }
   }
 }
