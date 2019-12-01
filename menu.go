@@ -13,12 +13,12 @@ import (
 
 func run() {
   var (
-    err                error
-    backendHandle     *backend.Handle
-    sdlWrap           *sdlex.Wrap
-    eventProcessor    *event.Processor
+    err             error
+    backendHandle  *backend.Handle
+    sdlWrap        *sdlex.Wrap
+    eventProcessor *event.Processor
 
-    sdlWrapArgs        sdlex.WrapArgs = sdlex.WrapArgs{ 
+    sdlWrapArgs     sdlex.WrapArgs = sdlex.WrapArgs{ 
       DEFAULT_WINDOW_TITLE : "Menu Test", 
       DEFAULT_WINDOW_WIDTH : 1024, 
       DEFAULT_WINDOW_HEIGHT: 786,
@@ -47,7 +47,7 @@ func run() {
   }
   defer sdlWrap.Quit()
 
-  eventProcessor = event.NewProcessor(state.MakeIdle(backendHandle, sdlWrap))
+  eventProcessor = event.NewProcessor(state.MakeIdle(backendHandle), sdlWrap)
 
   for sdlWrap.IsRunning() {
     sdlWrap.PrepareFrame()
@@ -60,5 +60,5 @@ func run() {
 }
 
 func main() {
-  sdl.Main(run)
+  run()
 }
