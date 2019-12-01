@@ -182,6 +182,7 @@ func (sdlWrap Wrap) renderDots() error {
   )
 
   dots, err = sdlWrap.handle.QueryDots()
+
   if err != nil {
     return err
   }

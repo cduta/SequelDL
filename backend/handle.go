@@ -179,7 +179,7 @@ func (handle Handle) queryObjects(query string, args ...interface{}) (*Objects, 
     rows *sql.Rows
   ) 
 
-  rows, err = handle.dbhandle.Query(query, args...)
+  rows, err = handle.Query(query)
 
   if err != nil {
     return nil, err 
@@ -199,7 +199,7 @@ func (handle Handle) QueryDots() (*Dots, error) {
   )
 
   objects, err = handle.queryObjects(`
-SELECT o.id, d.x, d.y, c.r, c.g, c.b, c.a
+SELECT o.id, d.id, d.x, d.y, c.r, c.g, c.b, c.a
 FROM   objects AS o, dots AS d, colors AS c  
 WHERE  o.id = d.object_id
 AND    o.id = c.object_id;`)

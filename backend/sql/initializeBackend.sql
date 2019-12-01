@@ -1,4 +1,3 @@
-PRAGMA read_uncommitted = true;
 PRAGMA synchronous=OFF;
 
 CREATE TABLE objects (
