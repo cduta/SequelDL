@@ -1,6 +1,8 @@
 package state
 
 import (
+	"fmt"
+	"os"
   "database/sql"
 
 	"../../backend"
@@ -73,16 +75,20 @@ func (drawLine DrawLine) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
 }
 
 func (drawLine DrawLine) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
-	var state State = drawLine
+	var ( 
+		err   error 
+		state State = drawLine
+	)
  
-	switch event.State {
-	  case sdl.BUTTON_LEFT :
-	  	drawLine.backendHandle.Exec(`
-UPDATE lines AS l  
-SET    l.there_x = ?, l.there_y = ? 
-WHERE  l.object_id = ?
-	  	`, event.X, event.Y, drawLine.objectId)
-	  case sdl.BUTTON_RIGHT:
+	if sdlex.IsMouseMotionState(event.State, sdl.BUTTON_RIGHT) {
+		_, err = drawLine.backendHandle.Exec(`
+	UPDATE lines   
+	SET    there_x = ?, there_y = ? 
+	WHERE  object_id = ?
+		`, event.X, event.Y, drawLine.objectId)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Could not update line coordinates: %s\n", err)
+		}
 	}
 
 	return state
