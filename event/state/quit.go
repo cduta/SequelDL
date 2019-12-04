@@ -7,11 +7,11 @@ import (
 type Quit struct {}
 
 func MakeQuit() Quit {
-	return Quit{}
+  return Quit{}
 }
 
 func (quit Quit) OnQuit(event *sdl.QuitEvent) State {
-	return quit
+  return quit
 }
 
 func (quit Quit) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
@@ -19,9 +19,9 @@ func (quit Quit) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
 }
 
 func (quit Quit) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
-	return quit
+  return quit
 }
 
 func (quit Quit) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
-	return quit 
+  return quit 
 }

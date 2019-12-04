@@ -25,7 +25,7 @@ func run() {
       DEFAULT_FONT         : "font/DejaVuSansMono.ttf",
       DEFAULT_FONT_SIZE    : 30,
       DEFAULT_FPS          : 60,
-     	DEFAULT_SHOW_FPS     : false}
+      DEFAULT_SHOW_FPS     : true}
   )
 
   backendHandle, err = backend.NewHandle()

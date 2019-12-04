@@ -1,19 +1,19 @@
 package event
 
 import (
-	"./state"
-	"../sdlex"
+  "./state"
+  "../sdlex"
 
   "github.com/veandco/go-sdl2/sdl"
 )
 
 type Processor struct {
-	state    state.State       
-	sdlWrap *sdlex.Wrap
+  state    state.State       
+  sdlWrap *sdlex.Wrap
 }
 
 func NewProcessor(initialState state.State, sdlWrap *sdlex.Wrap) *Processor {
-	return &Processor{ state: initialState, sdlWrap: sdlWrap }
+  return &Processor{ state: initialState, sdlWrap: sdlWrap }
 }
 
 func (processor *Processor) ProcessEvents() {
@@ -25,11 +25,11 @@ func (processor *Processor) ProcessEvents() {
       case *sdl.QuitEvent:        processor.state = processor.state.OnQuit(event)
       case *sdl.KeyboardEvent:    processor.state = processor.state.OnKeyboardEvent(event)
       case *sdl.MouseMotionEvent: processor.state = processor.state.OnMouseMotionEvent(event)
-      case *sdl.MouseButtonEvent: processor.state	= processor.state.OnMouseButtonEvent(event)
+      case *sdl.MouseButtonEvent: processor.state = processor.state.OnMouseButtonEvent(event)
     }
 
     switch processor.state.(type) {
-    	case state.Quit: processor.sdlWrap.StopRunning() 
+      case state.Quit: processor.sdlWrap.StopRunning() 
     } 
   }
 }
