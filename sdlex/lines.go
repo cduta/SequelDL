@@ -5,8 +5,13 @@ import (
 )
 
 func (sdlWrap Wrap) RenderLine(line *backend.Line) {
+  var part backend.Position
+
   sdlWrap.renderer.SetDrawColor(line.Color.R, line.Color.G, line.Color.B, line.Color.A)
-  sdlWrap.renderer.DrawLine(line.Here.X, line.Here.Y, line.There.X, line.There.Y)
+
+  for _, part = range line.Parts {
+    sdlWrap.renderer.DrawPoint(part.X, part.Y)
+  }
 }
 
 func (sdlWrap Wrap) renderLines() error {

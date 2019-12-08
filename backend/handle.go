@@ -20,6 +20,10 @@ type Position struct {
   X, Y int32
 }
 
+func (position Position) Equals(other Position) bool {
+  return position.X == other.X && position.Y == other.Y
+}
+
 type Object struct { 
   Id int64
 }

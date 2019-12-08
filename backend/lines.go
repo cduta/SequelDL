@@ -1,5 +1,12 @@
 package backend
 
+import (
+  "errors"
+  "fmt"
+  "io/ioutil"
+  "path/filepath"
+)
+
 type Lines struct {
   *Objects
 }
@@ -7,22 +14,23 @@ type Lines struct {
 type Line struct {
   Object
   Color 
-  Id    int64
-  Here  Position
-  There Position
+  Id      int64
+  Parts []Position
 }
 
 func (handle Handle) QueryLines() (*Lines, error) {
   var (
-    err      error 
-    objects *Objects
+    err         error 
+    bresenham []byte
+    objects    *Objects
   )
 
-  objects, err = handle.queryObjects(`
-SELECT o.id, l.id, l.here_x, l.here_y, l.there_x, l.there_y, c.r, c.g, c.b, c.a
-FROM   objects AS o, lines AS l, colors AS c  
-WHERE  o.id = l.object_id
-AND    o.id = c.object_id;`)
+  bresenham, err = ioutil.ReadFile(filepath.Join("backend", "sql", "bresenham.sql"))
+  if err != nil {
+    return nil, err
+  }
+
+  objects, err = handle.queryObjects(string(bresenham))
 
   if err != nil {
     return nil, err 
@@ -37,20 +45,40 @@ func (lines Lines) Close() {
 
 func (lines Lines) Next() (*Line, error) {
   var (
-    err    error
-    object Object   = Object{}
-    color  Color    = Color{}
-    lineId int64
-    here   Position = Position{}
-    there  Position = Position{}
+    err      error
+    object   Object   = Object{}
+    color    Color    = Color{}
+    lineId   int64
+    curr     Position = Position{}
+    there    Position = Position{}
+    parts  []Position
   )
 
   if !lines.Objects.rows.Next() {
     return nil, err
   }
 
-  err = lines.Objects.rows.Scan(&object.Id, &lineId, &here.X, &here.Y, &there.X, &there.Y, &color.R, &color.G, &color.B, &color.A)
+  for lines.Objects.rows.Next() {
+    err = lines.Objects.rows.Scan(
+      &lineId , &object.Id, 
+      &curr.X , &curr.Y, 
+      &there.X, &there.Y, 
+      &color.R, &color.G, &color.B, &color.A)
+    if err != nil {
+      return nil, err 
+    }
 
-  return &Line{ Object: object, Color: color, Id: lineId, Here: here, There: there }, err
+    parts = append(parts, curr)
+
+    if curr.Equals(there) {
+      break
+    }
+  }
+
+  if !curr.Equals(there) {
+    return nil, errors.New(fmt.Sprintf("Queried line (Id: %d, Object Id: %d) incomplete", lineId, object.Id))
+  }
+
+  return &Line{ Object: object, Color: color, Id: lineId, Parts: parts }, err
 }
 
