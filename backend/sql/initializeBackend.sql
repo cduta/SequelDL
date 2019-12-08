@@ -1,4 +1,11 @@
-PRAGMA synchronous=OFF;
+/*
+  https://www.sqlite.org/pragma.html#pragma_synchronous
+  With synchronous OFF (0), SQLite continues without syncing as soon as it has handed data off to the operating system. If the 
+  application running SQLite crashes, the data will be safe, but the database might become corrupted if the operating system crashes or 
+  the computer loses power before that data has been written to the disk surface. On the other hand, commits can be orders of magnitude 
+  faster with synchronous OFF. 
+*/
+PRAGMA synchronous=OFF; 
 
 CREATE TABLE objects (
   id integer NOT NULL PRIMARY KEY AUTOINCREMENT
@@ -6,10 +13,13 @@ CREATE TABLE objects (
 
 CREATE TABLE dots (
   id        integer NOT NULL PRIMARY KEY AUTOINCREMENT, 
+  object_id integer NOT NULL REFERENCES objects(id),
   x         integer NOT NULL, 
-  y         integer NOT NULL,
-  object_id integer NOT NULL REFERENCES objects(id)
+  y         integer NOT NULL
 );
+
+CREATE UNIQUE INDEX dots_object_id_idx ON dots(object_id);
+CREATE INDEX dots_position_idx ON dots(x,y);
 
 CREATE TABLE lines (
   id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -19,6 +29,10 @@ CREATE TABLE lines (
   there_x   integer NOT NULL, 
   there_y   integer NOT NULL
 );
+
+CREATE UNIQUE INDEX lines_object_id_idx ON lines(object_id);
+CREATE INDEX lines_here_idx ON lines(here_x,here_y);
+CREATE INDEX lines_there_idx ON lines(there_x,there_y);
 
 CREATE TABLE rectangles (
   id             integer NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -59,8 +73,8 @@ CREATE UNIQUE INDEX pk_polygon_vertices ON polygon_vertices(id, i);
 CREATE TABLE colors (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
   object_id  integer NOT NULL REFERENCES objects(id),
-  r          integer NOT NULL CHECK(0 <= r AND r <= 255),
-  g          integer NOT NULL CHECK(0 <= g AND g <= 255), 
-  b          integer NOT NULL CHECK(0 <= b AND b <= 255),
-  a          integer NOT NULL CHECK(0 <= a AND a <= 255)
+  r          integer NOT NULL CHECK(r BETWEEN 0 AND 255),
+  g          integer NOT NULL CHECK(g BETWEEN 0 AND 255), 
+  b          integer NOT NULL CHECK(b BETWEEN 0 AND 255),
+  a          integer NOT NULL CHECK(a BETWEEN 0 AND 255)
 );
