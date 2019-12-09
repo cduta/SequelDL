@@ -34,15 +34,6 @@ CREATE UNIQUE INDEX lines_object_id_idx ON lines(object_id);
 CREATE INDEX lines_here_idx ON lines(here_x,here_y);
 CREATE INDEX lines_there_idx ON lines(there_x,there_y);
 
-CREATE TABLE rectangles (
-  id             integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  object_id      integer NOT NULL REFERENCES objects(id),
-  top_left_x     integer NOT NULL,
-  top_left_y     integer NOT NULL,
-  bottom_right_x integer NOT NULL,
-  bottom_right_y integer NOT NULL
-);
-
 CREATE TABLE triangles (
   id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   object_id integer NOT NULL REFERENCES objects(id),
@@ -54,6 +45,15 @@ CREATE TABLE triangles (
   y3        integer NOT NULL
 );
 
+CREATE TABLE rectangles (
+  id             integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  object_id      integer NOT NULL REFERENCES objects(id),
+  top_left_x     integer NOT NULL,
+  top_left_y     integer NOT NULL,
+  bottom_right_x integer NOT NULL,
+  bottom_right_y integer NOT NULL
+);
+
 CREATE TABLE polygons (
   id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   object_id integer NOT NULL REFERENCES objects(id)
@@ -61,14 +61,12 @@ CREATE TABLE polygons (
 
 CREATE TABLE polygon_vertices (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  polygon_id integer NOT NULL REFERENCES objects(id),
+  polygon_id integer NOT NULL REFERENCES polygons(id),
   i          integer NOT NULL CHECK(i >= 0), 
   x          integer NOT NULL,
   y          integer NOT NULL,
   UNIQUE(id, i)
 );
-
-CREATE UNIQUE INDEX pk_polygon_vertices ON polygon_vertices(id, i);
 
 CREATE TABLE colors (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
