@@ -5,6 +5,7 @@ import (
   "io/ioutil"
   "path/filepath"
   "database/sql"
+  
   _ "github.com/mattn/go-sqlite3"
 )
 
@@ -26,10 +27,6 @@ func (position Position) Equals(other Position) bool {
 
 type Object struct { 
   Id int64
-}
-
-type Color struct {
-  R,G,B,A uint8 
 }
 
 func NewHandle() (*Handle, error) {
