@@ -5,7 +5,7 @@ import (
   "io/ioutil"
   "path/filepath"
   "database/sql"
-  
+
   _ "github.com/mattn/go-sqlite3"
 )
 
@@ -72,11 +72,11 @@ func initializeBackend(dbhandle *sql.DB) error {
   return err
 }
 
-func (handle Handle) Query(query string, args ...interface{}) (*sql.Rows, error) {
+func (handle Handle) query(query string, args ...interface{}) (*sql.Rows, error) {
   return handle.dbhandle.Query(query, args...)
 }
 
-func (handle Handle) Exec(query string, args ...interface{}) (sql.Result, error) {
+func (handle Handle) exec(query string, args ...interface{}) (sql.Result, error) {
   return handle.dbhandle.Exec(query, args...)
 }
 
@@ -157,7 +157,7 @@ func (handle Handle) queryObjects(query string, args ...interface{}) (*Objects, 
     rows *sql.Rows
   ) 
 
-  rows, err = handle.Query(query)
+  rows, err = handle.query(query)
 
   if err != nil {
     return nil, err 

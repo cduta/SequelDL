@@ -1,5 +1,9 @@
 package backend
 
+import (
+  "database/sql"
+)
+
 type Dots struct {
   *Objects
 }
@@ -9,6 +13,37 @@ type Dot struct {
   Position
   Color 
   Id int64
+}
+
+func InsertDot(handle *Handle, pos Position, color Color) (int64, error) {
+  var (
+    err          error
+    result       sql.Result
+    lastInsertId int64
+  ) 
+
+  result, err = handle.exec(`
+BEGIN IMMEDIATE;
+INSERT OR ROLLBACK INTO objects DEFAULT VALUES;
+`)
+
+  if err != nil {
+    return lastInsertId, err 
+  }
+
+  lastInsertId, err = result.LastInsertId()
+
+  if err != nil {
+    return lastInsertId, err
+  }
+
+  result, err = handle.exec(`
+INSERT OR ROLLBACK INTO dots(object_id, x, y) VALUES (?, ?, ?);
+INSERT OR ROLLBACK INTO colors(object_id, r, g, b, a) VALUES (?, ?, ?, ?, ?);
+COMMIT;
+`, lastInsertId, pos.X, pos.Y, lastInsertId, color.R, color.G, color.B, color.A)
+  
+  return lastInsertId, err
 }
 
 func (handle Handle) QueryDots() (*Dots, error) {

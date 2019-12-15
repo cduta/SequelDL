@@ -5,6 +5,7 @@ import (
   "fmt"
   "io/ioutil"
   "path/filepath"
+  "database/sql"
 )
 
 type Lines struct {
@@ -16,6 +17,47 @@ type Line struct {
   Color 
   Id      int64
   Parts []Position
+}
+
+func InsertLine(handle *Handle, here Position, there Position, color Color) (int64, error) {
+  var (
+    err          error
+    result       sql.Result
+    lastInsertId int64
+  ) 
+
+  result, err = handle.exec(`
+BEGIN IMMEDIATE;
+INSERT OR ROLLBACK INTO objects DEFAULT VALUES;
+`)
+  if err != nil {
+    return lastInsertId, err 
+  }
+
+  lastInsertId, err = result.LastInsertId()
+  if err != nil {
+    return lastInsertId, err
+  }
+
+  _, err = handle.exec(`
+INSERT OR ROLLBACK INTO lines(object_id, here_x, here_y, there_x, there_y) VALUES (?, ?, ?, ?, ?);
+INSERT OR ROLLBACK INTO colors(object_id, r, g, b, a) VALUES (?, ?, ?, ?, ?);
+COMMIT;
+`, lastInsertId, here.X, here.Y, there.X, there.Y, lastInsertId, color.R, color.G, color.B, color.A)
+
+  return lastInsertId, err
+}
+
+func UpdateLineThere(handle *Handle, lineId int64, there Position) error {
+  var err error 
+
+  _, err = handle.exec(`
+UPDATE lines   
+SET    there_x = ?, there_y = ? 
+WHERE  object_id = ?
+`, there.X, there.Y, lineId)
+
+  return err
 }
 
 func (handle Handle) QueryLines() (*Lines, error) {

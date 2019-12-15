@@ -3,7 +3,6 @@ package state
 import (
   "fmt"
   "os"
-  "database/sql"
 
   "../../backend"
   "../../sdlex"
@@ -17,33 +16,13 @@ type DrawLine struct {
   objectId       int64
 }
 
-func MakeDrawLine(previousState State, backendHandle *backend.Handle, from backend.Position, color backend.Color) (DrawLine, error) {
+func MakeDrawLine(previousState State, backendHandle *backend.Handle, here backend.Position, color backend.Color) (DrawLine, error) {
   var (
     err          error
-    result       sql.Result
     lastInsertId int64
   ) 
 
-  result, err = backendHandle.Exec(`
-BEGIN IMMEDIATE;
-INSERT OR ROLLBACK INTO objects DEFAULT VALUES;
-`)
-
-  if err != nil {
-    return DrawLine{}, err 
-  }
-
-  lastInsertId, err = result.LastInsertId()
-
-  if err != nil {
-    return DrawLine{}, err
-  }
-
-  _, err = backendHandle.Exec(`
-INSERT OR ROLLBACK INTO lines(object_id, here_x, here_y, there_x, there_y) VALUES (?, ?, ?, ?, ?);
-INSERT OR ROLLBACK INTO colors(object_id, r, g, b, a) VALUES (?, ?, ?, ?, ?);
-COMMIT;
-`, lastInsertId, from.X, from.Y, from.X, from.Y, lastInsertId, color.R, color.G, color.B, color.A)
+  lastInsertId, err = backend.InsertLine(backendHandle, here, here, color)
 
   if err != nil {
     return DrawLine{}, err
@@ -81,11 +60,7 @@ func (drawLine DrawLine) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
   )
  
   if sdlex.IsMouseMotionState(event.State, sdl.BUTTON_RIGHT) {
-    _, err = drawLine.backendHandle.Exec(`
-  UPDATE lines   
-  SET    there_x = ?, there_y = ? 
-  WHERE  object_id = ?
-    `, event.X, event.Y, drawLine.objectId)
+    err = backend.UpdateLineThere(drawLine.backendHandle, drawLine.objectId, backend.Position{X: event.X, Y: event.Y})
     if err != nil {
       fmt.Fprintf(os.Stderr, "Could not update line coordinates: %s\n", err)
     }
