@@ -3,6 +3,8 @@ package main
 import (
   "os"
   "fmt"
+  "runtime/pprof"
+  "flag"
   "./sdlex"
   "./backend"
   "./event"
@@ -60,5 +62,15 @@ func run() {
 }
 
 func main() {
+  var cpuprofile *string = flag.String("cpuprofile", "", "write cpu profile to file")
+  flag.Parse()
+  if *cpuprofile != "" {
+      f, err := os.Create(*cpuprofile)
+      if err != nil {
+        fmt.Fprintf(os.Stderr, "Failed to inizialize profiler: %s\n", err)
+      }
+      pprof.StartCPUProfile(f)
+      defer pprof.StopCPUProfile()
+  }
   run()
 }
