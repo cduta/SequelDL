@@ -13,7 +13,37 @@ import (
   "github.com/veandco/go-sdl2/sdl"
 )
 
-func run() {
+type settings struct {
+  DEFAULT_SAVE_FILE_PATH string 
+}
+
+func parseArgs() settings {
+  var (
+    saveFilePathArg *string = flag.String("l", "", "load game")
+    cpuprofileArg   *string = flag.String("c", "", "save cpu profile to file")
+
+    saveFilePath string 
+  )
+  
+  flag.Parse()
+  
+  if *saveFilePathArg != "" {
+    saveFilePath = *saveFilePathArg
+  }
+
+  if *cpuprofileArg != "" {
+    f, err := os.Create(*cpuprofileArg)
+    if err != nil {
+      fmt.Fprintf(os.Stderr, "Failed to inizialize profiler: %s\n", err)
+    }
+    pprof.StartCPUProfile(f)
+    defer pprof.StopCPUProfile()
+  }
+
+  return settings{ DEFAULT_SAVE_FILE_PATH: saveFilePath }
+}
+
+func run(settings settings) {
   var (
     err             error
     backendHandle  *backend.Handle
@@ -51,6 +81,10 @@ func run() {
 
   eventProcessor = event.NewProcessor(state.MakeIdle(backendHandle), sdlWrap)
 
+  if settings.DEFAULT_SAVE_FILE_PATH != "" {
+    backendHandle.Load(settings.DEFAULT_SAVE_FILE_PATH)
+  }
+
   for sdlWrap.IsRunning() {
     sdlWrap.PrepareFrame()
     eventProcessor.ProcessEvents()
@@ -62,15 +96,6 @@ func run() {
 }
 
 func main() {
-  var cpuprofile *string = flag.String("c", "", "write cpu profile to file")
-  flag.Parse()
-  if *cpuprofile != "" {
-      f, err := os.Create(*cpuprofile)
-      if err != nil {
-        fmt.Fprintf(os.Stderr, "Failed to inizialize profiler: %s\n", err)
-      }
-      pprof.StartCPUProfile(f)
-      defer pprof.StopCPUProfile()
-  }
-  run()
+  var settings settings = parseArgs()
+  run(settings)
 }

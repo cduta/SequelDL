@@ -59,8 +59,8 @@ WHERE  object_id = ?
 
 func (handle Handle) QueryLines() (*Lines, error) {
   var (
-    err         error 
-    objects    *Objects
+    err      error 
+    objects *Objects
   )
 
   objects, err = handle.queryObjects(`

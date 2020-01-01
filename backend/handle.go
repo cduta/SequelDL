@@ -151,6 +151,32 @@ DETACH DATABASE save;
   return err
 }
 
+func (handle Handle) Load(path string) error {
+  var err error
+
+  _, err = handle.dbhandle.Exec(`
+ATTACH DATABASE ? AS save;
+
+BEGIN IMMEDIATE;
+INSERT OR ROLLBACK INTO main.objects          SELECT * FROM save.objects;
+INSERT OR ROLLBACK INTO main.dots             SELECT * FROM save.dots;
+INSERT OR ROLLBACK INTO main.lines            SELECT * FROM save.lines;
+INSERT OR ROLLBACK INTO main.rectangles       SELECT * FROM save.rectangles;
+INSERT OR ROLLBACK INTO main.triangles        SELECT * FROM save.triangles;
+INSERT OR ROLLBACK INTO main.polygons         SELECT * FROM save.polygons;
+INSERT OR ROLLBACK INTO main.polygon_vertices SELECT * FROM save.polygon_vertices;
+INSERT OR ROLLBACK INTO main.colors           SELECT * FROM save.colors;
+COMMIT;
+
+DETACH DATABASE save;
+`, "file:"+path+"?cache=shared&_foreign_keys=true")
+  if err != nil {
+    return err
+  }
+
+  return err
+}
+
 func (handle Handle) queryObjects(query string, args ...interface{}) (*Objects, error) {
   var ( 
     err   error
