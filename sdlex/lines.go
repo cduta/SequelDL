@@ -2,11 +2,16 @@ package sdlex
 
 import (
   "../backend"
+
+  "github.com/veandco/go-sdl2/gfx"
 )
 
 func (sdlWrap Wrap) RenderLine(line *backend.Line) {
-  sdlWrap.renderer.SetDrawColor(line.Color.R, line.Color.G, line.Color.B, line.Color.A)
-  sdlWrap.renderer.DrawLine(line.Here.X, line.Here.Y, line.There.X, line.There.Y)
+  gfx.PolygonRGBA(
+    sdlWrap.renderer, 
+    []int16{int16(line.Here.X), int16(line.There.X), int16(line.Here.X)},  
+    []int16{int16(line.Here.Y), int16(line.There.Y), int16(line.Here.Y)}, 
+    line.Color.R, line.Color.G, line.Color.B, line.Color.A)
 }
 
 func (sdlWrap Wrap) renderLines() error {

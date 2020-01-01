@@ -2,11 +2,15 @@ package sdlex
 
 import (
   "../backend"
+
+  "github.com/veandco/go-sdl2/gfx"
 )
 
 func (sdlWrap Wrap) RenderDot(dot *backend.Dot) {
-  sdlWrap.renderer.SetDrawColor(dot.Color.R, dot.Color.G, dot.Color.B, dot.Color.A)
-  sdlWrap.renderer.DrawPoint(dot.Position.X, dot.Position.Y)  
+  gfx.PixelRGBA(
+    sdlWrap.renderer, 
+    dot.Position.X, dot.Position.Y,
+    dot.Color.R, dot.Color.G, dot.Color.B, dot.Color.A)
 }
 
 func (sdlWrap Wrap) renderDots() error {
