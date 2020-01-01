@@ -96,6 +96,5 @@ func run(settings settings) {
 }
 
 func main() {
-  var settings settings = parseArgs()
-  run(settings)
+  run(parseArgs())
 }
