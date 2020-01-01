@@ -1,10 +1,6 @@
 package backend
 
 import (
-  "errors"
-  "fmt"
-  "io/ioutil"
-  "path/filepath"
   "database/sql"
 )
 
@@ -15,8 +11,9 @@ type Lines struct {
 type Line struct {
   Object
   Color 
-  Id      int64
-  Parts []Position
+  Id     int64
+  Here   Position
+  There  Position
 }
 
 func InsertLine(handle *Handle, here Position, there Position, color Color) (int64, error) {
@@ -63,16 +60,14 @@ WHERE  object_id = ?
 func (handle Handle) QueryLines() (*Lines, error) {
   var (
     err         error 
-    bresenham []byte
     objects    *Objects
   )
 
-  bresenham, err = ioutil.ReadFile(filepath.Join("backend", "sql", "bresenham.sql"))
-  if err != nil {
-    return nil, err
-  }
-
-  objects, err = handle.queryObjects(string(bresenham))
+  objects, err = handle.queryObjects(`
+SELECT l.id, l.object_id, l.here_x, l.here_y, l.there_x, l.there_y, c.r, c.g, c.b, c.a
+FROM   lines AS l, colors AS c 
+WHERE  l.object_id = c.object_id;
+`)
 
   if err != nil {
     return nil, err 
@@ -91,36 +86,23 @@ func (lines Lines) Next() (*Line, error) {
     object   Object   = Object{}
     color    Color    = Color{}
     lineId   int64
-    curr     Position = Position{}
+    here     Position = Position{}
     there    Position = Position{}
-    parts  []Position
   )
 
   if !lines.Objects.rows.Next() {
     return nil, err
   }
 
-  for lines.Objects.rows.Next() {
-    err = lines.Objects.rows.Scan(
-      &lineId , &object.Id, 
-      &curr.X , &curr.Y, 
-      &there.X, &there.Y, 
-      &color.R, &color.G, &color.B, &color.A)
-    if err != nil {
-      return nil, err 
-    }
-
-    parts = append(parts, curr)
-
-    if curr.Equals(there) {
-      break
-    }
+  err = lines.Objects.rows.Scan(
+    &lineId , &object.Id, 
+    &here.X , &here.Y, 
+    &there.X, &there.Y, 
+    &color.R, &color.G, &color.B, &color.A)
+  if err != nil {
+    return nil, err 
   }
 
-  if !curr.Equals(there) {
-    return nil, errors.New(fmt.Sprintf("Queried line (Id: %d, Object Id: %d) incomplete", lineId, object.Id))
-  }
-
-  return &Line{ Object: object, Color: color, Id: lineId, Parts: parts }, err
+  return &Line{ Object: object, Color: color, Id: lineId, Here: here, There: there }, err
 }
 

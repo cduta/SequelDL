@@ -33,4 +33,4 @@ bresenham(id, object_id, x, y, error, there_x, there_y, dx, dy, sx, sy) AS (
 SELECT b.id, b.object_id, b.x, b.y, b.there_x, b.there_y, c.r, c.g, c.b, c.a
 FROM   bresenham AS b, colors AS c 
 WHERE  b.object_id = c.object_id
-ORDER BY b.object_id;
+ORDER BY b.object_id, b.x = b.there_x AND b.y = b.there_y;

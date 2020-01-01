@@ -62,7 +62,7 @@ func run() {
 }
 
 func main() {
-  var cpuprofile *string = flag.String("cpuprofile", "", "write cpu profile to file")
+  var cpuprofile *string = flag.String("c", "", "write cpu profile to file")
   flag.Parse()
   if *cpuprofile != "" {
       f, err := os.Create(*cpuprofile)
