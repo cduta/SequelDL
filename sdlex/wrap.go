@@ -67,8 +67,6 @@ func NewWrap(args WrapArgs) (*Wrap, error) {
   gfx.InitFramerate(fpsManager)
   gfx.SetFramerate(fpsManager, args.DEFAULT_FPS)
 
-  sdl.SetHint("SDL_HINT_RENDER_SCALE_QUALITY", "0")
-
   return &Wrap{
     running   : true,
     showFPS   : args.DEFAULT_SHOW_FPS,

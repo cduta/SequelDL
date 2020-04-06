@@ -76,3 +76,43 @@ CREATE TABLE colors (
   b          integer NOT NULL CHECK(b BETWEEN 0 AND 255),
   a          integer NOT NULL CHECK(a BETWEEN 0 AND 255)
 );
+
+CREATE TABLE entities (
+  id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  object_id integer NOT NULL REFERENCES objects(id), 
+  name      text    NOT NULL,
+  x         integer NOT NULL,
+  y         integer NOT NULL,
+  visible   boolean NOT NULL
+);
+
+CREATE TABLE sprites (
+  îd         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  entity_id  integer NOT NULL REFERENCES entities(id),      
+  image_id   integer NOT NULL REFERENCES images(id),
+  name       text    NOT NULL,
+  relative_x integer NOT NULL,
+  relative_y integer NOT NULL,
+  width      integer NOT NULL,
+  height     integer NOT NULL
+);
+
+CREATE TABLE images (
+  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT, 
+  name       text    NOT NULL,
+  image_path text    NOT NULL
+);
+
+CREATE TABLE hitboxes (
+  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
+  entity_id  integer NOT NULL REFERENCES entities(id), 
+  name       text    NOT NULL,
+  relative_x integer NOT NULL,
+  relative_y integer NOT NULL,
+  width      integer NOT NULL,
+  height     integer NOT NULL
+); 
+
+INSERT INTO images(id, name, image_path) VALUES 
+(1, 'button', 'ressources/sprites/button.png'),
+(2, 'button_pressed', 'ressources/sprites/button-pressed.png');

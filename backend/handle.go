@@ -140,6 +140,10 @@ INSERT OR ROLLBACK INTO save.triangles        SELECT * FROM main.triangles;
 INSERT OR ROLLBACK INTO save.polygons         SELECT * FROM main.polygons;
 INSERT OR ROLLBACK INTO save.polygon_vertices SELECT * FROM main.polygon_vertices;
 INSERT OR ROLLBACK INTO save.colors           SELECT * FROM main.colors;
+INSERT OR ROLLBACK INTO save.entities         SELECT * FROM main.entities;
+INSERT OR ROLLBACK INTO save.sprites          SELECT * FROM main.sprites;
+INSERT OR ROLLBACK INTO save.images           SELECT * FROM main.images;
+INSERT OR ROLLBACK INTO save.hitboxes         SELECT * FROM main.hitboxes;
 COMMIT;
 
 DETACH DATABASE save;
@@ -166,6 +170,10 @@ INSERT OR ROLLBACK INTO main.triangles        SELECT * FROM save.triangles;
 INSERT OR ROLLBACK INTO main.polygons         SELECT * FROM save.polygons;
 INSERT OR ROLLBACK INTO main.polygon_vertices SELECT * FROM save.polygon_vertices;
 INSERT OR ROLLBACK INTO main.colors           SELECT * FROM save.colors;
+INSERT OR ROLLBACK INTO main.entities         SELECT * FROM save.entities;
+INSERT OR ROLLBACK INTO main.sprites          SELECT * FROM save.sprites;
+INSERT OR ROLLBACK INTO main.images           SELECT * FROM save.images;
+INSERT OR ROLLBACK INTO main.hitboxes         SELECT * FROM save.hitboxes;
 COMMIT;
 
 DETACH DATABASE save;
