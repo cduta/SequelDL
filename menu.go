@@ -79,7 +79,8 @@ func run(settings settings) {
   }
   defer sdlWrap.Quit()
 
-  eventProcessor = event.NewProcessor(draw.MakeIdle(backendHandle), sdlWrap)
+  eventProcessor = event.NewProcessor(sdlWrap)
+  eventProcessor.AddProcess(event.NewProcess(draw.MakeIdle(backendHandle)))
 
   if settings.DEFAULT_SAVE_FILE_PATH != "" {
     backendHandle.Load(settings.DEFAULT_SAVE_FILE_PATH)

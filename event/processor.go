@@ -42,8 +42,12 @@ type Processor struct {
   lastTick    time.Time
 }
 
-func NewProcessor(initialState state.State, sdlWrap *sdlex.Wrap) *Processor {
-  return &Processor{ processes: []Process{NewProcess(initialState)}, sdlWrap: sdlWrap, lastTick: time.Now() }
+func NewProcessor(sdlWrap *sdlex.Wrap) *Processor {
+  return &Processor{ processes: []Process{}, sdlWrap: sdlWrap, lastTick: time.Now() }
+}
+
+func (processor *Processor) AddProcess(process Process) {
+  processor.processes = append(processor.processes, process)
 }
 
 func (processor *Processor) processTicks() {
@@ -98,8 +102,6 @@ func (processor *Processor) processEvents() {
     }
   }
 }
-
-
 
 func (processor *Processor) removeDefunctProcesses() {
   var i int
