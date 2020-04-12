@@ -13,14 +13,37 @@ import (
 
 const TICK_INTERVAL_IN_MILLISECONDS int64 = 20
 
+type Process struct {
+  state         state.State
+  processEvents bool 
+  processTicks  bool 
+  active        bool
+}
+
+func NewProcess(state state.State) Process {
+  return Process{
+    state        : state, 
+    processEvents: true,  
+    processTicks : true,
+    active       : true}
+}
+
+func (process *Process) doProcessEvents(processEvents bool) {
+  process.processEvents = processEvents
+}
+
+func (process *Process) doProcessTicks(processTicks bool) {
+  process.processTicks = processTicks
+}
+
 type Processor struct {
-  states   []state.State
-  sdlWrap  *sdlex.Wrap
-  lastTick  time.Time
+  processes []Process
+  sdlWrap    *sdlex.Wrap
+  lastTick    time.Time
 }
 
 func NewProcessor(initialState state.State, sdlWrap *sdlex.Wrap) *Processor {
-  return &Processor{ states: []state.State{initialState}, sdlWrap: sdlWrap, lastTick: time.Now() }
+  return &Processor{ processes: []Process{NewProcess(initialState)}, sdlWrap: sdlWrap, lastTick: time.Now() }
 }
 
 func (processor *Processor) processTicks() {
@@ -33,7 +56,7 @@ func (processor *Processor) processTicks() {
     rest            time.Duration
     t               int64
     i               int 
-    state           state.State
+    process         Process
   )
 
   rest, err = time.ParseDuration(restString)
@@ -44,8 +67,8 @@ func (processor *Processor) processTicks() {
   processor.lastTick = now.Add(-rest)
 
   for t = 0; t < ticks; t++ {
-    for i, state = range processor.states {
-      processor.states[i] = state.OnTick()
+    for i, process = range processor.processes {
+      processor.processes[i].state = process.state.OnTick()
     }
   }
 }
@@ -54,27 +77,45 @@ func (processor *Processor) processEvents() {
   var (
     polledEvent sdl.Event
     i           int
-    s           state.State
+    process     Process
   )
 
   for polledEvent = sdl.PollEvent(); polledEvent != nil; polledEvent = sdl.PollEvent() {
-    for i, s = range processor.states {
+    for i, process = range processor.processes {
 
       switch event := polledEvent.(type) {
-        case *sdl.QuitEvent:        processor.states[i] = s.OnQuit(event)
-        case *sdl.KeyboardEvent:    processor.states[i] = s.OnKeyboardEvent(event)
-        case *sdl.MouseMotionEvent: processor.states[i] = s.OnMouseMotionEvent(event)
-        case *sdl.MouseButtonEvent: processor.states[i] = s.OnMouseButtonEvent(event)
+        case *sdl.QuitEvent:        processor.processes[i].state = process.state.OnQuit(event)
+        case *sdl.KeyboardEvent:    processor.processes[i].state = process.state.OnKeyboardEvent(event)
+        case *sdl.MouseMotionEvent: processor.processes[i].state = process.state.OnMouseMotionEvent(event)
+        case *sdl.MouseButtonEvent: processor.processes[i].state = process.state.OnMouseButtonEvent(event)
       }
 
-      switch processor.states[i].(type) {
-        case state.Quit: processor.sdlWrap.StopRunning() 
+      switch processor.processes[i].state.(type) {
+        case state.Quit: 
+          processor.sdlWrap.StopRunning() 
+          processor.processes[i].active = false
       } 
     }
   }
 }
 
+
+
+func (processor *Processor) removeDefunctProcesses() {
+  var i int
+  
+  for i = 0; i < len(processor.processes); {
+    if !processor.processes[i].active {
+      processor.processes[i] = processor.processes[len(processor.processes)-1]
+      processor.processes = processor.processes[:len(processor.processes)-1]
+    } else {
+      i++
+    }
+  }  
+}
+
 func (processor *Processor) ProcessStates() {
   processor.processTicks()
   processor.processEvents()
+  processor.removeDefunctProcesses()
 }
