@@ -48,6 +48,10 @@ func (drawDot DrawDot) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   return state
 }
 
+func (drawDot DrawDot) OnTick() State {
+  return drawDot
+}
+
 func (drawDot DrawDot) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
   var err error
 

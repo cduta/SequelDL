@@ -18,6 +18,10 @@ func MakeIdle(backendHandle *backend.Handle) Idle {
   return Idle{ backendHandle: backendHandle }
 }
 
+func (idle Idle) OnTick() State {
+  return idle
+}
+
 func (idle Idle) OnQuit(event *sdl.QuitEvent) State {
   return MakeQuit()
 }

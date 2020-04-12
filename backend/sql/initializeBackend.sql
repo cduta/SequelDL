@@ -83,6 +83,7 @@ CREATE TABLE entities (
   name      text    NOT NULL,
   x         integer NOT NULL,
   y         integer NOT NULL,
+  level     integer NOT NULL,
   visible   boolean NOT NULL
 );
 
@@ -93,6 +94,7 @@ CREATE TABLE sprites (
   name       text    NOT NULL,
   relative_x integer NOT NULL,
   relative_y integer NOT NULL,
+  level      integer NOT NULL,
   width      integer NOT NULL,
   height     integer NOT NULL
 );
@@ -109,10 +111,23 @@ CREATE TABLE hitboxes (
   name       text    NOT NULL,
   relative_x integer NOT NULL,
   relative_y integer NOT NULL,
+  level      integer NOT NULL,
   width      integer NOT NULL,
   height     integer NOT NULL
 ); 
 
 INSERT INTO images(id, name, image_path) VALUES 
 (1, 'button', 'ressources/sprites/button.png'),
-(2, 'button_pressed', 'ressources/sprites/button-pressed.png');
+(2, 'button-pressed', 'ressources/sprites/button-pressed.png');
+
+INSERT INTO objects(id) VALUES
+(1);
+
+INSERT INTO entities(id, object_id, name, x, y, level, visible) VALUES 
+(1, 1, 'generic-button', 50, 50, 1, true);
+
+INSERT INTO sprites(entity_id, image_id, name, relative_x, relative_y, level, width, height) VALUES
+(1, 1, 'button-sprite', 0, 0, 1, 63, 20);
+
+INSERT INTO hitboxes(entity_id, name, relative_x, relative_y, level, width, height) VALUES
+(1, 'button-click', 0, 0, 1, 63, 20);

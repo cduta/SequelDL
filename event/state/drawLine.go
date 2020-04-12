@@ -35,6 +35,10 @@ func MakeDrawLine(previousState State, backendHandle *backend.Handle, here backe
     err
 }
 
+func (drawLine DrawLine) OnTick() State {
+  return drawLine
+}
+
 func (drawLine DrawLine) OnQuit(event *sdl.QuitEvent) State {
   return MakeQuit()
 }

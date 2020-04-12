@@ -5,6 +5,7 @@ import (
 )
 
 type State interface {
+	OnTick() State
   OnQuit(event *sdl.QuitEvent) State
   OnKeyboardEvent(event *sdl.KeyboardEvent) State
   OnMouseMotionEvent(event *sdl.MouseMotionEvent) State

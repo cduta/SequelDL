@@ -10,6 +10,10 @@ func MakeQuit() Quit {
   return Quit{}
 }
 
+func (quit Quit) OnTick() State {
+	return quit
+}
+
 func (quit Quit) OnQuit(event *sdl.QuitEvent) State {
   return quit
 }

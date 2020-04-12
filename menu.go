@@ -87,7 +87,7 @@ func run(settings settings) {
 
   for sdlWrap.IsRunning() {
     sdlWrap.PrepareFrame()
-    eventProcessor.ProcessEvents()
+    eventProcessor.ProcessStates()
     sdlWrap.RenderFrame()
     sdlWrap.ShowFrame()
   }
