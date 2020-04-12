@@ -1,11 +1,12 @@
-package state
+package draw
 
 import (
   "os"
   "fmt"
 
-  "../../backend"
-  "../../sdlex"
+  "../../../backend"
+  "../../../sdlex"
+  . "../../state"
 
   "github.com/veandco/go-sdl2/sdl"
 )
@@ -71,7 +72,7 @@ func (idle Idle) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
         case sdl.BUTTON_LEFT  : 
           var drawDot State 
 
-          drawDot, err = MakeDrawDot(idle, idle.backendHandle, backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8((event.Y+70)%256), B: uint8((event.X+140)%256), A: 255})
+          drawDot, err = MakeDot(idle, idle.backendHandle, backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8((event.Y+70)%256), B: uint8((event.X+140)%256), A: 255})
           if err != nil {
             fmt.Fprintf(os.Stderr, "Could not draw dot at (%d,%d): %s\n", event.X, event.Y, err)
           } else {
@@ -80,7 +81,7 @@ func (idle Idle) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
         case sdl.BUTTON_RIGHT : 
           var drawLine State 
 
-          drawLine, err = MakeDrawLine(idle, idle.backendHandle, backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8((event.Y+70)%256), B: uint8((event.X+140)%256), A: 255})
+          drawLine, err = MakeLine(idle, idle.backendHandle, backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8((event.Y+70)%256), B: uint8((event.X+140)%256), A: 255})
 
           if err != nil {
             fmt.Fprintf(os.Stderr, "Could not start line at (%d,%d): %s\n", event.X, event.Y, err)

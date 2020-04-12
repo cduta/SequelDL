@@ -8,7 +8,7 @@ import (
   "./sdlex"
   "./backend"
   "./event"
-  "./event/state"
+  "./event/state/draw"
 
   "github.com/veandco/go-sdl2/sdl"
 )
@@ -79,15 +79,15 @@ func run(settings settings) {
   }
   defer sdlWrap.Quit()
 
-  eventProcessor = event.NewProcessor(state.MakeIdle(backendHandle), sdlWrap)
+  eventProcessor = event.NewProcessor(draw.MakeIdle(backendHandle), sdlWrap)
 
   if settings.DEFAULT_SAVE_FILE_PATH != "" {
     backendHandle.Load(settings.DEFAULT_SAVE_FILE_PATH)
   }
 
   for sdlWrap.IsRunning() {
-    sdlWrap.PrepareFrame()
     eventProcessor.ProcessStates()
+    sdlWrap.PrepareFrame()
     sdlWrap.RenderFrame()
     sdlWrap.ShowFrame()
   }

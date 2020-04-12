@@ -1,22 +1,23 @@
-package state
+package draw
 
 import (
   "fmt"
   "os"
 
-  "../../backend"
-  "../../sdlex"
+  "../../../backend"
+  "../../../sdlex"
+  . "../../state"
 
   "github.com/veandco/go-sdl2/sdl"
 )
 
-type DrawLine struct {
+type Line struct {
   previousState  State
   backendHandle *backend.Handle
   objectId       int64
 }
 
-func MakeDrawLine(previousState State, backendHandle *backend.Handle, here backend.Position, color backend.Color) (DrawLine, error) {
+func MakeLine(previousState State, backendHandle *backend.Handle, here backend.Position, color backend.Color) (Line, error) {
   var (
     err          error
     lastInsertId int64
@@ -25,26 +26,26 @@ func MakeDrawLine(previousState State, backendHandle *backend.Handle, here backe
   lastInsertId, err = backend.InsertLine(backendHandle, here, here, color)
 
   if err != nil {
-    return DrawLine{}, err
+    return Line{}, err
   }
 
-  return DrawLine{
+  return Line{
     previousState: previousState, 
     backendHandle: backendHandle, 
     objectId     : lastInsertId}, 
     err
 }
 
-func (drawLine DrawLine) OnTick() State {
-  return drawLine
+func (line Line) OnTick() State {
+  return line
 }
 
-func (drawLine DrawLine) OnQuit(event *sdl.QuitEvent) State {
+func (line Line) OnQuit(event *sdl.QuitEvent) State {
   return MakeQuit()
 }
 
-func (drawLine DrawLine) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
-  var state State = drawLine
+func (line Line) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
+  var state State = line
 
   switch event.State {
     case sdlex.BUTTON_PRESSED:  
@@ -57,14 +58,14 @@ func (drawLine DrawLine) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   return state
 }
 
-func (drawLine DrawLine) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
+func (line Line) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
   var ( 
     err   error 
-    state State = drawLine
+    state State = line
   )
  
   if sdlex.IsMouseMotionState(event.State, sdl.BUTTON_RIGHT) {
-    err = backend.UpdateLineThere(drawLine.backendHandle, drawLine.objectId, backend.Position{X: event.X, Y: event.Y})
+    err = backend.UpdateLineThere(line.backendHandle, line.objectId, backend.Position{X: event.X, Y: event.Y})
     if err != nil {
       fmt.Fprintf(os.Stderr, "Could not update line coordinates: %s\n", err)
     }
@@ -73,8 +74,8 @@ func (drawLine DrawLine) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
   return state
 }
 
-func (drawLine DrawLine) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
-  var state State = drawLine
+func (line Line) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
+  var state State = line
 
   switch event.State {
     case sdlex.BUTTON_PRESSED: 
@@ -87,7 +88,7 @@ func (drawLine DrawLine) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
       switch event.Button {
         case sdl.BUTTON_LEFT  :  
         case sdl.BUTTON_RIGHT : 
-          state = drawLine.previousState 
+          state = line.previousState 
         default               :
       }
   }
