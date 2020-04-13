@@ -4,10 +4,16 @@ import (
   "github.com/veandco/go-sdl2/sdl"
 )
 
-type Quit struct {}
+type Quit struct {
+	state State
+}
 
-func MakeQuit() Quit {
-  return Quit{}
+func MakeQuit(state State) Quit {
+  return Quit{state: state}
+}
+
+func (quit Quit) Destroy() {
+	quit.state.Destroy()
 }
 
 func (quit Quit) OnTick() State {

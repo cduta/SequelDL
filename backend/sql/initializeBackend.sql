@@ -80,18 +80,29 @@ CREATE TABLE colors (
 CREATE TABLE entities (
   id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   object_id integer NOT NULL REFERENCES objects(id), 
-  name      text    NOT NULL,
+  name      text    NOT NULL UNIQUE,
   x         integer NOT NULL,
   y         integer NOT NULL,
   level     integer NOT NULL,
   visible   boolean NOT NULL
 );
 
+CREATE TABLE entities_scenes (
+  entity_id  integer NOT NULL REFERENCES entities(id),      
+  scene_id   integer NOT NULL REFERENCES scenes(id),
+  PRIMARY KEY(entity_id, scene_id)
+);
+
+CREATE TABLE scenes (
+  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name       text    NOT NULL UNIQUE
+);
+
 CREATE TABLE sprites (
   îd         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   entity_id  integer NOT NULL REFERENCES entities(id),      
   image_id   integer NOT NULL REFERENCES images(id),
-  name       text    NOT NULL,
+  name       text    NOT NULL UNIQUE,
   relative_x integer NOT NULL,
   relative_y integer NOT NULL,
   level      integer NOT NULL,
@@ -101,14 +112,14 @@ CREATE TABLE sprites (
 
 CREATE TABLE images (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT, 
-  name       text    NOT NULL,
-  image_path text    NOT NULL
+  name       text    NOT NULL UNIQUE,
+  image_path text    NOT NULL UNIQUE 
 );
 
 CREATE TABLE hitboxes (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
   entity_id  integer NOT NULL REFERENCES entities(id), 
-  name       text    NOT NULL,
+  name       text    NOT NULL UNIQUE,
   relative_x integer NOT NULL,
   relative_y integer NOT NULL,
   level      integer NOT NULL,
@@ -125,6 +136,12 @@ INSERT INTO objects(id) VALUES
 
 INSERT INTO entities(id, object_id, name, x, y, level, visible) VALUES 
 (1, 1, 'generic-button', 50, 50, 1, true);
+
+INSERT INTO scenes(id, name) VALUES 
+(1, 'menu');
+
+INSERT INTO entities_scenes(entity_id, scene_id) VALUES 
+(1,1);
 
 INSERT INTO sprites(entity_id, image_id, name, relative_x, relative_y, level, width, height) VALUES
 (1, 1, 'button-sprite', 0, 0, 1, 63, 20);

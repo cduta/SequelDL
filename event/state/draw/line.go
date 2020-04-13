@@ -36,12 +36,14 @@ func MakeLine(previousState State, backendHandle *backend.Handle, here backend.P
     err
 }
 
+func (line Line) Destroy() {}
+
 func (line Line) OnTick() State {
   return line
 }
 
 func (line Line) OnQuit(event *sdl.QuitEvent) State {
-  return MakeQuit()
+  return MakeQuit(line)
 }
 
 func (line Line) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
@@ -51,7 +53,7 @@ func (line Line) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
     case sdlex.BUTTON_PRESSED:  
       switch event.Keysym.Sym {
         case sdl.K_ESCAPE:
-          state = MakeQuit()
+          state = MakeQuit(line)
       }
   }
 

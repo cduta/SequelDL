@@ -5,6 +5,7 @@ import (
 )
 
 type State interface {
+	Destroy()
 	OnTick() State
   OnQuit(event *sdl.QuitEvent) State
   OnKeyboardEvent(event *sdl.KeyboardEvent) State

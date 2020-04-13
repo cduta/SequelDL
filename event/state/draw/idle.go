@@ -19,12 +19,14 @@ func MakeIdle(backendHandle *backend.Handle) Idle {
   return Idle{ backendHandle: backendHandle }
 }
 
+func (idle Idle) Destroy() {}
+
 func (idle Idle) OnTick() State {
   return idle
 }
 
 func (idle Idle) OnQuit(event *sdl.QuitEvent) State {
-  return MakeQuit()
+  return MakeQuit(idle)
 }
 
 func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
@@ -38,7 +40,7 @@ func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
       if event.Keysym.Mod & sdl.KMOD_CTRL > 0 {
         switch event.Keysym.Sym {
           case sdl.K_ESCAPE:
-            state = MakeQuit()
+            state = MakeQuit(idle)
           case sdl.K_s:
             err = idle.backendHandle.Save("save.db")
             if err != nil {
@@ -48,7 +50,7 @@ func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
       } else {
         switch event.Keysym.Sym {
           case sdl.K_ESCAPE:
-            state = MakeQuit()
+            state = MakeQuit(idle)
         }
       }
   } 

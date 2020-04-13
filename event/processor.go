@@ -28,6 +28,12 @@ func NewProcess(state state.State) Process {
     active       : true}
 }
 
+func (process *Process) Destroy() {
+  if process.state != nil {
+    process.state.Destroy()
+  }
+}
+
 func (process *Process) doProcessEvents(processEvents bool) {
   process.processEvents = processEvents
 }
@@ -35,6 +41,11 @@ func (process *Process) doProcessEvents(processEvents bool) {
 func (process *Process) doProcessTicks(processTicks bool) {
   process.processTicks = processTicks
 }
+
+func (process *Process) isActive(active bool) {
+  process.active = active
+}
+
 
 type Processor struct {
   processes []Process
@@ -72,7 +83,9 @@ func (processor *Processor) processTicks() {
 
   for t = 0; t < ticks; t++ {
     for i, process = range processor.processes {
-      processor.processes[i].state = process.state.OnTick()
+      if process.active && process.processTicks {
+        processor.processes[i].state = process.state.OnTick()
+      }
     }
   }
 }
@@ -80,34 +93,41 @@ func (processor *Processor) processTicks() {
 func (processor *Processor) processEvents() {
   var (
     polledEvent sdl.Event
-    i           int
+    i,j         int
     process     Process
   )
 
   for polledEvent = sdl.PollEvent(); polledEvent != nil; polledEvent = sdl.PollEvent() {
     for i, process = range processor.processes {
 
-      switch event := polledEvent.(type) {
-        case *sdl.QuitEvent:        processor.processes[i].state = process.state.OnQuit(event)
-        case *sdl.KeyboardEvent:    processor.processes[i].state = process.state.OnKeyboardEvent(event)
-        case *sdl.MouseMotionEvent: processor.processes[i].state = process.state.OnMouseMotionEvent(event)
-        case *sdl.MouseButtonEvent: processor.processes[i].state = process.state.OnMouseButtonEvent(event)
-      }
+      if process.active && process.processEvents {
+        switch event := polledEvent.(type) {
+          case *sdl.QuitEvent:        processor.processes[i].state = process.state.OnQuit(event)
+          case *sdl.KeyboardEvent:    processor.processes[i].state = process.state.OnKeyboardEvent(event)
+          case *sdl.MouseMotionEvent: processor.processes[i].state = process.state.OnMouseMotionEvent(event)
+          case *sdl.MouseButtonEvent: processor.processes[i].state = process.state.OnMouseButtonEvent(event)
+        }
 
-      switch processor.processes[i].state.(type) {
-        case state.Quit: 
-          processor.sdlWrap.StopRunning() 
-          processor.processes[i].active = false
-      } 
+        switch processor.processes[i].state.(type) {
+          case state.Quit: 
+            processor.sdlWrap.StopRunning() 
+            for j, _ = range processor.processes {
+              processor.processes[j].isActive(false)
+            }
+          case state.End:
+            processor.processes[i].isActive(false)
+        } 
+      }
     }
   }
 }
 
-func (processor *Processor) removeDefunctProcesses() {
+func (processor *Processor) removeInactiveProcesses() {
   var i int
   
   for i = 0; i < len(processor.processes); {
     if !processor.processes[i].active {
+      processor.processes[i].Destroy()
       processor.processes[i] = processor.processes[len(processor.processes)-1]
       processor.processes = processor.processes[:len(processor.processes)-1]
     } else {
@@ -119,5 +139,5 @@ func (processor *Processor) removeDefunctProcesses() {
 func (processor *Processor) ProcessStates() {
   processor.processTicks()
   processor.processEvents()
-  processor.removeDefunctProcesses()
+  processor.removeInactiveProcesses()
 }

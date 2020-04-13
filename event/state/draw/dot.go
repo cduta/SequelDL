@@ -31,8 +31,10 @@ func MakeDot(previousState State, backendHandle *backend.Handle, position backen
     err
 }
 
+func (dot Dot) Destroy() {}
+
 func (dot Dot) OnQuit(event *sdl.QuitEvent) State {
-  return MakeQuit()
+  return MakeQuit(dot)
 }
 
 func (dot Dot) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
@@ -42,7 +44,7 @@ func (dot Dot) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
     case sdlex.BUTTON_PRESSED:  
       switch event.Keysym.Sym {
         case sdl.K_ESCAPE:
-          state = MakeQuit()
+          state = MakeQuit(dot)
       }
   }
 
