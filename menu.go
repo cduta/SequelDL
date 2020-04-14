@@ -9,7 +9,7 @@ import (
   "./backend"
   "./event"
   "./event/state/draw"
-
+  "./event/state/scene"
   "github.com/veandco/go-sdl2/sdl"
 )
 
@@ -41,6 +41,27 @@ func parseArgs() settings {
   }
 
   return settings{ DEFAULT_SAVE_FILE_PATH: saveFilePath }
+}
+
+func InitializeEventProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Processor, error) {
+  var (
+    err             error
+    eventProcessor *event.Processor
+    init            scene.Init
+    initialScene    sdlex.Scene = sdlex.MakeScene("menu")
+  )
+  
+  init, err = scene.MakeInit(sdlWrap.Handle(), &initialScene, sdlWrap.Renderer())
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Failed to make initial scene process: %s\n", err)
+    return eventProcessor, err
+  }
+
+  eventProcessor = event.NewProcessor(sdlWrap)
+  eventProcessor.AddProcess(event.NewProcess(draw.MakeIdle(backendHandle)))
+  eventProcessor.AddProcess(event.NewProcess(init))
+
+  return eventProcessor, err
 }
 
 func run(settings settings) {
@@ -79,8 +100,11 @@ func run(settings settings) {
   }
   defer sdlWrap.Quit()
 
-  eventProcessor = event.NewProcessor(sdlWrap)
-  eventProcessor.AddProcess(event.NewProcess(draw.MakeIdle(backendHandle)))
+  eventProcessor, err = InitializeEventProcessor(backendHandle, sdlWrap)
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Failed to initialize event processor: %s\n", err)
+    return
+  }
 
   if settings.DEFAULT_SAVE_FILE_PATH != "" {
     backendHandle.Load(settings.DEFAULT_SAVE_FILE_PATH)

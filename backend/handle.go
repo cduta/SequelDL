@@ -142,9 +142,10 @@ INSERT OR ROLLBACK INTO save.polygon_vertices SELECT * FROM main.polygon_vertice
 INSERT OR ROLLBACK INTO save.colors           SELECT * FROM main.colors;
 INSERT OR ROLLBACK INTO save.entities         SELECT * FROM main.entities;
 INSERT OR ROLLBACK INTO save.scenes           SELECT * FROM main.scenes;
-INSERT OR ROLLBACK INTO save.entities_scenes  SELECT * FROM main.entities_scenes;
-INSERT OR ROLLBACK INTO save.sprites          SELECT * FROM main.sprites;
 INSERT OR ROLLBACK INTO save.images           SELECT * FROM main.images;
+INSERT OR ROLLBACK INTO save.entities_scenes  SELECT * FROM main.entities_scenes;
+INSERT OR ROLLBACK INTO save.images_scenes    SELECT * FROM main.images_scenes;
+INSERT OR ROLLBACK INTO save.sprites          SELECT * FROM main.sprites;
 INSERT OR ROLLBACK INTO save.hitboxes         SELECT * FROM main.hitboxes;
 COMMIT;
 
@@ -174,9 +175,10 @@ INSERT OR ROLLBACK INTO main.polygon_vertices SELECT * FROM save.polygon_vertice
 INSERT OR ROLLBACK INTO main.colors           SELECT * FROM save.colors;
 INSERT OR ROLLBACK INTO main.entities         SELECT * FROM save.entities;
 INSERT OR ROLLBACK INTO main.scenes           SELECT * FROM save.scenes;
-INSERT OR ROLLBACK INTO main.entities_scenes  SELECT * FROM save.entities_scenes;
-INSERT OR ROLLBACK INTO main.sprites          SELECT * FROM save.sprites;
 INSERT OR ROLLBACK INTO main.images           SELECT * FROM save.images;
+INSERT OR ROLLBACK INTO main.entities_scenes  SELECT * FROM save.entities_scenes;
+INSERT OR ROLLBACK INTO main.images_scenes    SELECT * FROM save.images_scenes;
+INSERT OR ROLLBACK INTO main.sprites          SELECT * FROM save.sprites;
 INSERT OR ROLLBACK INTO main.hitboxes         SELECT * FROM save.hitboxes;
 COMMIT;
 
@@ -195,7 +197,7 @@ func (handle Handle) queryObjects(query string, args ...interface{}) (*Objects, 
     rows *sql.Rows
   ) 
 
-  rows, err = handle.query(query)
+  rows, err = handle.query(query, args...)
 
   if err != nil {
     return nil, err 

@@ -4,6 +4,7 @@ import (
   "os"
   "fmt"
   "github.com/veandco/go-sdl2/sdl"
+  "github.com/veandco/go-sdl2/img"
   "github.com/veandco/go-sdl2/ttf"
   "github.com/veandco/go-sdl2/gfx"
   "../backend"
@@ -28,6 +29,7 @@ type Wrap struct {
   font       *ttf.Font
   fpsManager *gfx.FPSmanager
   handle     *backend.Handle
+  scene      *Scene 
 }
 
 func NewWrap(args WrapArgs) (*Wrap, error) {
@@ -50,6 +52,11 @@ func NewWrap(args WrapArgs) (*Wrap, error) {
   }
 
   renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+  if err != nil {
+    return nil, err
+  }
+
+  err = img.Init(img.INIT_PNG)
   if err != nil {
     return nil, err
   }
@@ -82,6 +89,15 @@ func (sdlWrap Wrap) Quit() {
   sdlWrap.window.Destroy()
   sdlWrap.renderer.Destroy()
   sdlWrap.font.Close()
+  img.Quit()  
+}
+
+func (sdlWrap Wrap) Renderer() *sdl.Renderer {
+  return sdlWrap.renderer
+}
+
+func (sdlWrap Wrap) Handle() *backend.Handle {
+  return sdlWrap.handle
 }
 
 func (sdlWrap Wrap) IsRunning() bool {

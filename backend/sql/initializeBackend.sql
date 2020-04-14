@@ -87,15 +87,27 @@ CREATE TABLE entities (
   visible   boolean NOT NULL
 );
 
-CREATE TABLE entities_scenes (
-  entity_id  integer NOT NULL REFERENCES entities(id),      
-  scene_id   integer NOT NULL REFERENCES scenes(id),
-  PRIMARY KEY(entity_id, scene_id)
-);
-
 CREATE TABLE scenes (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   name       text    NOT NULL UNIQUE
+);
+
+CREATE TABLE images (
+  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT, 
+  name       text    NOT NULL UNIQUE,
+  image_path text    NOT NULL UNIQUE 
+);
+
+CREATE TABLE entities_scenes (
+  entity_id integer NOT NULL REFERENCES entities(id),      
+  scene_id  integer NOT NULL REFERENCES scenes(id),
+  PRIMARY KEY(entity_id, scene_id)
+);
+
+CREATE TABLE images_scenes (
+  image_id integer NOT NULL REFERENCES images(id),      
+  scene_id integer NOT NULL REFERENCES scenes(id),
+  PRIMARY KEY(image_id, scene_id)
 );
 
 CREATE TABLE sprites (
@@ -110,12 +122,6 @@ CREATE TABLE sprites (
   height     integer NOT NULL
 );
 
-CREATE TABLE images (
-  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT, 
-  name       text    NOT NULL UNIQUE,
-  image_path text    NOT NULL UNIQUE 
-);
-
 CREATE TABLE hitboxes (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
   entity_id  integer NOT NULL REFERENCES entities(id), 
@@ -127,12 +133,12 @@ CREATE TABLE hitboxes (
   height     integer NOT NULL
 ); 
 
+INSERT INTO objects(id) VALUES
+(1);
+
 INSERT INTO images(id, name, image_path) VALUES 
 (1, 'button', 'ressources/sprites/button.png'),
 (2, 'button-pressed', 'ressources/sprites/button-pressed.png');
-
-INSERT INTO objects(id) VALUES
-(1);
 
 INSERT INTO entities(id, object_id, name, x, y, level, visible) VALUES 
 (1, 1, 'generic-button', 50, 50, 1, true);
@@ -142,6 +148,10 @@ INSERT INTO scenes(id, name) VALUES
 
 INSERT INTO entities_scenes(entity_id, scene_id) VALUES 
 (1,1);
+
+INSERT INTO images_scenes(image_id, scene_id) VALUES 
+(1,1),
+(2,1);
 
 INSERT INTO sprites(entity_id, image_id, name, relative_x, relative_y, level, width, height) VALUES
 (1, 1, 'button-sprite', 0, 0, 1, 63, 20);
