@@ -48,15 +48,22 @@ func InitializeEventProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap
     err             error
     eventProcessor *event.Processor
     init            scene.Init
-    initialScene    sdlex.Scene = sdlex.MakeScene("menu")
+    initialScene   *sdlex.Scene 
   )
-  
-  init, err = scene.MakeInit(sdlWrap.Handle(), &initialScene, sdlWrap.Renderer())
+
+  initialScene, err = sdlex.MakeScene("menu", backendHandle)
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Failed to make initial scene: %s\n", err)
+    return eventProcessor, err
+  }
+
+  init, err = scene.MakeInit(sdlWrap.Handle(), initialScene, sdlWrap.Renderer())
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to make initial scene process: %s\n", err)
     return eventProcessor, err
   }
 
+  sdlWrap.SetScene(initialScene)
   eventProcessor = event.NewProcessor(sdlWrap)
   eventProcessor.AddProcess(event.NewProcess(draw.MakeIdle(backendHandle)))
   eventProcessor.AddProcess(event.NewProcess(init))
@@ -100,14 +107,14 @@ func run(settings settings) {
   }
   defer sdlWrap.Quit()
 
+  if settings.DEFAULT_SAVE_FILE_PATH != "" {
+    backendHandle.Load(settings.DEFAULT_SAVE_FILE_PATH)
+  }
+
   eventProcessor, err = InitializeEventProcessor(backendHandle, sdlWrap)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to initialize event processor: %s\n", err)
     return
-  }
-
-  if settings.DEFAULT_SAVE_FILE_PATH != "" {
-    backendHandle.Load(settings.DEFAULT_SAVE_FILE_PATH)
   }
 
   for sdlWrap.IsRunning() {
@@ -115,6 +122,7 @@ func run(settings settings) {
     sdlWrap.PrepareFrame()
     sdlWrap.RenderFrame()
     sdlWrap.ShowFrame()
+    sdlWrap.IncreaseFrame()
   }
 
   sdl.Quit()

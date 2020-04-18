@@ -61,6 +61,7 @@ func (init Init) loadNextImage() (State, error) {
     init.scene.AddImage(&sceneImage)
     return init, err 
   } else {
+    init.scene.IsReady(true)
     return MakeEnd(init), err 
   }
 }

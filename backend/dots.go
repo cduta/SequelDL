@@ -57,7 +57,6 @@ SELECT o.id, d.id, d.x, d.y, c.r, c.g, c.b, c.a
 FROM   objects AS o, dots AS d, colors AS c  
 WHERE  o.id = d.object_id
 AND    o.id = c.object_id;`)
-
   if err != nil {
     return nil, err 
   }

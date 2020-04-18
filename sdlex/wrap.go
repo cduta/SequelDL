@@ -30,6 +30,7 @@ type Wrap struct {
   fpsManager *gfx.FPSmanager
   handle     *backend.Handle
   scene      *Scene 
+  frame       int
 }
 
 func NewWrap(args WrapArgs) (*Wrap, error) {
@@ -81,7 +82,8 @@ func NewWrap(args WrapArgs) (*Wrap, error) {
     renderer  : renderer,
     font      : font,
     fpsManager: fpsManager,
-    handle    : args.Handle}, err
+    handle    : args.Handle,
+    frame     : 0}, err
 }
 
 func (sdlWrap Wrap) Quit() {
@@ -106,6 +108,10 @@ func (sdlWrap Wrap) IsRunning() bool {
 
 func (sdlWrap *Wrap) StopRunning() {
   sdlWrap.running = false
+}
+
+func (sdlWrap *Wrap) SetScene(scene *Scene) {
+  sdlWrap.scene = scene
 }
 
 func (sdlWrap Wrap) PrepareFrame() {
@@ -188,10 +194,21 @@ func (sdlWrap Wrap) RenderFramerate(x, y int32) (error) {
 func (sdlWrap Wrap) renderObjects() error {
   var err error
 
-  err = sdlWrap.renderDots()
-  err = sdlWrap.renderLines()
+  if sdlWrap.scene.Ready {
+    err = sdlWrap.renderDots()
+    err = sdlWrap.renderLines()
+    err = sdlWrap.renderScene()
+  }
 
   return err
+}
+
+func (sdlWrap Wrap) FramesRendered() int {
+  return sdlWrap.frame
+}
+
+func (sdlWrap Wrap) IncreaseFrame() {
+  sdlWrap.frame++
 }
 
 func PrintRendererInfos() error {

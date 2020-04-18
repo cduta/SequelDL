@@ -53,6 +53,10 @@ type Processor struct {
   lastTick    time.Time
 }
 
+func (processor *Processor) Processes() []Process {
+  return processor.processes
+}
+
 func NewProcessor(sdlWrap *sdlex.Wrap) *Processor {
   return &Processor{ processes: []Process{}, sdlWrap: sdlWrap, lastTick: time.Now() }
 }

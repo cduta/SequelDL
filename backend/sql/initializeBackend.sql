@@ -81,8 +81,8 @@ CREATE TABLE entities (
   id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   object_id integer NOT NULL REFERENCES objects(id), 
   name      text    NOT NULL UNIQUE,
-  x         integer NOT NULL,
-  y         integer NOT NULL,
+  x         integer NOT NULL CHECK (x BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  y         integer NOT NULL CHECK (y BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
   level     integer NOT NULL,
   visible   boolean NOT NULL
 );
@@ -111,15 +111,15 @@ CREATE TABLE images_scenes (
 );
 
 CREATE TABLE sprites (
-  îd         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   entity_id  integer NOT NULL REFERENCES entities(id),      
   image_id   integer NOT NULL REFERENCES images(id),
   name       text    NOT NULL UNIQUE,
-  relative_x integer NOT NULL,
-  relative_y integer NOT NULL,
+  relative_x integer NOT NULL CHECK (relative_x BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  relative_y integer NOT NULL CHECK (relative_y BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
   level      integer NOT NULL,
-  width      integer NOT NULL,
-  height     integer NOT NULL
+  width      integer NOT NULL CHECK (width  BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  height     integer NOT NULL CHECK (height BETWEEN -2147483648 AND 2147483647)  -- Golang's int32 constraint
 );
 
 CREATE TABLE hitboxes (
@@ -141,7 +141,7 @@ INSERT INTO images(id, name, image_path) VALUES
 (2, 'button-pressed', 'ressources/sprites/button-pressed.png');
 
 INSERT INTO entities(id, object_id, name, x, y, level, visible) VALUES 
-(1, 1, 'generic-button', 50, 50, 1, true);
+(1, 1, 'generic-button', 200, 200, 1, true);
 
 INSERT INTO scenes(id, name) VALUES 
 (1, 'menu');
