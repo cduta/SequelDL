@@ -32,6 +32,7 @@ func (idle Idle) OnQuit(event *sdl.QuitEvent) State {
 func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   var (
     err   error 
+    saved bool
     state State = idle
   )
 
@@ -42,9 +43,11 @@ func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
           case sdl.K_ESCAPE:
             state = MakeQuit(idle)
           case sdl.K_s:
-            err = idle.backendHandle.Save("save.db")
+            saved, err = idle.backendHandle.Save("save.db")
             if err != nil {
-              fmt.Fprintf(os.Stderr, "Could not save: %s\n", err)
+              fmt.Fprintf(os.Stderr, "Failed to load file with an error: %s\n", err)
+            } else if !saved {
+              fmt.Fprintf(os.Stderr, "Could not save to file. Try again.")              
             }
         }
       } else {

@@ -77,7 +77,7 @@ func (dots Dots) Next() (*Dot, error) {
     dotId    int64
   )
 
-  if !dots.Objects.rows.Next() {
+  if !dots.Objects.next() {
     return nil, err
   }
 

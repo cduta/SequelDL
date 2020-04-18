@@ -44,7 +44,7 @@ func (images Images) Next() (*Image, error) {
     imagePath string 
   )
 
-  if !images.Objects.rows.Next() {
+  if !images.Objects.next() {
     return nil, err
   }
 

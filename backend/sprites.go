@@ -55,7 +55,7 @@ func (sprites Sprites) Next() (*Sprite, error) {
     x, y, w, h int64
   )
 
-  if !sprites.Objects.rows.Next() {
+  if !sprites.Objects.next() {
     return nil, err
   }
 

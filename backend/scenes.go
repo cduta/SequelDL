@@ -28,7 +28,7 @@ WHERE  s.name = ?;
 	scenes = Scenes{ Objects: objects }
   defer scenes.Close()
 
-  if !scenes.Objects.rows.Next() {
+  if !scenes.Objects.next() {
     return sceneId, fmt.Errorf("Could not find the id of a sprite with the name: %s", sceneName) 
   }
 

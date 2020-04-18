@@ -88,7 +88,7 @@ func run(settings settings) {
       DEFAULT_SHOW_FPS     : true}
   )
 
-  backendHandle, err = backend.NewHandle()
+  backendHandle, err = backend.NewHandle(settings.DEFAULT_SAVE_FILE_PATH)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to inizialize backend: %s\n", err)
     return 
@@ -107,10 +107,6 @@ func run(settings settings) {
   }
   defer sdlWrap.Quit()
 
-  if settings.DEFAULT_SAVE_FILE_PATH != "" {
-    backendHandle.Load(settings.DEFAULT_SAVE_FILE_PATH)
-  }
-
   eventProcessor, err = InitializeEventProcessor(backendHandle, sdlWrap)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to initialize event processor: %s\n", err)
@@ -122,7 +118,6 @@ func run(settings settings) {
     sdlWrap.PrepareFrame()
     sdlWrap.RenderFrame()
     sdlWrap.ShowFrame()
-    sdlWrap.IncreaseFrame()
   }
 
   sdl.Quit()

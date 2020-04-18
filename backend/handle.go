@@ -2,8 +2,8 @@ package backend
 
 import (
   "os"
+  "fmt"
   "io/ioutil"
-  "path/filepath"
   "database/sql"
 
   _ "github.com/mattn/go-sqlite3"
@@ -11,10 +11,12 @@ import (
 
 type Handle struct {
   dbhandle *sql.DB
+  locked    bool 
 }
 
 type Objects struct {
-  rows *sql.Rows
+  rows   *sql.Rows
+  handle  Handle 
 }
 
 type Position struct {
@@ -29,10 +31,12 @@ type Object struct {
   Id int64
 }
 
-func NewHandle() (*Handle, error) {
+func NewHandle(saveFilePath string) (*Handle, error) {
   var (
     err       error
     dbhandle *sql.DB
+    loaded    bool
+    handle   *Handle
   )
   
   dbhandle, err = sql.Open("sqlite3", "file:backend.db?cache=shared&mode=memory&_foreign_keys=true")
@@ -40,31 +44,63 @@ func NewHandle() (*Handle, error) {
     return nil, err
   }
 
-  err = initializeBackend(dbhandle)
+  handle = &Handle{
+    dbhandle: dbhandle,
+    locked: false}
+
+  err = handle.runSQLFile("backend/sql/initialize.sql")
   if err != nil {
+    dbhandle.Close()
     return nil, err
   }
 
-  return &Handle{
-    dbhandle: dbhandle}, err
+  if saveFilePath == "" {
+    err = handle.runSQLFile("backend/sql/ressources.sql")
+    if err != nil {
+      dbhandle.Close()
+      return nil, err
+    }
+  } else {
+    loaded, err = handle.Load(saveFilePath)
+    if err != nil {
+      fmt.Fprintf(os.Stderr, "Failed to load from file with an error (%s): %s\n", saveFilePath, err)
+      dbhandle.Close()
+      return nil, err
+    } else if !loaded {
+      fmt.Fprintf(os.Stderr, "Could not load from file: %s\n", saveFilePath)
+    }
+  }
+
+  return handle, err
 }
 
 func (handle *Handle) Close() {
   handle.dbhandle.Close()
 }
 
-func initializeBackend(dbhandle *sql.DB) error {
+func (handle Handle) runSQLFile(relativeFilePath string) error {
   var (
-    err         error
-    initQuery []byte
+    err                error
+    initQuery        []byte
+    absoluteFilePath   string 
   )
 
-  initQuery, err = ioutil.ReadFile(filepath.Join("backend", "sql", "initializeBackend.sql"))
+  absoluteFilePath, err = ToAbsolutePath(relativeFilePath)
   if err != nil {
     return err
   }
 
-  _, err = dbhandle.Exec(string(initQuery))
+  _, err = os.Stat(absoluteFilePath)
+  if err != nil {
+    return fmt.Errorf("Could not run SQL file at %s\n", absoluteFilePath) 
+  }
+
+  initQuery, err = ioutil.ReadFile(absoluteFilePath)
+  if err != nil {
+    return err
+  }
+
+  _, err = handle.dbhandle.Exec(string(initQuery))
   if err != nil {
     return err
   }
@@ -73,14 +109,33 @@ func initializeBackend(dbhandle *sql.DB) error {
 }
 
 func (handle Handle) query(query string, args ...interface{}) (*sql.Rows, error) {
-  return handle.dbhandle.Query(query, args...)
+  var (
+    err   error 
+    rows *sql.Rows
+  )
+
+  if !handle.isLocked() {
+    handle.lock()
+    return handle.dbhandle.Query(query, args...)
+  }
+
+  return rows, err
 }
 
 func (handle Handle) exec(query string, args ...interface{}) (sql.Result, error) {
-  return handle.dbhandle.Exec(query, args...)
+  var (
+    err    error 
+    result sql.Result
+  )
+
+  if !handle.isLocked() {
+    return handle.dbhandle.Exec(query, args...)
+  }
+
+  return result, err
 }
 
-func (handle Handle) Save(path string) error {
+func (handle Handle) Save(path string) (bool, error) {
   var (
     err          error
     saveHandle  *sql.DB
@@ -89,20 +144,24 @@ func (handle Handle) Save(path string) error {
     schema       string 
   )
 
-  schemaRows, err = handle.dbhandle.Query(`
+  if handle.isLocked() {
+    return false, err
+  }
+
+  schemaRows, err = handle.query(`
     SELECT sm.sql 
     FROM   sqlite_master AS sm
     WHERE  sm.name NOT LIKE 'sqlite_%';
   `)
   if err != nil {
-    return err 
+    return false, err 
   }
   defer schemaRows.Close()
 
   for schemaRows.Next() {
     err = schemaRows.Scan(&statement)
     if err != nil {
-      return err
+      return false, err
     }
 
     schema = schema + statement + ";\n"
@@ -117,13 +176,13 @@ func (handle Handle) Save(path string) error {
 
   saveHandle, err = sql.Open("sqlite3", "file:"+path+"?cache=shared&_foreign_keys=true")
   if err != nil {
-    return err
+    return false, err
   }
   defer saveHandle.Close()
 
   _, err = saveHandle.Exec(schema)
   if err != nil {
-    return err
+    return false, err
   }
 
   saveHandle.Close()
@@ -152,16 +211,16 @@ COMMIT;
 DETACH DATABASE save;
 `, "file:"+path+"?cache=shared&_foreign_keys=true")
   if err != nil {
-    return err
+    return false, err
   }
 
-  return err
+  return true, err
 }
 
-func (handle Handle) Load(path string) error {
+func (handle Handle) Load(path string) (bool, error) {
   var err error
 
-  _, err = handle.dbhandle.Exec(`
+  _, err = handle.exec(`
 ATTACH DATABASE ? AS save;
 
 BEGIN IMMEDIATE;
@@ -185,10 +244,22 @@ COMMIT;
 DETACH DATABASE save;
 `, "file:"+path+"?cache=shared&_foreign_keys=true")
   if err != nil {
-    return err
+    return false, err
   }
 
-  return err
+  return true, err
+}
+
+func (handle *Handle) lock() {
+  handle.locked = true
+}
+
+func (handle *Handle) unlock() {
+  handle.locked = false
+}
+
+func (handle *Handle) isLocked() bool {
+  return handle.locked
 }
 
 func (handle Handle) queryObjects(query string, args ...interface{}) (*Objects, error) {
@@ -203,10 +274,20 @@ func (handle Handle) queryObjects(query string, args ...interface{}) (*Objects, 
     return nil, err 
   }
 
-  return &Objects{ rows: rows }, err
+  return &Objects{ rows: rows, handle: handle }, err
+}
+
+func (objects *Objects) next() bool {
+  var hasNext bool = false 
+
+  if objects.rows != nil {
+    hasNext = objects.rows.Next()
+  }
+  return hasNext
 }
 
 func (objects *Objects) Close() {
+  objects.handle.unlock()
   objects.rows.Close()
 }
 

@@ -30,7 +30,6 @@ type Wrap struct {
   fpsManager *gfx.FPSmanager
   handle     *backend.Handle
   scene      *Scene 
-  frame       int
 }
 
 func NewWrap(args WrapArgs) (*Wrap, error) {
@@ -82,8 +81,7 @@ func NewWrap(args WrapArgs) (*Wrap, error) {
     renderer  : renderer,
     font      : font,
     fpsManager: fpsManager,
-    handle    : args.Handle,
-    frame     : 0}, err
+    handle    : args.Handle}, err
 }
 
 func (sdlWrap Wrap) Quit() {
@@ -201,14 +199,6 @@ func (sdlWrap Wrap) renderObjects() error {
   }
 
   return err
-}
-
-func (sdlWrap Wrap) FramesRendered() int {
-  return sdlWrap.frame
-}
-
-func (sdlWrap Wrap) IncreaseFrame() {
-  sdlWrap.frame++
 }
 
 func PrintRendererInfos() error {

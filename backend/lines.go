@@ -90,7 +90,7 @@ func (lines Lines) Next() (*Line, error) {
     there    Position = Position{}
   )
 
-  if !lines.Objects.rows.Next() {
+  if !lines.Objects.next() {
     return nil, err
   }
 
