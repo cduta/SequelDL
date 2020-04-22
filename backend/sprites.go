@@ -22,19 +22,23 @@ func (handle Handle) QuerySprites(sceneId int64) (*Sprites, error) {
   )
 
   objects, err = handle.queryObjects(`
-SELECT   sp.id, 
-         sp.name, 
-         e.x + sp.relative_x, 
-         e.y + sp.relative_y, 
-         sp.width, 
-         sp.height
-FROM     sprites  AS sp,
-         entities AS e, 
-         entities_scenes AS es
-WHERE    sp.entity_id = e.id 
-AND      e.id         = es.entity_id
-AND      es.scene_id  = ?
-ORDER BY e.level, sp.level, sp.id
+SELECT sp.id, 
+       sp.name, 
+       en.x + sp.relative_x, 
+       en.y + sp.relative_y, 
+       sp.width, 
+       sp.height
+FROM   sprites         AS sp,
+       states_sprites  AS ss,
+       states          AS st,
+       entities        AS en,
+       entities_scenes AS es,
+       scenes          AS sc
+WHERE  sp.id       = ss.sprite_id
+AND    ss.state_id = st.id 
+AND    st.id       = en.state_id
+AND    en.id       = es.entity_id
+AND    es.scene_id = ?
 `, sceneId)
   if err != nil {
     return nil, err 

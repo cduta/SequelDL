@@ -77,9 +77,15 @@ CREATE TABLE colors (
   a          integer NOT NULL CHECK(a BETWEEN 0 AND 255)
 );
 
+CREATE TABLE states (
+  id   integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name text    NOT NULL
+);
+
 CREATE TABLE entities (
   id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   object_id integer NOT NULL REFERENCES objects(id), 
+  state_id  integer NOT NULL REFERENCES states(id),
   name      text    NOT NULL UNIQUE,
   x         integer NOT NULL CHECK (x BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
   y         integer NOT NULL CHECK (y BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
@@ -98,21 +104,20 @@ CREATE TABLE images (
   image_path text    NOT NULL UNIQUE 
 );
 
+CREATE TABLE states_sprites (
+  state_id        integer NOT NULL REFERENCES states(id),
+  sprite_id       integer NOT NULL REFERENCES sprites(id),
+  animation_group integer NOT NULL
+);
+
 CREATE TABLE entities_scenes (
   entity_id integer NOT NULL REFERENCES entities(id),      
   scene_id  integer NOT NULL REFERENCES scenes(id),
   PRIMARY KEY(entity_id, scene_id)
 );
 
-CREATE TABLE images_scenes (
-  image_id integer NOT NULL REFERENCES images(id),      
-  scene_id integer NOT NULL REFERENCES scenes(id),
-  PRIMARY KEY(image_id, scene_id)
-);
-
 CREATE TABLE sprites (
-  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  entity_id  integer NOT NULL REFERENCES entities(id),      
+  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
   image_id   integer NOT NULL REFERENCES images(id),
   name       text    NOT NULL UNIQUE,
   relative_x integer NOT NULL CHECK (relative_x BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint

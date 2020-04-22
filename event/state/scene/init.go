@@ -23,7 +23,7 @@ func MakeInit(backendHandle *backend.Handle, scene *sdlex.Scene, renderer *sdl.R
     images    *backend.Images
   )
 
-  images, err = backendHandle.QueryImages(scene.Name) 
+  images, err = backendHandle.QueryImages(scene.Id) 
 
   return Init{ scene: scene, images: images, renderer: renderer }, err
 }
