@@ -53,6 +53,10 @@ func InitializeEventProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap
     idle            button.Idle
   )
 
+  eventProcessor = event.NewProcessor(sdlWrap)
+
+  eventProcessor.AddProcess(event.NewProcess(draw.MakeIdle(backendHandle)))
+
   initialScene, err = sdlex.MakeScene("menu", backendHandle)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to make initial scene: %s\n", err)
@@ -64,17 +68,20 @@ func InitializeEventProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap
     fmt.Fprintf(os.Stderr, "Failed to make initializing scene state: %s\n", err)
     return eventProcessor, err
   }
+  sdlWrap.SetScene(initialScene)
+  eventProcessor.AddProcess(event.NewProcess(init))
 
   idle, err = button.MakeIdle(1, backendHandle)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to make initial idle state: %s\n", err) 
   }
+  eventProcessor.AddProcess(event.NewProcess(idle))
 
-  sdlWrap.SetScene(initialScene)
-  eventProcessor = event.NewProcessor(sdlWrap)
-  eventProcessor.AddProcess(event.NewProcess(draw.MakeIdle(backendHandle)))
-  eventProcessor.AddProcess(event.NewProcess(init))
-  /*eventProcessor.AddProcess(*/event.NewProcess(idle)//)
+  idle, err = button.MakeIdle(2, backendHandle)
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Failed to make initial idle state: %s\n", err) 
+  }
+  eventProcessor.AddProcess(event.NewProcess(idle))
 
   return eventProcessor, err
 }

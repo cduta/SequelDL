@@ -40,7 +40,7 @@ AND    st.id       = en.state_id
 AND    en.id       = es.entity_id
 AND    es.scene_id = ?
 `, sceneId)
-  if err != nil {
+  if objects == nil || err != nil {
     return nil, err 
   }
 

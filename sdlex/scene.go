@@ -63,7 +63,7 @@ func (sdlWrap Wrap) renderScene() error {
   }
 
   sprites, err = sdlWrap.handle.QuerySprites(sdlWrap.scene.Id)
-  if err != nil {
+  if sprites == nil || err != nil {
     return err
   }
   defer sprites.Close()

@@ -22,7 +22,7 @@ func (sdlWrap Wrap) renderLines() error {
   )
 
   lines, err = sdlWrap.handle.QueryLines()
-  if err != nil {
+  if lines == nil || err != nil {
     return err
   }
   defer lines.Close()

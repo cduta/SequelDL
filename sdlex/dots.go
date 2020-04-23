@@ -21,8 +21,7 @@ func (sdlWrap Wrap) renderDots() error {
   )
 
   dots, err = sdlWrap.handle.QueryDots()
-
-  if err != nil {
+  if dots == nil || err != nil {
     return err
   }
   defer dots.Close()

@@ -69,7 +69,7 @@ FROM   lines AS l, colors AS c
 WHERE  l.object_id = c.object_id;
 `)
 
-  if err != nil {
+  if  objects == nil || err != nil {
     return nil, err 
   }
 

@@ -16,7 +16,7 @@ type Handle struct {
 
 type Objects struct {
   rows   *sql.Rows
-  handle  Handle 
+  handle *Handle 
 }
 
 type Position struct {
@@ -78,7 +78,7 @@ func (handle *Handle) Close() {
   handle.dbhandle.Close()
 }
 
-func (handle Handle) runSQLFile(relativeFilePath string) error {
+func (handle *Handle) runSQLFile(relativeFilePath string) error {
   var (
     err                error
     initQuery        []byte
@@ -108,7 +108,7 @@ func (handle Handle) runSQLFile(relativeFilePath string) error {
   return err
 }
 
-func (handle Handle) queryRow(query string, args ...interface{}) (*sql.Row, error) {
+func (handle *Handle) queryRow(query string, args ...interface{}) (*sql.Row, error) {
   var (
     err  error 
     row *sql.Row
@@ -121,7 +121,7 @@ func (handle Handle) queryRow(query string, args ...interface{}) (*sql.Row, erro
   return row, err
 }
 
-func (handle Handle) query(query string, args ...interface{}) (*sql.Rows, error) {
+func (handle *Handle) query(query string, args ...interface{}) (*sql.Rows, error) {
   var (
     err   error 
     rows *sql.Rows
@@ -135,7 +135,7 @@ func (handle Handle) query(query string, args ...interface{}) (*sql.Rows, error)
   return rows, err
 }
 
-func (handle Handle) exec(query string, args ...interface{}) (sql.Result, error) {
+func (handle *Handle) exec(query string, args ...interface{}) (sql.Result, error) {
   var (
     err    error 
     result sql.Result
@@ -148,7 +148,7 @@ func (handle Handle) exec(query string, args ...interface{}) (sql.Result, error)
   return result, err
 }
 
-func (handle Handle) Save(path string) (bool, error) {
+func (handle *Handle) Save(path string) (bool, error) {
   var (
     err          error
     saveHandle  *sql.DB
@@ -231,7 +231,7 @@ DETACH DATABASE save;
   return true, err
 }
 
-func (handle Handle) Load(path string) (bool, error) {
+func (handle *Handle) Load(path string) (bool, error) {
   var err error
 
   _, err = handle.exec(`
@@ -277,7 +277,7 @@ func (handle *Handle) isLocked() bool {
   return handle.locked
 }
 
-func (handle Handle) queryObjects(query string, args ...interface{}) (*Objects, error) {
+func (handle *Handle) queryObjects(query string, args ...interface{}) (*Objects, error) {
   var ( 
     err   error
     rows *sql.Rows
@@ -303,6 +303,8 @@ func (objects *Objects) next() bool {
 
 func (objects *Objects) Close() {
   objects.handle.unlock()
-  objects.rows.Close()
+  if objects.rows != nil {
+    objects.rows.Close()
+  }
 }
 
