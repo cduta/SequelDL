@@ -79,7 +79,7 @@ CREATE TABLE colors (
 
 CREATE TABLE states (
   id   integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name text    NOT NULL
+  name text    NOT NULL UNIQUE
 );
 
 CREATE TABLE entities (

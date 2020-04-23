@@ -108,6 +108,19 @@ func (handle Handle) runSQLFile(relativeFilePath string) error {
   return err
 }
 
+func (handle Handle) queryRow(query string, args ...interface{}) (*sql.Row, error) {
+  var (
+    err  error 
+    row *sql.Row
+  )
+
+  if !handle.isLocked() {
+    return handle.dbhandle.QueryRow(query, args...), err 
+  }
+
+  return row, err
+}
+
 func (handle Handle) query(query string, args ...interface{}) (*sql.Rows, error) {
   var (
     err   error 

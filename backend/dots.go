@@ -46,7 +46,7 @@ COMMIT;
   return lastInsertId, err
 }
 
-func (handle Handle) QueryDots() (*Dots, error) {
+func (handle *Handle) QueryDots() (*Dots, error) {
   var (
     err      error 
     objects *Objects

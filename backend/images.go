@@ -10,7 +10,7 @@ type Image struct {
   ImagePath string
 }
 
-func (handle Handle) QueryImages(sceneId int64) (*Images, error) {
+func (handle *Handle) QueryImages(sceneId int64) (*Images, error) {
   var (
     err      error 
     objects *Objects

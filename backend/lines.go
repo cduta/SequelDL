@@ -57,7 +57,7 @@ WHERE  object_id = ?
   return err
 }
 
-func (handle Handle) QueryLines() (*Lines, error) {
+func (handle *Handle) QueryLines() (*Lines, error) {
   var (
     err      error 
     objects *Objects

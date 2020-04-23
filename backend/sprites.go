@@ -15,7 +15,7 @@ type Sprite struct {
   DestLayout *sdl.Rect
 }
 
-func (handle Handle) QuerySprites(sceneId int64) (*Sprites, error) {
+func (handle *Handle) QuerySprites(sceneId int64) (*Sprites, error) {
   var (
     err      error 
     objects *Objects

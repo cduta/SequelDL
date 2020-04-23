@@ -10,6 +10,7 @@ import (
   "./event"
   "./event/state/draw"
   "./event/state/scene"
+  "./event/state/button"
   "github.com/veandco/go-sdl2/sdl"
 )
 
@@ -49,6 +50,7 @@ func InitializeEventProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap
     eventProcessor *event.Processor
     init            scene.Init
     initialScene   *sdlex.Scene 
+    idle            button.Idle
   )
 
   initialScene, err = sdlex.MakeScene("menu", backendHandle)
@@ -59,14 +61,20 @@ func InitializeEventProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap
 
   init, err = scene.MakeInit(sdlWrap.Handle(), initialScene, sdlWrap.Renderer())
   if err != nil {
-    fmt.Fprintf(os.Stderr, "Failed to make initial scene process: %s\n", err)
+    fmt.Fprintf(os.Stderr, "Failed to make initializing scene state: %s\n", err)
     return eventProcessor, err
+  }
+
+  idle, err = button.MakeIdle(1, backendHandle)
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Failed to make initial idle state: %s\n", err) 
   }
 
   sdlWrap.SetScene(initialScene)
   eventProcessor = event.NewProcessor(sdlWrap)
   eventProcessor.AddProcess(event.NewProcess(draw.MakeIdle(backendHandle)))
   eventProcessor.AddProcess(event.NewProcess(init))
+  /*eventProcessor.AddProcess(*/event.NewProcess(idle)//)
 
   return eventProcessor, err
 }

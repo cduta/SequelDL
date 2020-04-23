@@ -8,7 +8,7 @@ type Scenes struct {
 	*Objects
 }
 
-func (handle Handle) QuerySceneId(sceneName string) (int64, error) {
+func (handle *Handle) QuerySceneId(sceneName string) (int64, error) {
 	var (
 		err      error 
 		objects *Objects 
