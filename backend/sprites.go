@@ -5,7 +5,7 @@ import (
 )
 
 type Sprites struct {
-  *Objects
+  *Rows
 }
 
 type Sprite struct {
@@ -17,11 +17,11 @@ type Sprite struct {
 
 func (handle *Handle) QuerySprites(sceneId int64) (*Sprites, error) {
   var (
-    err      error 
-    objects *Objects
+    err   error 
+    rows *Rows
   )
 
-  objects, err = handle.queryObjects(`
+  rows, err = handle.queryRows(`
 SELECT sp.id, 
        sp.name, 
        en.x + sp.relative_x, 
@@ -40,15 +40,15 @@ AND    st.id       = en.state_id
 AND    en.id       = es.entity_id
 AND    es.scene_id = ?
 `, sceneId)
-  if objects == nil || err != nil {
+  if rows == nil || err != nil {
     return nil, err 
   }
 
-  return &Sprites{ Objects: objects }, err
+  return &Sprites{ Rows: rows }, err
 }
 
 func (sprites Sprites) Close() {
-  sprites.Objects.Close()
+  sprites.Rows.Close()
 }
 
 func (sprites Sprites) Next() (*Sprite, error) {
@@ -59,11 +59,11 @@ func (sprites Sprites) Next() (*Sprite, error) {
     x, y, w, h int64
   )
 
-  if !sprites.Objects.next() {
+  if !sprites.Rows.next() {
     return nil, err
   }
 
-  err = sprites.Objects.rows.Scan(&spriteId, &name, &x, &y, &w, &h)  
+  err = sprites.Rows.rows.Scan(&spriteId, &name, &x, &y, &w, &h)  
 
   return &Sprite{ 
     Id        : spriteId, 

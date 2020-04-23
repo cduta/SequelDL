@@ -5,7 +5,7 @@ import (
 )
 
 type Lines struct {
-  *Objects
+  *Rows
 }
 
 type Line struct {
@@ -59,25 +59,25 @@ WHERE  object_id = ?
 
 func (handle *Handle) QueryLines() (*Lines, error) {
   var (
-    err      error 
-    objects *Objects
+    err   error 
+    rows *Rows
   )
 
-  objects, err = handle.queryObjects(`
+  rows, err = handle.queryRows(`
 SELECT l.id, l.object_id, l.here_x, l.here_y, l.there_x, l.there_y, c.r, c.g, c.b, c.a
 FROM   lines AS l, colors AS c 
 WHERE  l.object_id = c.object_id;
 `)
 
-  if  objects == nil || err != nil {
+  if rows == nil || err != nil {
     return nil, err 
   }
 
-  return &Lines{ Objects: objects }, err
+  return &Lines{ Rows: rows }, err
 }
 
 func (lines Lines) Close() {
-  lines.Objects.Close()
+  lines.Rows.Close()
 }
 
 func (lines Lines) Next() (*Line, error) {
@@ -90,11 +90,11 @@ func (lines Lines) Next() (*Line, error) {
     there    Position = Position{}
   )
 
-  if !lines.Objects.next() {
+  if !lines.Rows.next() {
     return nil, err
   }
 
-  err = lines.Objects.rows.Scan(
+  err = lines.Rows.rows.Scan(
     &lineId , &object.Id, 
     &here.X , &here.Y, 
     &there.X, &there.Y, 

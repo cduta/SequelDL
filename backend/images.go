@@ -1,7 +1,7 @@
 package backend
 
 type Images struct {
-  *Objects
+  *Rows
 }
 
 type Image struct {
@@ -12,11 +12,11 @@ type Image struct {
 
 func (handle *Handle) QueryImages(sceneId int64) (*Images, error) {
   var (
-    err      error 
-    objects *Objects
+    err   error 
+    rows *Rows
   )
 
-  objects, err = handle.queryObjects(`
+  rows, err = handle.queryRows(`
 SELECT DISTINCT im.id, im.name, im.image_path 
 FROM (
     SELECT DISTINCT ss.animation_group
@@ -41,11 +41,11 @@ AND   sp.image_id       = im.id
     return nil, err 
   }
 
-  return &Images{ Objects: objects }, err
+  return &Images{ Rows: rows }, err
 }
 
 func (images Images) Close() {
-  images.Objects.Close()
+  images.Rows.Close()
 }
 
 func (images Images) Next() (*Image, error) {
@@ -56,11 +56,11 @@ func (images Images) Next() (*Image, error) {
     imagePath string 
   )
 
-  if !images.Objects.next() {
+  if !images.Rows.next() {
     return nil, err
   }
 
-  err = images.Objects.rows.Scan(&imageId, &name, &imagePath)  
+  err = images.Rows.rows.Scan(&imageId, &name, &imagePath)  
 
   return &Image{ Id: imageId, Name: name, ImagePath: imagePath }, err
 }

@@ -14,7 +14,7 @@ type Handle struct {
   locked    bool 
 }
 
-type Objects struct {
+type Rows struct {
   rows   *sql.Rows
   handle *Handle 
 }
@@ -285,7 +285,7 @@ func (handle *Handle) isLocked() bool {
   return handle.locked
 }
 
-func (handle *Handle) queryObjects(query string, args ...interface{}) (*Objects, error) {
+func (handle *Handle) queryRows(query string, args ...interface{}) (*Rows, error) {
   var ( 
     err   error
     rows *sql.Rows
@@ -297,22 +297,22 @@ func (handle *Handle) queryObjects(query string, args ...interface{}) (*Objects,
     return nil, err 
   }
 
-  return &Objects{ rows: rows, handle: handle }, err
+  return &Rows{ rows: rows, handle: handle }, err
 }
 
-func (objects *Objects) next() bool {
+func (rows *Rows) next() bool {
   var hasNext bool = false 
 
-  if objects.rows != nil {
-    hasNext = objects.rows.Next()
+  if rows.rows != nil {
+    hasNext = rows.rows.Next()
   }
   return hasNext
 }
 
-func (objects *Objects) Close() {
-  objects.handle.unlock()
-  if objects.rows != nil {
-    objects.rows.Close()
+func (rows *Rows) Close() {
+  rows.handle.unlock()
+  if rows.rows != nil {
+    rows.rows.Close()
   }
 }
 

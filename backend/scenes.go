@@ -1,9 +1,5 @@
 package backend
 
-type Scenes struct {
-	*Objects
-}
-
 func (handle *Handle) QuerySceneId(sceneName string) (int64, error) {
 	var (
 		err      error 
@@ -25,8 +21,4 @@ WHERE  s.name = ?;
 	}
 
   return sceneId, err
-}
-
-func (scenes Scenes) Close() {
-  scenes.Objects.Close()
 }
