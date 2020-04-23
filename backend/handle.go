@@ -112,17 +112,21 @@ func (handle *Handle) runSQLFile(relativeFilePath string) error {
   return err
 }
 
-func (handle *Handle) queryRow(query string, args ...interface{}) (*sql.Row, error) {
+func (handle *Handle) queryRow(query string, args ...interface{}) (*Row, error) {
   var (
     err  error 
     row *sql.Row
   )
 
   if !handle.isLocked() {
-    return handle.dbhandle.QueryRow(query, args...), err 
+    row, err = handle.dbhandle.QueryRow(query, args...), err 
+
+    if err == sql.ErrNoRows {
+      return nil, nil
+    }
   }
 
-  return row, err
+  return &Row{row: row}, err
 }
 
 func (handle *Handle) query(query string, args ...interface{}) (*sql.Rows, error) {
@@ -312,3 +316,6 @@ func (objects *Objects) Close() {
   }
 }
 
+func (row *Row) Scan(args ...interface{}) error {
+  return row.row.Scan(args...)
+}

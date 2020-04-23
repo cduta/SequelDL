@@ -1,14 +1,10 @@
 package backend
 
-import (
-  "database/sql"
-)
-
 func (handle *Handle) HasEntityPixelCollision(entityId int64, position Position) (bool, error) {
   var (
     err        error 
-    row       *sql.Row
-    collision  bool 
+    row       *Row
+    collision  bool = false 
   )
 
   row, err = handle.queryRow(`
@@ -19,15 +15,13 @@ FROM   entities AS en,
 WHERE  en.id = ?
 AND    en.id = hi.entity_id
   `, position.X, position.Y, entityId)
-  if err != nil && err != sql.ErrNoRows {
+  if err != nil {
     return collision, err
   }
 
-  if err != sql.ErrNoRows {
+  if row != nil {
     err = row.Scan(&collision)
-  } else {
-    collision = false
-  }
+  } 
 
   return collision, err 
 }

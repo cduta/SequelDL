@@ -1,9 +1,5 @@
 package backend
 
-import (
-	"database/sql"
-)
-
 type Scenes struct {
 	*Objects
 }
@@ -11,8 +7,8 @@ type Scenes struct {
 func (handle *Handle) QuerySceneId(sceneName string) (int64, error) {
 	var (
 		err      error 
-		row     *sql.Row 
-		sceneId  int64
+		row     *Row 
+		sceneId  int64 = -1
 	)
 
   row, err = handle.queryRow(`
@@ -24,7 +20,9 @@ WHERE  s.name = ?;
 		return sceneId, err
 	}
 
-  err = row.Scan(&sceneId)  
+	if row != nil {
+  	err = row.Scan(&sceneId)  
+	}
 
   return sceneId, err
 }
