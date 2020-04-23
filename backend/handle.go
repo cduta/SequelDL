@@ -316,6 +316,10 @@ func (rows *Rows) Close() {
   }
 }
 
+func (rows *Rows) Scan(args ...interface{}) error {
+  return rows.rows.Scan(args...)
+}
+
 func (row *Row) Scan(args ...interface{}) error {
   return row.row.Scan(args...)
 }

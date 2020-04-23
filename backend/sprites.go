@@ -63,7 +63,7 @@ func (sprites Sprites) Next() (*Sprite, error) {
     return nil, err
   }
 
-  err = sprites.Rows.rows.Scan(&spriteId, &name, &x, &y, &w, &h)  
+  err = sprites.Rows.Scan(&spriteId, &name, &x, &y, &w, &h)  
 
   return &Sprite{ 
     Id        : spriteId, 

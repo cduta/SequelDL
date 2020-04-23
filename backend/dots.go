@@ -81,7 +81,7 @@ func (dots Dots) Next() (*Dot, error) {
     return nil, err
   }
 
-  err = dots.Rows.rows.Scan(&object.Id, &dotId, &position.X, &position.Y, &color.R, &color.G, &color.B, &color.A)
+  err = dots.Rows.Scan(&object.Id, &dotId, &position.X, &position.Y, &color.R, &color.G, &color.B, &color.A)
 
   return &Dot{ Object: object, Position: position, Color: color, Id: dotId }, err
 }

@@ -94,7 +94,7 @@ func (lines Lines) Next() (*Line, error) {
     return nil, err
   }
 
-  err = lines.Rows.rows.Scan(
+  err = lines.Rows.Scan(
     &lineId , &object.Id, 
     &here.X , &here.Y, 
     &there.X, &there.Y, 

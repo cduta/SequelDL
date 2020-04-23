@@ -60,7 +60,7 @@ func (images Images) Next() (*Image, error) {
     return nil, err
   }
 
-  err = images.Rows.rows.Scan(&imageId, &name, &imagePath)  
+  err = images.Rows.Scan(&imageId, &name, &imagePath)  
 
   return &Image{ Id: imageId, Name: name, ImagePath: imagePath }, err
 }
