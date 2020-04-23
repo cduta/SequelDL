@@ -19,6 +19,10 @@ type Objects struct {
   handle *Handle 
 }
 
+type Row struct {
+  row    *sql.Row 
+}
+
 type Position struct {
   X, Y int32
 }

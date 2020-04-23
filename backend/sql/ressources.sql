@@ -30,4 +30,5 @@ INSERT INTO states_sprites(state_id, sprite_id, animation_group) VALUES
 (2, 2, 1);
 
 INSERT INTO hitboxes(id, entity_id, name, relative_x, relative_y, level, width, height) VALUES
-(1, 1, 'button-click', 0, 0, 1, 63, 20);
+(1, 1, 'button-1-click', 0, 0, 1, 63, 20),
+(2, 2, 'button-2-click', 0, 0, 1, 63, 20);

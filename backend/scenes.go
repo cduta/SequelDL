@@ -1,7 +1,7 @@
 package backend
 
 import (
-	"fmt"
+	"database/sql"
 )
 
 type Scenes struct {
@@ -11,12 +11,11 @@ type Scenes struct {
 func (handle *Handle) QuerySceneId(sceneName string) (int64, error) {
 	var (
 		err      error 
-		objects *Objects 
-		scenes   Scenes
+		row     *sql.Row 
 		sceneId  int64
 	)
 
-  objects, err = handle.queryObjects(`
+  row, err = handle.queryRow(`
 SELECT s.id 
 FROM   scenes AS s 
 WHERE  s.name = ?;
@@ -25,14 +24,7 @@ WHERE  s.name = ?;
 		return sceneId, err
 	}
 
-	scenes = Scenes{ Objects: objects }
-  defer scenes.Close()
-
-  if !scenes.Objects.next() {
-    return sceneId, fmt.Errorf("Could not find the id of a sprite with the name: %s", sceneName) 
-  }
-
-  err = scenes.Objects.rows.Scan(&sceneId)  
+  err = row.Scan(&sceneId)  
 
   return sceneId, err
 }
