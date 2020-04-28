@@ -7,6 +7,30 @@
 */
 PRAGMA synchronous=OFF; 
 
+CREATE TABLE integer_options (
+  id    integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name  text    NOT NULL UNIQUE,
+  value integer NOT NULL
+);
+
+CREATE TABLE text_options (
+  id    integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name  text    NOT NULL UNIQUE,
+  value text    NOT NULL
+);
+
+CREATE TABLE boolean_options (
+  id    integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name  text    NOT NULL UNIQUE,
+  value boolean NOT NULL
+);
+
+CREATE TABLE real_options (
+  id    integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name  text    NOT NULL UNIQUE,
+  value real    NOT NULL
+);
+
 CREATE TABLE objects (
   id integer NOT NULL PRIMARY KEY AUTOINCREMENT
 );

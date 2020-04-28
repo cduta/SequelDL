@@ -59,6 +59,12 @@ func NewHandle(saveFilePath string) (*Handle, error) {
   }
 
   if saveFilePath == "" {
+    err = handle.runSQLFile("backend/sql/options.sql")
+    if err != nil {
+      dbhandle.Close()
+      return nil, err
+    }
+
     err = handle.runSQLFile("backend/sql/ressources.sql")
     if err != nil {
       dbhandle.Close()
@@ -212,6 +218,10 @@ func (handle *Handle) Save(path string) (bool, error) {
 ATTACH DATABASE ? AS save;
 
 BEGIN IMMEDIATE;
+INSERT OR ROLLBACK INTO save.integer_options  SELECT * FROM main.integer_options;
+INSERT OR ROLLBACK INTO save.text_options     SELECT * FROM main.text_options;
+INSERT OR ROLLBACK INTO save.boolean_options  SELECT * FROM main.boolean_options;
+INSERT OR ROLLBACK INTO save.real_options     SELECT * FROM main.real_options;
 INSERT OR ROLLBACK INTO save.objects          SELECT * FROM main.objects;
 INSERT OR ROLLBACK INTO save.dots             SELECT * FROM main.dots;
 INSERT OR ROLLBACK INTO save.lines            SELECT * FROM main.lines;
@@ -246,6 +256,10 @@ func (handle *Handle) Load(path string) (bool, error) {
 ATTACH DATABASE ? AS save;
 
 BEGIN IMMEDIATE;
+INSERT OR ROLLBACK INTO main.integer_options  SELECT * FROM save.integer_options;
+INSERT OR ROLLBACK INTO main.text_options     SELECT * FROM save.text_options;
+INSERT OR ROLLBACK INTO main.boolean_options  SELECT * FROM save.boolean_options;
+INSERT OR ROLLBACK INTO main.real_options     SELECT * FROM save.real_options;
 INSERT OR ROLLBACK INTO main.objects          SELECT * FROM save.objects;
 INSERT OR ROLLBACK INTO main.dots             SELECT * FROM save.dots;
 INSERT OR ROLLBACK INTO main.lines            SELECT * FROM save.lines;
