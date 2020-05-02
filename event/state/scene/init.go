@@ -15,6 +15,7 @@ type Init struct {
   scene    *sdlex.Scene 
   images   *backend.Images
   renderer *sdl.Renderer
+  idle      Idle 
 }
 
 func MakeInit(backendHandle *backend.Handle, scene *sdlex.Scene, renderer *sdl.Renderer) (Init, error) {
@@ -25,7 +26,7 @@ func MakeInit(backendHandle *backend.Handle, scene *sdlex.Scene, renderer *sdl.R
 
   images, err = backendHandle.QueryImages(scene.Id) 
 
-  return Init{ scene: scene, images: images, renderer: renderer }, err
+  return Init{ scene: scene, images: images, renderer: renderer, idle: MakeIdle(backendHandle, scene) }, err
 }
 
 func (init Init) Destroy() {
@@ -44,25 +45,25 @@ func (init Init) loadNextImage() (State, error) {
 
   backendImage, err = init.images.Next() 
   if err != nil {
-    return MakeDone(init), err
+    return init.cancelInit(), err
   }
 
   if backendImage != nil {
     absolutePath, err = backend.ToAbsolutePath(backendImage.ImagePath)
     if err != nil {
-      return MakeDone(init), err
+      return init.cancelInit(), err
     }
     
     sceneImage, err = sdlex.MakeImage(init.renderer, backendImage.Id, backendImage.Name, absolutePath)
     if err != nil {
-      return MakeDone(init), err
+      return init.cancelInit(), err
     }
 
     init.scene.AddImage(&sceneImage)
     return init, err 
   } else {
     init.scene.IsReady(true)
-    return MakeDone(init), err 
+    return Transition(init, init.idle), err 
   }
 }
 
@@ -111,5 +112,10 @@ func (init Init) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
 
 func (init Init) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
   return init
+}
+
+func (init Init) cancelInit() State {
+  init.idle.Destroy()
+  return MakeDone(init)
 }
 

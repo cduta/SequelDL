@@ -12,3 +12,8 @@ type State interface {
   OnMouseMotionEvent(event *sdl.MouseMotionEvent) State
   OnMouseButtonEvent(event *sdl.MouseButtonEvent) State
 }
+
+func Transition(old State, new State) State {
+	old.Destroy()
+	return new
+}

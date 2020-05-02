@@ -11,11 +11,11 @@ INSERT INTO states(id, name) VALUES
 (2, 'button-pressed');
 
 INSERT INTO entities(id, object_id, state_id, name, x, y, level, visible) VALUES 
-(1, 1, 1, 'button_1', 200, 200, 1, true),
-(2, 2, 1, 'button_2', 300, 200, 1, true);
+(1, 1, 1, 'button_1', 100, 100, 1, true),
+(2, 2, 1, 'button_2', 200, 100, 1, true);
 
-INSERT INTO scenes(id, name, x, y, scene_x, scene_y, width, height) VALUES 
-(1, 'menu'  , 0, 0, 0, 0, 1024, 768);
+INSERT INTO scenes(id, name, x, y, scene_x, scene_y, width, height, scroll_speed) VALUES 
+(1, 'menu'  , 100, 100, 0, 0, 400, 400, 10);
 
 INSERT INTO entities_scenes(entity_id, scene_id) VALUES 
 (1, 1),

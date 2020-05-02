@@ -22,3 +22,16 @@ WHERE  s.name = ?;
 
   return sceneId, err
 }
+
+func (handle *Handle) ScrollScene(sceneId int64, scrollX int32, scrollY int32) error {
+	var err error 
+
+	_, err = handle.exec(`
+UPDATE scenes 
+SET    x = x + ? * scroll_speed,
+       y = y + ? * scroll_speed 
+WHERE  id = ?
+	`, scrollX, scrollY, sceneId)
+
+	return err
+}
