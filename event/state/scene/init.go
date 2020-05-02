@@ -44,25 +44,25 @@ func (init Init) loadNextImage() (State, error) {
 
   backendImage, err = init.images.Next() 
   if err != nil {
-    return MakeEnd(init), err
+    return MakeDone(init), err
   }
 
   if backendImage != nil {
     absolutePath, err = backend.ToAbsolutePath(backendImage.ImagePath)
     if err != nil {
-      return MakeEnd(init), err
+      return MakeDone(init), err
     }
     
     sceneImage, err = sdlex.MakeImage(init.renderer, backendImage.Id, backendImage.Name, absolutePath)
     if err != nil {
-      return MakeEnd(init), err
+      return MakeDone(init), err
     }
 
     init.scene.AddImage(&sceneImage)
     return init, err 
   } else {
     init.scene.IsReady(true)
-    return MakeEnd(init), err 
+    return MakeDone(init), err 
   }
 }
 

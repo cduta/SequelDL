@@ -118,7 +118,7 @@ func (processor *Processor) processEvents() {
             for j, _ = range processor.processes {
               processor.processes[j].isActive(false)
             }
-          case state.End:
+          case state.Done:
             processor.processes[i].isActive(false)
         } 
       }
