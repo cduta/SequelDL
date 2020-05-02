@@ -130,7 +130,7 @@ func (sdlWrap Wrap) RenderFrame() {
 
   err = sdlWrap.renderObjects()
   if err != nil {
-    fmt.Fprintf(os.Stderr, "Failed to render lines: %s\n", err)
+    fmt.Fprintf(os.Stderr, "Failed to render objects: %s\n", err)
   }
 }
 

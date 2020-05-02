@@ -23,22 +23,45 @@ func (handle *Handle) QuerySprites(sceneId int64) (*Sprites, error) {
 
   rows, err = handle.queryRows(`
 SELECT sp.id, 
-       sp.name, 
-       en.x + sp.relative_x, 
-       en.y + sp.relative_y, 
-       sp.width, 
-       sp.height
-FROM   sprites         AS sp,
-       states_sprites  AS ss,
-       states          AS st,
-       entities        AS en,
-       entities_scenes AS es,
-       scenes          AS sc
-WHERE  sp.id       = ss.sprite_id
-AND    ss.state_id = st.id 
-AND    st.id       = en.state_id
-AND    en.id       = es.entity_id
-AND    es.scene_id = ?
+       sp.name,
+       sp.sprite_x      + MAX(sp.scene_x - sp.sprite_x, 0)                                                                         AS x,
+       sp.sprite_y      + MAX(sp.scene_y - sp.sprite_y, 0)                                                                         AS y,
+       sp.sprite_width  - MAX(sp.scene_x - sp.sprite_x, 0) - MIN(sp.sprite_x + sp.sprite_width  - sp.scene_x + sp.scene_width , 0) AS width,
+       sp.sprite_height - MAX(sp.scene_y - sp.sprite_y, 0) - MIN(sp.sprite_y + sp.sprite_height - sp.scene_y + sp.scene_height, 0) AS height,
+                          MAX(sp.scene_x - sp.sprite_x, 0)                                                                         AS clip_x,
+                          MAX(sp.scene_y - sp.sprite_y, 0)                                                                         AS clip_y
+FROM (
+  SELECT sp.id, 
+         sp.name, 
+         sc.x + en.x + sp.relative_x - sc.scene_x AS sprite_x,      -- ⎫  
+         sc.y + en.y + sp.relative_y - sc.scene_y AS sprite_y,      -- ⎬ Absolute sprite position and size on screen 
+         sp.width                                 AS sprite_width,  -- ⎪  
+         sp.height                                AS sprite_height, -- ⎭
+         sp.level                                 AS sprite_level,
+         en.level                                 AS entity_level, 
+         sc.x                                     AS scene_x,       -- ⎫  
+         sc.y                                     AS scene_y,       -- ⎬ Absolute scene position and size on screen
+         sc.width                                 AS scene_width,   -- ⎪  
+         sc.height                                AS scene_height   -- ⎭
+  FROM   sprites         AS sp,
+         states_sprites  AS ss,
+         states          AS st,
+         entities        AS en,
+         entities_scenes AS es,
+         scenes          AS sc
+  WHERE  en.visible
+  AND    sp.id       = ss.sprite_id
+  AND    ss.state_id = st.id 
+  AND    st.id       = en.state_id
+  AND    en.id       = es.entity_id
+  AND    es.scene_id = sc.id 
+  AND    sc.id = ?
+) AS sp
+WHERE sp.sprite_x                    < sp.scene_x + sp.scene_width
+AND   sp.sprite_y                    < sp.scene_y + sp.scene_height
+AND   sp.sprite_x + sp.sprite_width  > sp.scene_x 
+AND   sp.sprite_y + sp.sprite_height > sp.scene_y
+ORDER BY sp.entity_level, sp.sprite_level;
 `, sceneId)
   if rows == nil || err != nil {
     return nil, err 
@@ -53,21 +76,22 @@ func (sprites Sprites) Close() {
 
 func (sprites Sprites) Next() (*Sprite, error) {
   var (
-    err        error
-    spriteId   int64 
-    name       string 
-    x, y, w, h int64
+    err            error
+    spriteId       int64 
+    name           string 
+    x, y, w, h     int64
+    clip_x, clip_y int64
   )
 
   if !sprites.Rows.next() {
     return nil, err
   }
 
-  err = sprites.Rows.Scan(&spriteId, &name, &x, &y, &w, &h)  
+  err = sprites.Rows.Scan(&spriteId, &name, &x, &y, &w, &h, &clip_x, &clip_y)  
 
   return &Sprite{ 
     Id        : spriteId, 
     Name      : name, 
-    SrcLayout : &sdl.Rect{X: 0, Y: 0, W: int32(w), H: int32(h)}, 
-    DestLayout: &sdl.Rect{X: int32(x), Y: int32(y), W: int32(w), H: int32(h)} }, err
+    SrcLayout : &sdl.Rect{X: int32(clip_x) , Y: int32(clip_y) , W: int32(w), H: int32(h)}, 
+    DestLayout: &sdl.Rect{X: int32(x)      , Y: int32(y)      , W: int32(w), H: int32(h)} }, err
 }
