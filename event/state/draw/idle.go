@@ -20,8 +20,10 @@ func MakeIdle(backendHandle *backend.Handle) Idle {
 }
 
 func (idle Idle) Destroy() {}
-func (idle Idle) PreEvent() State { return idle }
-func (idle Idle) OnTick() State   { return idle }
+func (idle Idle) PreEvent()    State { return idle }
+func (idle Idle) OnTick()      State { return idle }
+func (idle Idle) TickDelayed() bool  { return false }
+func (idle Idle) OnTickDelay() State { return idle }
 func (idle Idle) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(idle) }
 
 func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {

@@ -29,8 +29,10 @@ func MakePressed(idle Idle) (Pressed, error) {
 }
 
 func (pressed Pressed) Destroy() {}
-func (pressed Pressed) PreEvent() State { return pressed }
-func (pressed Pressed) OnTick()   State { return pressed }
+func (pressed Pressed) PreEvent()    State { return pressed }
+func (pressed Pressed) OnTick()      State { return pressed }
+func (pressed Pressed) TickDelayed() bool  { return false }
+func (pressed Pressed) OnTickDelay() State { return pressed }
 
 func (pressed Pressed) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(pressed) }
 

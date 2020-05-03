@@ -33,8 +33,10 @@ func MakeDot(previousState State, backendHandle *backend.Handle, position backen
 
 func (dot Dot) Destroy() {}
 
-func (dot Dot) PreEvent() State { return dot }
-func (dot Dot) OnTick()   State { return dot }
+func (dot Dot) PreEvent()    State { return dot }
+func (dot Dot) OnTick()      State { return dot }
+func (dot Dot) TickDelayed() bool  { return false }
+func (dot Dot) OnTickDelay() State { return dot }
 func (dot Dot) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(dot) }
 
 func (dot Dot) OnKeyboardEvent(event *sdl.KeyboardEvent) State {

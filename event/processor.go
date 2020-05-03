@@ -81,7 +81,7 @@ func (processor *Processor) PreProcess() {
     i       int 
     process Process
   )
-  
+
   for i, process = range processor.processes {
     if process.active && process.preProcess {
         processor.processes[i].state = process.state.PreEvent()      
@@ -125,7 +125,11 @@ func (processor *Processor) processTicks() {
   for t = 0; t < ticks; t++ {
     for i, process = range processor.processes {
       if process.active && process.processTicks {
-        processor.processes[i].state = process.state.OnTick()
+        if process.state.TickDelayed() {
+          processor.processes[i].state = process.state.OnTickDelay()
+        } else {
+          processor.processes[i].state = process.state.OnTick()
+        }
       }
     }
   }

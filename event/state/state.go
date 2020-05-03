@@ -8,6 +8,8 @@ type State interface {
 	Destroy()
 	PreEvent() State
 	OnTick() State
+	TickDelayed() bool
+	OnTickDelay() State
   OnQuit(event *sdl.QuitEvent) State
   OnKeyboardEvent(event *sdl.KeyboardEvent) State
   OnMouseMotionEvent(event *sdl.MouseMotionEvent) State

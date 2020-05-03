@@ -37,8 +37,10 @@ func MakeLine(previousState State, backendHandle *backend.Handle, here backend.P
 }
 
 func (line Line) Destroy() {}
-func (line Line) PreEvent() State { return line }
-func (line Line) OnTick()   State { return line }
+func (line Line) PreEvent()    State { return line }
+func (line Line) OnTick()      State { return line }
+func (line Line) TickDelayed() bool  { return false }
+func (line Line) OnTickDelay() State { return line }
 func (line Line) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(line) }
 
 func (line Line) OnKeyboardEvent(event *sdl.KeyboardEvent) State {

@@ -88,6 +88,9 @@ func (init Init) OnTick() State {
   return state
 }
 
+func (init Init) TickDelayed() bool  { return false }
+func (init Init) OnTickDelay() State { return init }
+
 func (init Init) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(init) }
 
 func (init Init) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
