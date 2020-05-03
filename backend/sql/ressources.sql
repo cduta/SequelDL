@@ -12,7 +12,7 @@ INSERT INTO states(id, name) VALUES
 
 INSERT INTO entities(id, object_id, state_id, name, x, y, level, visible) VALUES 
 (1, 1, 1, 'button_1', 100, 100, 1, true),
-(2, 2, 1, 'button_2', 200, 100, 1, true);
+(2, 2, 1, 'button_2', 130, 110, 2, true);
 
 INSERT INTO scenes(id, name, x, y, scroll_x, scroll_y, width, height, scroll_speed) VALUES 
 (1, 'menu'  , 100, 100, 0, 0, 400, 200, 10);

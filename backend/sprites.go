@@ -63,7 +63,7 @@ WHERE sp.sprite_x                    < sp.scene_x + sp.scene_width
 AND   sp.sprite_y                    < sp.scene_y + sp.scene_height
 AND   sp.sprite_x + sp.sprite_width  > sp.scene_x 
 AND   sp.sprite_y + sp.sprite_height > sp.scene_y
-ORDER BY sp.entity_level DESC, sp.sprite_level DESC;
+ORDER BY sp.entity_level, sp.sprite_level, sp.id;
 `, sceneId)
   if rows == nil || err != nil {
     return nil, err 
