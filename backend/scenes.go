@@ -28,8 +28,8 @@ func (handle *Handle) ScrollScene(sceneId int64, scrollX int32, scrollY int32) e
 
 	_, err = handle.exec(`
 UPDATE scenes 
-SET    x = x + ? * scroll_speed,
-       y = y + ? * scroll_speed 
+SET    scene_x = scene_x + ? * scroll_speed,
+       scene_y = scene_y + ? * scroll_speed 
 WHERE  id = ?
 	`, scrollX, scrollY, sceneId)
 

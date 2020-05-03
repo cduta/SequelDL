@@ -21,13 +21,15 @@ func (handle *Handle) QuerySprites(sceneId int64) (*Sprites, error) {
     rows *Rows
   )
 
+  // 500 - 200+63
+
   rows, err = handle.queryRows(`
 SELECT sp.id, 
        sp.name,
        sp.sprite_x      + MAX(sp.scene_x - sp.sprite_x, 0)                                                                         AS x,
        sp.sprite_y      + MAX(sp.scene_y - sp.sprite_y, 0)                                                                         AS y,
-       sp.sprite_width  - MAX(sp.scene_x - sp.sprite_x, 0) - MIN(sp.sprite_x + sp.sprite_width  - sp.scene_x + sp.scene_width , 0) AS width,
-       sp.sprite_height - MAX(sp.scene_y - sp.sprite_y, 0) - MIN(sp.sprite_y + sp.sprite_height - sp.scene_y + sp.scene_height, 0) AS height,
+       sp.sprite_width  - MAX(sp.scene_x - sp.sprite_x, 0) - MAX((sp.sprite_x + sp.sprite_width) - (sp.scene_x + sp.scene_width) , 0) AS width,
+       sp.sprite_height - MAX(sp.scene_y - sp.sprite_y, 0) - MAX((sp.sprite_y + sp.sprite_height) - (sp.scene_y + sp.scene_height), 0) AS height,
                           MAX(sp.scene_x - sp.sprite_x, 0)                                                                         AS clip_x,
                           MAX(sp.scene_y - sp.sprite_y, 0)                                                                         AS clip_y
 FROM (

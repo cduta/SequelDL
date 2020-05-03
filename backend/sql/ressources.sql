@@ -15,7 +15,7 @@ INSERT INTO entities(id, object_id, state_id, name, x, y, level, visible) VALUES
 (2, 2, 1, 'button_2', 200, 100, 1, true);
 
 INSERT INTO scenes(id, name, x, y, scene_x, scene_y, width, height, scroll_speed) VALUES 
-(1, 'menu'  , 100, 100, 0, 0, 400, 400, 10);
+(1, 'menu'  , 100, 100, 0, 0, 400, 200, 10);
 
 INSERT INTO entities_scenes(entity_id, scene_id) VALUES 
 (1, 1),
