@@ -21,30 +21,30 @@ func (handle *Handle) QuerySprites(sceneId int64) (*Sprites, error) {
     rows *Rows
   )
 
-  // 500 - 200+63
-
   rows, err = handle.queryRows(`
 SELECT sp.id, 
        sp.name,
-       sp.sprite_x      + MAX(sp.scene_x - sp.sprite_x, 0)                                                                         AS x,
-       sp.sprite_y      + MAX(sp.scene_y - sp.sprite_y, 0)                                                                         AS y,
-       sp.sprite_width  - MAX(sp.scene_x - sp.sprite_x, 0) - MAX((sp.sprite_x + sp.sprite_width) - (sp.scene_x + sp.scene_width) , 0) AS width,
-       sp.sprite_height - MAX(sp.scene_y - sp.sprite_y, 0) - MAX((sp.sprite_y + sp.sprite_height) - (sp.scene_y + sp.scene_height), 0) AS height,
-                          MAX(sp.scene_x - sp.sprite_x, 0)                                                                         AS clip_x,
-                          MAX(sp.scene_y - sp.sprite_y, 0)                                                                         AS clip_y
+       sp.sprite_x      + MAX(sp.scene_x - sp.sprite_x, 0)                                          AS x,
+       sp.sprite_y      + MAX(sp.scene_y - sp.sprite_y, 0)                                          AS y,
+       sp.sprite_width  - MAX(sp.scene_x - sp.sprite_x, 0) 
+                        - MAX((sp.sprite_x + sp.sprite_width)  - (sp.scene_x + sp.scene_width) , 0) AS width, 
+       sp.sprite_height - MAX(sp.scene_y - sp.sprite_y, 0) 
+                        - MAX((sp.sprite_y + sp.sprite_height) - (sp.scene_y + sp.scene_height), 0) AS height,
+                          MAX(sp.scene_x - sp.sprite_x, 0)                                          AS clip_x,
+                          MAX(sp.scene_y - sp.sprite_y, 0)                                          AS clip_y
 FROM (
   SELECT sp.id, 
          sp.name, 
-         sc.x + en.x + sp.relative_x - sc.scene_x AS sprite_x,      -- ⎫  
-         sc.y + en.y + sp.relative_y - sc.scene_y AS sprite_y,      -- ⎬ Absolute sprite position and size on screen 
-         sp.width                                 AS sprite_width,  -- ⎪  
-         sp.height                                AS sprite_height, -- ⎭
-         sp.level                                 AS sprite_level,
-         en.level                                 AS entity_level, 
-         sc.x                                     AS scene_x,       -- ⎫  
-         sc.y                                     AS scene_y,       -- ⎬ Absolute scene position and size on screen
-         sc.width                                 AS scene_width,   -- ⎪  
-         sc.height                                AS scene_height   -- ⎭
+         sc.x + en.x + sp.relative_x - sc.scroll_x AS sprite_x,      -- ⎫  
+         sc.y + en.y + sp.relative_y - sc.scroll_y AS sprite_y,      -- ⎬ Absolute sprite position and size on screen 
+         sp.width                                  AS sprite_width,  -- ⎪  
+         sp.height                                 AS sprite_height, -- ⎭
+         sp.level                                  AS sprite_level,
+         en.level                                  AS entity_level, 
+         sc.x                                      AS scene_x,       -- ⎫  
+         sc.y                                      AS scene_y,       -- ⎬ Absolute scene position and size on screen
+         sc.width                                  AS scene_width,   -- ⎪  
+         sc.height                                 AS scene_height   -- ⎭
   FROM   sprites         AS sp,
          states_sprites  AS ss,
          states          AS st,
