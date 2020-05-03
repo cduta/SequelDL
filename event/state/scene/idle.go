@@ -14,29 +14,26 @@ import (
 type Idle struct {
   backendHandle *backend.Handle
   scene         *sdlex.Scene 
+  scrollX        int32
+  scrollY        int32
 }
 
 func MakeIdle(backendHandle *backend.Handle, scene *sdlex.Scene) Idle {
-  return Idle{ backendHandle: backendHandle, scene: scene }
+  return Idle{ backendHandle: backendHandle, scene: scene, scrollX: 0, scrollY: 0 }
 }
 
 func (idle Idle) Destroy() {}
+func (idle Idle) PreEvent() State { 
+  idle.scrollX = 0
+  idle.scrollY = 0
 
-func (idle Idle) OnTick() State {
-  return idle
+  return idle 
 }
-
-func (idle Idle) OnQuit(event *sdl.QuitEvent) State {
-  return MakeQuit(idle)
-}
+func (idle Idle) OnTick()   State { return idle }
+func (idle Idle) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(idle) }
 
 func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
-  var (
-    err     error  
-    state   State = idle
-    scrollX int32 = 0
-    scrollY int32 = 0
-  )
+  var state State = idle
 
   switch event.State {
     case sdlex.BUTTON_PRESSED:  
@@ -54,23 +51,18 @@ func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
                event.Keysym.Sym == sdl.K_RIGHT || 
                event.Keysym.Sym == sdl.K_DOWN  :
             if event.Keysym.Sym == sdl.K_UP {
-              scrollY += -1
+              idle.scrollY += -1
             }
             if event.Keysym.Sym == sdl.K_LEFT {
-              scrollX += -1
+              idle.scrollX += -1
             }
             if event.Keysym.Sym == sdl.K_RIGHT {
-              scrollX += 1
+              idle.scrollX +=  1
             }
             if event.Keysym.Sym == sdl.K_DOWN {
-              scrollY += 1
+              idle.scrollY +=  1
             }
-            if scrollX != 0 || scrollY != 0 {
-              err = idle.backendHandle.ScrollScene(idle.scene.Id, scrollX, scrollY)
-              if err != nil {
-                fmt.Fprintf(os.Stderr, "Could not scroll scene (%s) in (%d, %d) direction: %s\n", idle.scene.Name, scrollX, scrollY, err)
-              }
-            }
+            state = idle
         }
       }
   } 
@@ -78,11 +70,17 @@ func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   return state
 }
 
-func (idle Idle) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
-  return idle
-}
+func (idle Idle) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State { return idle }
+func (idle Idle) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State { return idle }
+func (idle Idle) PostEvent() State { 
+  var err error 
 
-func (idle Idle) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
-  return idle
-}
+  if idle.scrollX != 0 || idle.scrollY != 0 {
+    err = idle.backendHandle.ScrollScene(idle.scene.Id, idle.scrollX, idle.scrollY)
+    if err != nil {
+      fmt.Fprintf(os.Stderr, "Could not scroll scene (%s) in (%d, %d) direction: %s\n", idle.scene.Name, idle.scrollX, idle.scrollY, err)
+    }
+  }
 
+  return idle 
+}

@@ -27,9 +27,8 @@ func MakeIdle(buttonEntityId int64, handle *backend.Handle) (Idle, error) {
 }
 
 func (idle Idle) Destroy() {}
-
-func (idle Idle) OnTick() State { return idle }
-
+func (idle Idle) PreEvent() State { return idle }
+func (idle Idle) OnTick()   State { return idle }
 func (idle Idle) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(idle) }
 
 func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
@@ -95,3 +94,4 @@ func (idle Idle) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
   return state 
 }
 
+func (idle Idle) PostEvent() State { return idle }

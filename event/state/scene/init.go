@@ -35,6 +35,11 @@ func (init Init) Destroy() {
   }
 }
 
+func (init Init) cancelInit() State {
+  init.idle.Destroy()
+  return MakeDone(init)
+}
+
 func (init Init) loadNextImage() (State, error) {
   var (
     err           error 
@@ -67,6 +72,8 @@ func (init Init) loadNextImage() (State, error) {
   }
 }
 
+func (init Init) PreEvent() State { return init }
+
 func (init Init) OnTick() State {
   var (
     err   error 
@@ -81,9 +88,7 @@ func (init Init) OnTick() State {
   return state
 }
 
-func (init Init) OnQuit(event *sdl.QuitEvent) State {
-  return MakeQuit(init)
-}
+func (init Init) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(init) }
 
 func (init Init) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   var state State = init
@@ -106,16 +111,8 @@ func (init Init) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   return state
 }
 
-func (init Init) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
-  return init
-}
+func (init Init) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State { return init }
+func (init Init) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State { return init }
+func (init Init) PostEvent() State { return init }
 
-func (init Init) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
-  return init
-}
-
-func (init Init) cancelInit() State {
-  init.idle.Destroy()
-  return MakeDone(init)
-}
 

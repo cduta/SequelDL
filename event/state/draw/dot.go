@@ -33,9 +33,9 @@ func MakeDot(previousState State, backendHandle *backend.Handle, position backen
 
 func (dot Dot) Destroy() {}
 
-func (dot Dot) OnQuit(event *sdl.QuitEvent) State {
-  return MakeQuit(dot)
-}
+func (dot Dot) PreEvent() State { return dot }
+func (dot Dot) OnTick()   State { return dot }
+func (dot Dot) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(dot) }
 
 func (dot Dot) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   var state State = dot
@@ -49,10 +49,6 @@ func (dot Dot) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   }
 
   return state
-}
-
-func (dot Dot) OnTick() State {
-  return dot
 }
 
 func (dot Dot) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
@@ -90,3 +86,4 @@ func (dot Dot) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
   return state 
 }
           
+func (dot Dot) PostEvent() State { return dot }

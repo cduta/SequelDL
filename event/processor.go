@@ -15,16 +15,20 @@ const TICK_INTERVAL_IN_MILLISECONDS int64 = 20
 
 type Process struct {
   state         state.State
+  preProcess    bool 
   processEvents bool 
   processTicks  bool 
+  postProcess   bool
   active        bool
 }
 
 func NewProcess(state state.State) Process {
   return Process{
     state        : state, 
+    preProcess   : true,
     processEvents: true,  
     processTicks : true,
+    postProcess  : true,
     active       : true}
 }
 
@@ -42,10 +46,17 @@ func (process *Process) doProcessTicks(processTicks bool) {
   process.processTicks = processTicks
 }
 
+func (process *Process) doPreProcess(preProcess bool) {
+  process.preProcess = preProcess
+}
+
+func (process *Process) doPostProcess(postProcess bool) {
+  process.postProcess = postProcess
+}
+
 func (process *Process) isActive(active bool) {
   process.active = active
 }
-
 
 type Processor struct {
   processes []Process
@@ -63,6 +74,32 @@ func NewProcessor(sdlWrap *sdlex.Wrap) *Processor {
 
 func (processor *Processor) AddProcess(process Process) {
   processor.processes = append(processor.processes, process)
+}
+
+func (processor *Processor) PreProcess() {
+  var (
+    i       int 
+    process Process
+  )
+  
+  for i, process = range processor.processes {
+    if process.active && process.preProcess {
+        processor.processes[i].state = process.state.PreEvent()      
+    }
+  }
+}
+
+func (processor *Processor) PostProcess() {
+  var (
+    i       int 
+    process Process
+  )
+
+  for i, process = range processor.processes {
+    if process.active && process.postProcess {
+        processor.processes[i].state = process.state.PostEvent()      
+    }
+  }
 }
 
 func (processor *Processor) processTicks() {
@@ -132,8 +169,8 @@ func (processor *Processor) removeInactiveProcesses() {
   for i = 0; i < len(processor.processes); {
     if !processor.processes[i].active {
       processor.processes[i].Destroy()
-      processor.processes[i] = processor.processes[len(processor.processes)-1]
-      processor.processes = processor.processes[:len(processor.processes)-1]
+      processor.processes[i] = processor.processes[ len(processor.processes)-1]
+      processor.processes    = processor.processes[:len(processor.processes)-1]
     } else {
       i++
     }
@@ -141,7 +178,9 @@ func (processor *Processor) removeInactiveProcesses() {
 }
 
 func (processor *Processor) ProcessStates() {
+  processor.PreProcess()
   processor.processTicks()
   processor.processEvents()
+  processor.PostProcess()
   processor.removeInactiveProcesses()
 }

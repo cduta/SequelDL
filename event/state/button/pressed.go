@@ -29,8 +29,8 @@ func MakePressed(idle Idle) (Pressed, error) {
 }
 
 func (pressed Pressed) Destroy() {}
-
-func (pressed Pressed) OnTick() State { return pressed }
+func (pressed Pressed) PreEvent() State { return pressed }
+func (pressed Pressed) OnTick()   State { return pressed }
 
 func (pressed Pressed) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(pressed) }
 
@@ -89,3 +89,4 @@ func (pressed Pressed) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
   return state 
 }
 
+func (pressed Pressed) PostEvent() State { return pressed }

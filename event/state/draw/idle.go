@@ -20,14 +20,9 @@ func MakeIdle(backendHandle *backend.Handle) Idle {
 }
 
 func (idle Idle) Destroy() {}
-
-func (idle Idle) OnTick() State {
-  return idle
-}
-
-func (idle Idle) OnQuit(event *sdl.QuitEvent) State {
-  return MakeQuit(idle)
-}
+func (idle Idle) PreEvent() State { return idle }
+func (idle Idle) OnTick() State   { return idle }
+func (idle Idle) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(idle) }
 
 func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   var (
@@ -61,9 +56,7 @@ func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
   return state
 }
 
-func (idle Idle) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
-  return idle
-}
+func (idle Idle) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State { return idle }
 
 func (idle Idle) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
   var (
@@ -106,3 +99,4 @@ func (idle Idle) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
   return state 
 }
 
+func (idle Idle) PostEvent() State { return idle }
