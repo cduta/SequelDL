@@ -1,8 +1,8 @@
 INSERT INTO integer_options(id, name, value) VALUES 
-(1, 'screen width' , 1024),
-(2, 'screen height', 768 ),
-(3, 'font size'    , 30  ),
-(4, 'fps'          , 60  );
+(1, 'window width'     , 1024),
+(2, 'window height'    , 768 ),
+(3, 'default font size', 30  ),
+(4, 'fps'              , 60  );
 
 INSERT INTO text_options(id, name, value) VALUES 
 (1, 'window title' , 'Menu Test'),

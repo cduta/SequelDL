@@ -92,15 +92,8 @@ func run(settings settings) {
     backendHandle  *backend.Handle
     sdlWrap        *sdlex.Wrap
     eventProcessor *event.Processor
-
-    sdlWrapArgs     sdlex.WrapArgs = sdlex.WrapArgs{ 
-      DEFAULT_WINDOW_TITLE : "Menu Test", 
-      DEFAULT_WINDOW_WIDTH : 1024, 
-      DEFAULT_WINDOW_HEIGHT: 786,
-      DEFAULT_FONT         : "font/DejaVuSansMono.ttf",
-      DEFAULT_FONT_SIZE    : 30,
-      DEFAULT_FPS          : 60,
-      DEFAULT_SHOW_FPS     : true}
+    options         backend.Options
+    sdlWrapArgs     sdlex.WrapArgs
   )
 
   backendHandle, err = backend.NewHandle(settings.DEFAULT_SAVE_FILE_PATH)
@@ -111,6 +104,22 @@ func run(settings settings) {
   defer backendHandle.Close()
 
   sdlWrapArgs.Handle = backendHandle
+
+  options, err = backendHandle.QueryOptions()
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Failed to query options: %s\n", err)
+    return     
+  }
+
+  sdlWrapArgs = sdlex.WrapArgs{ 
+    DEFAULT_WINDOW_TITLE :        options.WindowTitle,       
+    DEFAULT_WINDOW_WIDTH :  int32(options.WindowWidth),     
+    DEFAULT_WINDOW_HEIGHT:  int32(options.WindowHeight),    
+    DEFAULT_FONT         :        options.DefaultFont,      
+    DEFAULT_FONT_SIZE    :    int(options.DefaultFontSize), 
+    DEFAULT_FPS          : uint32(options.FPS),             
+    DEFAULT_SHOW_FPS     :        options.ShowFPS,          
+    Handle               :        backendHandle}
 
   sdl.Init(sdl.INIT_EVERYTHING)
   defer sdl.Quit()
