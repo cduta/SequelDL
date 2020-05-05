@@ -12,8 +12,8 @@ import (
 )
 
 const (
-  SCROLL_FIRST_DELAY  = 5
-  SCROLL_REPEAT_DELAY = 2
+  SCROLL_FIRST_DELAY  = 3
+  SCROLL_REPEAT_DELAY = 1
 )
 
 type Idle struct {

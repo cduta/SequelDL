@@ -10,7 +10,7 @@ PRAGMA synchronous=OFF;
 CREATE TABLE integer_options (
   id    integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   name  text    NOT NULL UNIQUE,
-  value integer NOT NULL
+  value integer NOT NULL CHECK (value BETWEEN -2147483648 AND 2147483647) -- Golang's int32 constraint
 );
 
 CREATE TABLE text_options (
@@ -57,40 +57,6 @@ CREATE TABLE lines (
 CREATE UNIQUE INDEX lines_object_id_idx ON lines(object_id);
 CREATE INDEX lines_here_idx ON lines(here_x,here_y);
 CREATE INDEX lines_there_idx ON lines(there_x,there_y);
-
-CREATE TABLE triangles (
-  id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  object_id integer NOT NULL REFERENCES objects(id),
-  x1        integer NOT NULL,
-  y1        integer NOT NULL,
-  x2        integer NOT NULL,
-  y2        integer NOT NULL,
-  x3        integer NOT NULL,
-  y3        integer NOT NULL
-);
-
-CREATE TABLE rectangles (
-  id             integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  object_id      integer NOT NULL REFERENCES objects(id),
-  top_left_x     integer NOT NULL,
-  top_left_y     integer NOT NULL,
-  bottom_right_x integer NOT NULL,
-  bottom_right_y integer NOT NULL
-);
-
-CREATE TABLE polygons (
-  id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  object_id integer NOT NULL REFERENCES objects(id)
-);
-
-CREATE TABLE polygon_vertices (
-  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  polygon_id integer NOT NULL REFERENCES polygons(id),
-  i          integer NOT NULL CHECK(i >= 0), 
-  x          integer NOT NULL,
-  y          integer NOT NULL,
-  UNIQUE(id, i)
-);
 
 CREATE TABLE colors (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
