@@ -32,14 +32,36 @@ type Wrap struct {
   scene      *Scene 
 }
 
-func NewWrap(args WrapArgs) (*Wrap, error) {
+func MakeWrap(backendHandle *backend.Handle) (*Wrap, error) {
   var (
     err         error
+    options     backend.Options
+    args        WrapArgs
     window     *sdl.Window
     renderer   *sdl.Renderer
     font       *ttf.Font
     fpsManager *gfx.FPSmanager = new(gfx.FPSmanager)
   )
+
+  args.Handle = backendHandle
+
+  options, err = backendHandle.QueryOptions()
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Failed to query options: %s\n", err)
+    return nil, err
+  }
+
+  args = WrapArgs{ 
+    DEFAULT_WINDOW_TITLE :        options.WindowTitle,       
+    DEFAULT_WINDOW_WIDTH :  int32(options.WindowWidth),     
+    DEFAULT_WINDOW_HEIGHT:  int32(options.WindowHeight),    
+    DEFAULT_FONT         :        options.DefaultFont,      
+    DEFAULT_FONT_SIZE    :    int(options.DefaultFontSize), 
+    DEFAULT_FPS          : uint32(options.FPS),             
+    DEFAULT_SHOW_FPS     :        options.ShowFPS,          
+    Handle               :        backendHandle}
+
+  sdl.Init(sdl.INIT_EVERYTHING)
 
   if args.Handle == nil {
     return nil, fmt.Errorf("Backend handle not defined")
@@ -90,6 +112,7 @@ func (sdlWrap Wrap) Quit() {
   sdlWrap.renderer.Destroy()
   sdlWrap.font.Close()
   img.Quit()  
+  sdl.Quit()
 }
 
 func (sdlWrap Wrap) Renderer() *sdl.Renderer {

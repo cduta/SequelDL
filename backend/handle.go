@@ -35,7 +35,7 @@ type Object struct {
   Id int64
 }
 
-func NewHandle(saveFilePath string) (*Handle, error) {
+func MakeHandle(saveFilePath string) (*Handle, error) {
   var (
     err       error
     dbhandle *sql.DB
@@ -52,20 +52,20 @@ func NewHandle(saveFilePath string) (*Handle, error) {
     dbhandle: dbhandle,
     locked: false}
 
-  err = handle.runSQLFile("backend/sql/initialize.sql")
+  err = handle.runSQLFile("backend/initialize.sql")
   if err != nil {
     dbhandle.Close()
     return nil, err
   }
 
   if saveFilePath == "" {
-    err = handle.runSQLFile("backend/sql/options.sql")
+    err = handle.runSQLFile("backend/options.sql")
     if err != nil {
       dbhandle.Close()
       return nil, err
     }
 
-    err = handle.runSQLFile("backend/sql/ressources.sql")
+    err = handle.runSQLFile("backend/ressources.sql")
     if err != nil {
       dbhandle.Close()
       return nil, err
