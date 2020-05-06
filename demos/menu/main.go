@@ -7,9 +7,9 @@ import (
   "../../sdlex"
   "../../backend"
   "../../event"
-  "../../event/state/draw"
-  "../../event/state/scene"
-  "../../event/state/button"
+  "./state/draw"
+  "./state/scene"
+  "./state/button"
 )
 
 func MakeMenuProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Processor, error) {

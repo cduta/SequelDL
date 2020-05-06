@@ -3,11 +3,13 @@ package sdlex
 import (
   "os"
   "fmt"
+
+  "../backend"
+
   "github.com/veandco/go-sdl2/sdl"
   "github.com/veandco/go-sdl2/img"
   "github.com/veandco/go-sdl2/ttf"
   "github.com/veandco/go-sdl2/gfx"
-  "../backend"
 )
 
 type WrapArgs struct {

@@ -4,9 +4,9 @@ import (
   "fmt"
   "os"
 
-  "../../../backend"
-  "../../../sdlex"
-  . "../../state"
+  "../../../../backend"
+  "../../../../sdlex"
+  . "../../../../event/state"
 
   "github.com/veandco/go-sdl2/sdl"
 )
