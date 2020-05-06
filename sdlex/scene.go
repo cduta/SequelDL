@@ -43,8 +43,12 @@ func (scene *Scene) AddImage(image *Image) {
 	scene.Images[image.Id] = image
 }
 
-func (scene *Scene) IsReady(ready bool) {
+func (scene *Scene) SetReady(ready bool) {
 	scene.Ready = ready
+}
+
+func (scene *Scene) IsReady() bool {
+	return scene != nil && scene.Ready
 }
 
 func (sdlWrap Wrap) RenderSprite(sprite *backend.Sprite) {

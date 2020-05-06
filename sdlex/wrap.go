@@ -217,9 +217,9 @@ func (sdlWrap Wrap) RenderFramerate(x, y int32) (error) {
 func (sdlWrap Wrap) renderObjects() error {
   var err error
 
-  if sdlWrap.scene.Ready {
-    err = sdlWrap.renderDots()
-    err = sdlWrap.renderLines()
+  err = sdlWrap.renderDots()
+  err = sdlWrap.renderLines()
+  if sdlWrap.scene.IsReady() {
     err = sdlWrap.renderScene()
   }
 
