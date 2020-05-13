@@ -32,17 +32,15 @@ func (menuWrap *MenuWrap) Initialize(sclWrap *sdlex.SdlWrap, handle *backend.Han
 }
 
 func (menuWrap *MenuWrap) IsReady() bool {
-  return true
+  return menuWrap.scene.IsReady()
 }
 
 func (menuWrap *MenuWrap) Render(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error {
   var err error
-
-  if menuWrap.scene.IsReady() {
-    err = sdlWrap.RenderDots()
-    err = sdlWrap.RenderLines()
-    err = menuWrap.RenderScene(sdlWrap, handle)
-  }
+  
+  err = sdlWrap.RenderDots()
+  err = sdlWrap.RenderLines()
+  err = menuWrap.RenderScene(sdlWrap, handle)
 
   return err
 }

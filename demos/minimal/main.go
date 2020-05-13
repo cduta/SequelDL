@@ -5,10 +5,11 @@ import (
   "../../sdlex"
   "../../backend"
   "../../event"
+  "./wrap"
   "./state/idle"
 )
 
-func makeMinimalProcessor(_ *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Processor, error) {
+func makeMinimalProcessor(handle *backend.Handle, sdlWrap *sdlex.SdlWrap, wrap sdlex.Wrap) (*event.Processor, error) {
   var (
     err             error
     eventProcessor *event.Processor
@@ -51,5 +52,9 @@ func minimalRendering(sdlWrap *sdlex.Wrap) error {
 }
 
 func main() {
-  assemble.Run(minimalSave, minimalLoad, makeMinimalProcessor, minimalRendering)
+  assemble.Run(
+    minimalSave, 
+    minimalLoad, 
+    makeMinimalProcessor, 
+    wrap.MakeMinimalWrap())
 }
