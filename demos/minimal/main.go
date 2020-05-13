@@ -20,6 +20,36 @@ func MakeMinimalProcessor(_ *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Proces
   return eventProcessor, err
 }
 
+func MinimalSave(handle *backend.Handle) error {
+  var err error 
+
+  _, err = handle.Exec(`
+INSERT OR ROLLBACK INTO save.integer_options  SELECT * FROM main.integer_options;
+INSERT OR ROLLBACK INTO save.text_options     SELECT * FROM main.text_options;
+INSERT OR ROLLBACK INTO save.boolean_options  SELECT * FROM main.boolean_options;
+INSERT OR ROLLBACK INTO save.real_options     SELECT * FROM main.real_options;
+`)
+
+  return err
+}
+
+func MinimalLoad(handle *backend.Handle) error {
+  var err error 
+
+  _, err = handle.Exec(`
+INSERT OR ROLLBACK INTO main.integer_options  SELECT * FROM save.integer_options;
+INSERT OR ROLLBACK INTO main.text_options     SELECT * FROM save.text_options;
+INSERT OR ROLLBACK INTO main.boolean_options  SELECT * FROM save.boolean_options;
+INSERT OR ROLLBACK INTO main.real_options     SELECT * FROM save.real_options;
+`)
+
+  return err 
+}
+
+func MinimalRendering(sdlWrap *sdlex.Wrap) error {
+  return nil
+}
+
 func main() {
-  assemble.Run(MakeMinimalProcessor)
+  assemble.Run(MinimalSave, MinimalLoad, MakeMinimalProcessor, MinimalRendering)
 }
