@@ -104,6 +104,18 @@ INSERT OR ROLLBACK INTO main.hitboxes         SELECT * FROM save.hitboxes;
   return err 
 }
 
+func MenuRendering(sdlWrap *sdlex.Wrap) error {
+  var err error
+
+  if sdlWrap.Scene.IsReady() {
+    err = sdlWrap.RenderDots()
+    err = sdlWrap.RenderLines()
+    err = sdlWrap.RenderScene()
+  }
+
+  return err
+}
+
 func main() {
-  assemble.Run(MenuSave, MenuLoad, MakeMenuProcessor)
+  assemble.Run(MenuSave, MenuLoad, MakeMenuProcessor, MenuRendering)
 }

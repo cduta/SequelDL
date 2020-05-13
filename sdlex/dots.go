@@ -13,7 +13,7 @@ func (sdlWrap Wrap) RenderDot(dot *backend.Dot) {
     dot.Color.R, dot.Color.G, dot.Color.B, dot.Color.A)
 }
 
-func (sdlWrap Wrap) renderDots() error {
+func (sdlWrap Wrap) RenderDots() error {
   var (
     err   error 
     dots *backend.Dots

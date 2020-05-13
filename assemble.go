@@ -42,7 +42,7 @@ func parseArgs() settings {
   return settings{ DEFAULT_SAVE_FILE_PATH: saveFilePath }
 }
 
-func initialize(save backend.Save, load backend.Load) (*sdlex.Wrap, *backend.Handle, error) {
+func initialize(save backend.Save, load backend.Load, render sdlex.Rendering) (*sdlex.Wrap, *backend.Handle, error) {
   var (
     err            error
     settings       settings = parseArgs()
@@ -56,7 +56,7 @@ func initialize(save backend.Save, load backend.Load) (*sdlex.Wrap, *backend.Han
     return nil, nil, err
   }
 
-  sdlWrap, err = sdlex.MakeWrap(backendHandle)
+  sdlWrap, err = sdlex.MakeWrap(backendHandle, render)
   if err != nil {
     backendHandle.Close()
     fmt.Fprintf(os.Stderr, "Failed to inizialize SDL wrapper: %s\n", err)
@@ -77,7 +77,7 @@ func mainLoop(sdlWrap *sdlex.Wrap, eventProcessor *event.Processor) {
   return
 }
 
-func Run(save backend.Save, load backend.Load, makeProcessor MakeProcessor) {
+func Run(save backend.Save, load backend.Load, makeProcessor MakeProcessor, render sdlex.Rendering) {
   var (
     err            error
     backendHandle *backend.Handle
@@ -85,7 +85,7 @@ func Run(save backend.Save, load backend.Load, makeProcessor MakeProcessor) {
     processor     *event.Processor
   )
 
-  sdlWrap, backendHandle, err = initialize(save, load)
+  sdlWrap, backendHandle, err = initialize(save, load, render)
   if err != nil {
     return
   }

@@ -14,7 +14,7 @@ func (sdlWrap Wrap) RenderLine(line *backend.Line) {
     line.Color.R, line.Color.G, line.Color.B, line.Color.A)
 }
 
-func (sdlWrap Wrap) renderLines() error {
+func (sdlWrap Wrap) RenderLines() error {
   var (
     err    error 
     lines *backend.Lines

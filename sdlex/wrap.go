@@ -12,6 +12,8 @@ import (
   "github.com/veandco/go-sdl2/gfx"
 )
 
+type Rendering func(sdlWrap *Wrap) error 
+
 type wrapArgs struct {
   DEFAULT_WINDOW_TITLE   string
   DEFAULT_WINDOW_WIDTH   int32
@@ -31,10 +33,11 @@ type Wrap struct {
   font       *ttf.Font
   fpsManager *gfx.FPSmanager
   handle     *backend.Handle
-  scene      *Scene 
+  render      Rendering
+  Scene      *Scene 
 }
 
-func MakeWrap(backendHandle *backend.Handle) (*Wrap, error) {
+func MakeWrap(backendHandle *backend.Handle, render Rendering) (*Wrap, error) {
   var (
     err         error
     options     backend.Options
@@ -105,6 +108,7 @@ func MakeWrap(backendHandle *backend.Handle) (*Wrap, error) {
     renderer  : renderer,
     font      : font,
     fpsManager: fpsManager,
+    render    : render,
     handle    : args.Handle}, err
 }
 
@@ -134,7 +138,7 @@ func (sdlWrap *Wrap) StopRunning() {
 }
 
 func (sdlWrap *Wrap) SetScene(scene *Scene) {
-  sdlWrap.scene = scene
+  sdlWrap.Scene = scene
 }
 
 func (sdlWrap Wrap) PrepareFrame() {
@@ -143,7 +147,7 @@ func (sdlWrap Wrap) PrepareFrame() {
   sdlWrap.renderer.Clear()
 }
 
-func (sdlWrap Wrap) RenderFrame() {
+func (sdlWrap *Wrap) RenderFrame() {
   var err error
 
   if sdlWrap.showFPS {
@@ -153,7 +157,7 @@ func (sdlWrap Wrap) RenderFrame() {
     }
   }
 
-  err = sdlWrap.renderObjects()
+  err = sdlWrap.render(sdlWrap)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to render objects: %s\n", err)
   }
@@ -212,18 +216,6 @@ func (sdlWrap Wrap) RenderFramerate(x, y int32) (error) {
   } 
 
   return sdlWrap.renderText(framerateString, x, y)
-}
-
-func (sdlWrap Wrap) renderObjects() error {
-  var err error
-
-  if sdlWrap.scene.IsReady() {
-    err = sdlWrap.renderDots()
-    err = sdlWrap.renderLines()
-    err = sdlWrap.renderScene()
-  }
-
-  return err
 }
 
 func PrintRendererInfos() error {

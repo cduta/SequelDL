@@ -52,21 +52,21 @@ func (scene *Scene) IsReady() bool {
 }
 
 func (sdlWrap Wrap) RenderSprite(sprite *backend.Sprite) {
-	sdlWrap.renderer.Copy(sdlWrap.scene.Images[sprite.Id].texture, sprite.SrcLayout, sprite.DestLayout)
+	sdlWrap.renderer.Copy(sdlWrap.Scene.Images[sprite.Id].texture, sprite.SrcLayout, sprite.DestLayout)
 }
 
-func (sdlWrap Wrap) renderScene() error {
+func (sdlWrap Wrap) RenderScene() error {
   var (
     err      error 
     sprites *backend.Sprites
     sprite  *backend.Sprite
   )
 
-  if !sdlWrap.scene.Ready {
+  if !sdlWrap.Scene.IsReady() {
   	return err
   }
 
-  sprites, err = sdlWrap.handle.QuerySprites(sdlWrap.scene.Id)
+  sprites, err = sdlWrap.handle.QuerySprites(sdlWrap.Scene.Id)
   if sprites == nil || err != nil {
     return err
   }
