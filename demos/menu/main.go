@@ -12,7 +12,7 @@ import (
   "./state/button"
 )
 
-func MakeMenuProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Processor, error) {
+func makeMenuProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Processor, error) {
   var (
     err             error
     eventProcessor *event.Processor
@@ -54,7 +54,7 @@ func MakeMenuProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap) (*eve
   return eventProcessor, err
 }
 
-func MenuSave(handle *backend.Handle) error {
+func menuSave(handle *backend.Handle) error {
   var err error 
 
   _, err = handle.Exec(`
@@ -79,7 +79,7 @@ INSERT OR ROLLBACK INTO save.hitboxes         SELECT * FROM main.hitboxes;
   return err
 }
 
-func MenuLoad(handle *backend.Handle) error {
+func menuLoad(handle *backend.Handle) error {
   var err error 
 
   _, err = handle.Exec(`
@@ -104,7 +104,7 @@ INSERT OR ROLLBACK INTO main.hitboxes         SELECT * FROM save.hitboxes;
   return err 
 }
 
-func MenuRendering(sdlWrap *sdlex.Wrap) error {
+func menuRendering(sdlWrap *sdlex.Wrap) error {
   var err error
 
   if sdlWrap.Scene.IsReady() {
@@ -117,5 +117,5 @@ func MenuRendering(sdlWrap *sdlex.Wrap) error {
 }
 
 func main() {
-  assemble.Run(MenuSave, MenuLoad, MakeMenuProcessor, MenuRendering)
+  assemble.Run(menuSave, menuLoad, makeMenuProcessor, menuRendering)
 }

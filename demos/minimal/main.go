@@ -8,7 +8,7 @@ import (
   "./state/idle"
 )
 
-func MakeMinimalProcessor(_ *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Processor, error) {
+func makeMinimalProcessor(_ *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Processor, error) {
   var (
     err             error
     eventProcessor *event.Processor
@@ -20,7 +20,7 @@ func MakeMinimalProcessor(_ *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Proces
   return eventProcessor, err
 }
 
-func MinimalSave(handle *backend.Handle) error {
+func minimalSave(handle *backend.Handle) error {
   var err error 
 
   _, err = handle.Exec(`
@@ -33,7 +33,7 @@ INSERT OR ROLLBACK INTO save.real_options     SELECT * FROM main.real_options;
   return err
 }
 
-func MinimalLoad(handle *backend.Handle) error {
+func minimalLoad(handle *backend.Handle) error {
   var err error 
 
   _, err = handle.Exec(`
@@ -46,10 +46,10 @@ INSERT OR ROLLBACK INTO main.real_options     SELECT * FROM save.real_options;
   return err 
 }
 
-func MinimalRendering(sdlWrap *sdlex.Wrap) error {
+func minimalRendering(sdlWrap *sdlex.Wrap) error {
   return nil
 }
 
 func main() {
-  assemble.Run(MinimalSave, MinimalLoad, MakeMinimalProcessor, MinimalRendering)
+  assemble.Run(minimalSave, minimalLoad, makeMinimalProcessor, minimalRendering)
 }
