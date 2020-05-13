@@ -12,7 +12,7 @@ import (
   "github.com/veandco/go-sdl2/gfx"
 )
 
-type WrapArgs struct {
+type wrapArgs struct {
   DEFAULT_WINDOW_TITLE   string
   DEFAULT_WINDOW_WIDTH   int32
   DEFAULT_WINDOW_HEIGHT  int32 
@@ -38,7 +38,7 @@ func MakeWrap(backendHandle *backend.Handle) (*Wrap, error) {
   var (
     err         error
     options     backend.Options
-    args        WrapArgs
+    args        wrapArgs
     window     *sdl.Window
     renderer   *sdl.Renderer
     font       *ttf.Font
@@ -53,7 +53,7 @@ func MakeWrap(backendHandle *backend.Handle) (*Wrap, error) {
     return nil, err
   }
 
-  args = WrapArgs{ 
+  args = wrapArgs{ 
     DEFAULT_WINDOW_TITLE :        options.WindowTitle,       
     DEFAULT_WINDOW_WIDTH :  int32(options.WindowWidth),     
     DEFAULT_WINDOW_HEIGHT:  int32(options.WindowHeight),    
