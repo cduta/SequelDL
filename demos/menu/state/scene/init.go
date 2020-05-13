@@ -6,19 +6,20 @@ import (
 
   "../../../../backend"
   "../../../../sdlex"
+  "../../wrap"
   . "../../../../event/state"
 
   "github.com/veandco/go-sdl2/sdl"
 )
 
 type Init struct {
-  scene    *sdlex.Scene 
+  scene    *wrap.Scene 
   images   *backend.Images
   renderer *sdl.Renderer
   idle      Idle 
 }
 
-func MakeInit(backendHandle *backend.Handle, scene *sdlex.Scene, renderer *sdl.Renderer) (Init, error) {
+func MakeInit(backendHandle *backend.Handle, scene *wrap.Scene, renderer *sdl.Renderer) (Init, error) {
   var (
     err        error 
     images    *backend.Images
@@ -44,7 +45,7 @@ func (init Init) loadNextImage() (State, error) {
   var (
     err           error 
     backendImage *backend.Image
-    sceneImage    sdlex.Image
+    sceneImage    wrap.Image
     absolutePath  string
   )
 
@@ -59,7 +60,7 @@ func (init Init) loadNextImage() (State, error) {
       return init.cancelInit(), err
     }
     
-    sceneImage, err = sdlex.MakeImage(init.renderer, backendImage.Id, backendImage.Name, absolutePath)
+    sceneImage, err = wrap.MakeImage(init.renderer, backendImage.Id, backendImage.Name, absolutePath)
     if err != nil {
       return init.cancelInit(), err
     }

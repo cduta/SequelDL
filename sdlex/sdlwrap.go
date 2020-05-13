@@ -25,8 +25,9 @@ type sdlWrapArgs struct {
 
 type Wrap interface {
   Destroy()
+  Initialize(sdlWrap *SdlWrap, handle *backend.Handle) error
   IsReady() bool
-  Render(sdlWrap *SdlWrap) error
+  Render(sdlWrap *SdlWrap, handle *backend.Handle) error
 }
 
 type SdlWrap struct {
@@ -37,7 +38,6 @@ type SdlWrap struct {
   font       *ttf.Font
   fpsManager *gfx.FPSmanager
   handle     *backend.Handle
-  Scene      *Scene 
 }
 
 func MakeSdlWrap(backendHandle *backend.Handle) (*SdlWrap, error) {
@@ -139,10 +139,6 @@ func (sdlWrap *SdlWrap) StopRunning() {
   sdlWrap.running = false
 }
 
-func (sdlWrap *SdlWrap) SetScene(scene *Scene) {
-  sdlWrap.Scene = scene
-}
-
 func (sdlWrap SdlWrap) PrepareFrame() {
   gfx.FramerateDelay(sdlWrap.fpsManager)
   sdlWrap.renderer.SetDrawColor(0, 0, 0, 255)
@@ -164,7 +160,7 @@ func (sdlWrap *SdlWrap) RenderWrap(wrap Wrap) {
   var err error 
 
   if wrap != nil && wrap.IsReady() {
-    err = wrap.Render(sdlWrap)
+    err = wrap.Render(sdlWrap, sdlWrap.Handle())
     if err != nil {
       fmt.Fprintf(os.Stderr, "Failed to render objects: %s\n", err)
     }

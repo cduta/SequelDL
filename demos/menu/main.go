@@ -10,14 +10,15 @@ import (
   "./state/draw"
   "./state/scene"
   "./state/button"
+  "./wrap"
 )
 
-func makeMenuProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.SdlWrap) (*event.Processor, error) {
+func makeMenuProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.SdlWrap, sdlexWrap sdlex.Wrap) (*event.Processor, error) {
   var (
     err             error
+    menuWrap       *wrap.MenuWrap   = sdlexWrap.(*wrap.MenuWrap)
     eventProcessor *event.Processor
     init            scene.Init
-    initialScene   *sdlex.Scene 
     idle            button.Idle
   )
 
@@ -25,18 +26,11 @@ func makeMenuProcessor(backendHandle *backend.Handle, sdlWrap *sdlex.SdlWrap) (*
 
   eventProcessor.AddProcess(event.NewProcess(draw.MakeIdle(backendHandle)))
 
-  initialScene, err = sdlex.MakeScene("menu", backendHandle)
-  if err != nil {
-    fmt.Fprintf(os.Stderr, "Failed to make initial scene: %s\n", err)
-    return eventProcessor, err
-  }
-
-  init, err = scene.MakeInit(sdlWrap.Handle(), initialScene, sdlWrap.Renderer())
+  init, err = scene.MakeInit(sdlWrap.Handle(), menuWrap.Scene(), sdlWrap.Renderer())
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to make initializing scene state: %s\n", err)
     return eventProcessor, err
   }
-  sdlWrap.SetScene(initialScene)
   eventProcessor.AddProcess(event.NewProcess(init))
 
   idle, err = button.MakeIdle(1, backendHandle)
@@ -104,32 +98,10 @@ INSERT OR ROLLBACK INTO main.hitboxes         SELECT * FROM save.hitboxes;
   return err 
 }
 
-type MenuWrap struct {
-  scene   *sdlex.Scene
-}
-
-func (menuWrap *MenuWrap) Destroy() {}
-
-func (menuWrap *MenuWrap) IsReady() bool {
-  return true
-}
-
-func (menuWrap *MenuWrap) Render(sdlWrap *sdlex.SdlWrap) error {
-  var err error
-
-  if sdlWrap.Scene.IsReady() {
-    err = sdlWrap.RenderDots()
-    err = sdlWrap.RenderLines()
-    err = sdlWrap.RenderScene()
-  }
-
-  return err
-}
-
 func main() {
   assemble.Run(
     menuSave, 
     menuLoad, 
     makeMenuProcessor, 
-    &MenuWrap{ scene  : nil })
+    wrap.MakeMenuWrap())
 }

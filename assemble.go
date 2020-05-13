@@ -10,7 +10,7 @@ import (
   "./event"
 )
 
-type MakeProcessor func(backendHandle *backend.Handle, sdlWrap *sdlex.SdlWrap) (*event.Processor, error)
+type MakeProcessor func(backendHandle *backend.Handle, sdlWrap *sdlex.SdlWrap, wrap sdlex.Wrap) (*event.Processor, error)
 
 type settings struct {
   DEFAULT_SAVE_FILE_PATH string 
@@ -92,13 +92,20 @@ func Run(save backend.Save, load backend.Load, makeProcessor MakeProcessor, wrap
 
   sdlWrap, backendHandle, err = initialize(save, load)
   if err != nil {
+    fmt.Fprintf(os.Stderr, "Failed to initialize SDL wrapper or backend handler: %s\n", err)
     return
   }
   defer backendHandle.Close()
   defer sdlWrap.Quit()
+
+  err = wrap.Initialize(sdlWrap, backendHandle)
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Failed to initialize wrapper: %s\n", err)
+    return
+  }
   defer wrap.Destroy()
 
-  processor, err = makeProcessor(backendHandle, sdlWrap)
+  processor, err = makeProcessor(backendHandle, sdlWrap, wrap)
   if err != nil {
     fmt.Fprintf(os.Stderr, "Failed to initialize event processor: %s\n", err)
     return

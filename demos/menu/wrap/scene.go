@@ -1,7 +1,8 @@
-package sdlex
+package wrap
 
 import (
-  "../backend"
+  "../../../backend"
+  "../../../sdlex"
 )
 
 type Scene struct {
@@ -51,29 +52,29 @@ func (scene *Scene) IsReady() bool {
 	return scene != nil && scene.Ready
 }
 
-func (sdlWrap SdlWrap) RenderSprite(sprite *backend.Sprite) {
-	sdlWrap.renderer.Copy(sdlWrap.Scene.Images[sprite.Id].texture, sprite.SrcLayout, sprite.DestLayout)
+func (menuWrap MenuWrap) RenderSprite(sdlWrap *sdlex.SdlWrap, sprite *backend.Sprite) {
+	sdlWrap.Renderer().Copy(menuWrap.scene.Images[sprite.Id].texture, sprite.SrcLayout, sprite.DestLayout)
 }
 
-func (sdlWrap SdlWrap) RenderScene() error {
+func (menuWrap MenuWrap) RenderScene(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error {
   var (
     err      error 
     sprites *backend.Sprites
     sprite  *backend.Sprite
   )
 
-  if !sdlWrap.Scene.IsReady() {
+  if !menuWrap.scene.IsReady() {
   	return err
   }
 
-  sprites, err = sdlWrap.handle.QuerySprites(sdlWrap.Scene.Id)
+  sprites, err = handle.QuerySprites(menuWrap.scene.Id)
   if sprites == nil || err != nil {
     return err
   }
   defer sprites.Close()
 
   for sprite, err = sprites.Next(); err == nil && sprite != nil; sprite, err = sprites.Next() {
-    sdlWrap.RenderSprite(sprite)
+    menuWrap.RenderSprite(sdlWrap, sprite)
   }
 
   return err

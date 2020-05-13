@@ -6,6 +6,7 @@ import (
 
   "../../../../backend"
   "../../../../sdlex"
+  "../../wrap"
   . "../../../../event/state"
 
   "github.com/veandco/go-sdl2/sdl"
@@ -18,7 +19,7 @@ const (
 
 type Idle struct {
   backendHandle    *backend.Handle
-  scene            *sdlex.Scene 
+  scene            *wrap.Scene 
   scrollX           int32
   scrollY           int32
   firstScroll       bool
@@ -26,7 +27,7 @@ type Idle struct {
   delayRepeats      int  
 }
 
-func MakeIdle(backendHandle *backend.Handle, scene *sdlex.Scene) Idle {
+func MakeIdle(backendHandle *backend.Handle, scene *wrap.Scene) Idle {
   var idle Idle = Idle{ 
     backendHandle       : backendHandle, 
     scene               : scene}
