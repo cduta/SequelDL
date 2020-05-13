@@ -125,7 +125,45 @@ func (handle *Handle) runSQLFile(relativeFilePath string) error {
   return err
 }
 
-func (handle *Handle) queryRow(query string, args ...interface{}) (*Row, error) {
+func (handle *Handle) QueryRows(query string, args ...interface{}) (*Rows, error) {
+  var ( 
+    err   error
+    rows *sql.Rows
+  ) 
+
+  if !handle.isLocked() {
+    handle.lock()
+    rows, err = handle.dbhandle.Query(query, args...)
+    if err != nil {
+      return nil, err 
+    }
+  }
+
+  return &Rows{ rows: rows, handle: handle }, err
+}
+
+func (rows *Rows) Next() bool {
+  var hasNext bool = false 
+
+  if rows.rows != nil {
+    hasNext = rows.rows.Next()
+  }
+  return hasNext
+}
+
+
+func (rows *Rows) Close() {
+  rows.handle.unlock()
+  if rows.rows != nil {
+    rows.rows.Close()
+  }
+}
+
+func (rows *Rows) Scan(args ...interface{}) error {
+  return rows.rows.Scan(args...)
+}
+
+func (handle *Handle) QueryRow(query string, args ...interface{}) (*Row, error) {
   var (
     err  error 
     row *sql.Row
@@ -142,18 +180,8 @@ func (handle *Handle) queryRow(query string, args ...interface{}) (*Row, error) 
   return &Row{row: row}, err
 }
 
-func (handle *Handle) query(query string, args ...interface{}) (*sql.Rows, error) {
-  var (
-    err   error 
-    rows *sql.Rows
-  )
-
-  if !handle.isLocked() {
-    handle.lock()
-    return handle.dbhandle.Query(query, args...)
-  }
-
-  return rows, err
+func (row *Row) Scan(args ...interface{}) error {
+  return row.row.Scan(args...)
 }
 
 func (handle *Handle) Exec(query string, args ...interface{}) (sql.Result, error) {
@@ -173,7 +201,7 @@ func (handle *Handle) Save(path string) (bool, error) {
   var (
     err          error
     saveHandle  *sql.DB
-    schemaRows  *sql.Rows
+    schemaRows  *Rows
     statement    string   
     schema       string 
   )
@@ -182,7 +210,7 @@ func (handle *Handle) Save(path string) (bool, error) {
     return false, err
   }
 
-  schemaRows, err = handle.query(`
+  schemaRows, err = handle.QueryRows(`
     SELECT sm.sql 
     FROM   sqlite_master AS sm
     WHERE  sm.name NOT LIKE 'sqlite_%';
@@ -224,23 +252,17 @@ func (handle *Handle) Save(path string) (bool, error) {
   _, err = handle.Exec(`
 ATTACH DATABASE ? AS save;
 BEGIN IMMEDIATE;
-`, "file:"+path+"?cache=shared&_foreign_keys=true")
-  if err != nil {
-    return false, err
-  }
+  `, "file:"+path+"?cache=shared&_foreign_keys=true")
 
   err = handle.save(handle)
   if err != nil {
     return false, err
   }
 
-  _, err = handle.Exec(`
+    _, err = handle.Exec(`
 COMMIT;
 DETACH DATABASE save;
-`)
-  if err != nil {
-    return false, err
-  }
+  `)
 
   return true, err
 }
@@ -251,23 +273,17 @@ func (handle *Handle) Load(path string) (bool, error) {
   _, err = handle.Exec(`
 ATTACH DATABASE ? AS save;
 BEGIN IMMEDIATE;
-`, "file:"+path+"?cache=shared&_foreign_keys=true")
-  if err != nil {
-    return false, err
-  }
+  `, "file:"+path+"?cache=shared&_foreign_keys=true")
 
   err = handle.load(handle)
   if err != nil {
     return false, err
   }
 
-  _, err = handle.Exec(`
+    _, err = handle.Exec(`
 COMMIT;
 DETACH DATABASE save;
-`)
-  if err != nil {
-    return false, err
-  }
+  `)
 
   return true, err
 }
@@ -282,43 +298,4 @@ func (handle *Handle) unlock() {
 
 func (handle *Handle) isLocked() bool {
   return handle.locked
-}
-
-func (handle *Handle) queryRows(query string, args ...interface{}) (*Rows, error) {
-  var ( 
-    err   error
-    rows *sql.Rows
-  ) 
-
-  rows, err = handle.query(query, args...)
-
-  if err != nil {
-    return nil, err 
-  }
-
-  return &Rows{ rows: rows, handle: handle }, err
-}
-
-func (rows *Rows) next() bool {
-  var hasNext bool = false 
-
-  if rows.rows != nil {
-    hasNext = rows.rows.Next()
-  }
-  return hasNext
-}
-
-func (rows *Rows) Close() {
-  rows.handle.unlock()
-  if rows.rows != nil {
-    rows.rows.Close()
-  }
-}
-
-func (rows *Rows) Scan(args ...interface{}) error {
-  return rows.rows.Scan(args...)
-}
-
-func (row *Row) Scan(args ...interface{}) error {
-  return row.row.Scan(args...)
 }

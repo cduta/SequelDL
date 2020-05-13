@@ -52,7 +52,7 @@ func (handle *Handle) QueryDots() (*Dots, error) {
     rows *Rows
   )
 
-  rows, err = handle.queryRows(`
+  rows, err = handle.QueryRows(`
 SELECT o.id, d.id, d.x, d.y, c.r, c.g, c.b, c.a
 FROM   objects AS o, dots AS d, colors AS c  
 WHERE  o.id = d.object_id
@@ -77,7 +77,7 @@ func (dots Dots) Next() (*Dot, error) {
     dotId    int64
   )
 
-  if !dots.Rows.next() {
+  if !dots.Rows.Next() {
     return nil, err
   }
 

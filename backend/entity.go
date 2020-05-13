@@ -7,7 +7,7 @@ func (handle *Handle) HasEntityPixelCollision(entityId int64, position Position)
     collision  bool = false 
   )
 
-  row, err = handle.queryRow(`
+  row, err = handle.QueryRow(`
 SELECT TOTAL(en.id = ?) AND TRUE
 FROM (
   SELECT en.id

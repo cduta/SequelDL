@@ -21,7 +21,7 @@ func (handle *Handle) QuerySprites(sceneId int64) (*Sprites, error) {
     rows *Rows
   )
 
-  rows, err = handle.queryRows(`
+  rows, err = handle.QueryRows(`
 SELECT sp.id, 
        sp.name,
        sp.sprite_x      + MAX(sp.scene_x - sp.sprite_x, 0)                                          AS x,
@@ -85,7 +85,7 @@ func (sprites Sprites) Next() (*Sprite, error) {
     clip_x, clip_y int64
   )
 
-  if !sprites.Rows.next() {
+  if !sprites.Rows.Next() {
     return nil, err
   }
 

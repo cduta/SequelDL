@@ -7,7 +7,7 @@ func (handle *Handle) QuerySceneId(sceneName string) (int64, error) {
 		sceneId  int64 = -1
 	)
 
-  row, err = handle.queryRow(`
+  row, err = handle.QueryRow(`
 SELECT s.id 
 FROM   scenes AS s 
 WHERE  s.name = ?;

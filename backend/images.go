@@ -16,7 +16,7 @@ func (handle *Handle) QueryImages(sceneId int64) (*Images, error) {
     rows *Rows
   )
 
-  rows, err = handle.queryRows(`
+  rows, err = handle.QueryRows(`
 SELECT DISTINCT im.id, im.name, im.image_path 
 FROM (
     SELECT DISTINCT ss.animation_group
@@ -56,7 +56,7 @@ func (images Images) Next() (*Image, error) {
     imagePath string 
   )
 
-  if !images.Rows.next() {
+  if !images.Rows.Next() {
     return nil, err
   }
 

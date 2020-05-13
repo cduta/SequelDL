@@ -74,7 +74,7 @@ INSERT OR ROLLBACK INTO save.sprites          SELECT * FROM main.sprites;
 INSERT OR ROLLBACK INTO save.states_sprites   SELECT * FROM main.states_sprites;
 INSERT OR ROLLBACK INTO save.entities_scenes  SELECT * FROM main.entities_scenes;
 INSERT OR ROLLBACK INTO save.hitboxes         SELECT * FROM main.hitboxes;
-  `)
+`)
 
   return err
 }

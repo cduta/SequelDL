@@ -17,7 +17,7 @@ func (handle *Handle) QueryOptions() (Options, error) {
 		options  Options
 	)
 
-	row, err = handle.queryRow(`
+	row, err = handle.QueryRow(`
 SELECT window_title.value,
        window_width.value,
        window_height.value,

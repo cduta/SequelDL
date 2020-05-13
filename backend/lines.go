@@ -63,7 +63,7 @@ func (handle *Handle) QueryLines() (*Lines, error) {
     rows *Rows
   )
 
-  rows, err = handle.queryRows(`
+  rows, err = handle.QueryRows(`
 SELECT l.id, l.object_id, l.here_x, l.here_y, l.there_x, l.there_y, c.r, c.g, c.b, c.a
 FROM   lines AS l, colors AS c 
 WHERE  l.object_id = c.object_id;
@@ -90,7 +90,7 @@ func (lines Lines) Next() (*Line, error) {
     there    Position = Position{}
   )
 
-  if !lines.Rows.next() {
+  if !lines.Rows.Next() {
     return nil, err
   }
 
