@@ -10,7 +10,7 @@ import (
   "./event"
 )
 
-type MakeProcessor func(backendHandle *backend.Handle, sdlWrap *sdlex.Wrap) (*event.Processor, error)
+type MakeProcessor func(backendHandle *backend.Handle, sdlWrap *sdlex.SdlWrap) (*event.Processor, error)
 
 type settings struct {
   DEFAULT_SAVE_FILE_PATH string 
@@ -42,12 +42,12 @@ func parseArgs() settings {
   return settings{ DEFAULT_SAVE_FILE_PATH: saveFilePath }
 }
 
-func initialize(save backend.Save, load backend.Load, render sdlex.Rendering) (*sdlex.Wrap, *backend.Handle, error) {
+func initialize(save backend.Save, load backend.Load) (*sdlex.SdlWrap, *backend.Handle, error) {
   var (
     err            error
     settings       settings = parseArgs()
     backendHandle *backend.Handle
-    sdlWrap       *sdlex.Wrap
+    sdlWrap       *sdlex.SdlWrap
   )
 
   backendHandle, err = backend.MakeHandle(save, load, settings.DEFAULT_SAVE_FILE_PATH)
@@ -56,7 +56,7 @@ func initialize(save backend.Save, load backend.Load, render sdlex.Rendering) (*
     return nil, nil, err
   }
 
-  sdlWrap, err = sdlex.MakeWrap(backendHandle, render)
+  sdlWrap, err = sdlex.MakeSdlWrap(backendHandle)
   if err != nil {
     backendHandle.Close()
     fmt.Fprintf(os.Stderr, "Failed to inizialize SDL wrapper: %s\n", err)
@@ -66,31 +66,37 @@ func initialize(save backend.Save, load backend.Load, render sdlex.Rendering) (*
   return sdlWrap, backendHandle, err
 }
 
-func mainLoop(sdlWrap *sdlex.Wrap, eventProcessor *event.Processor) {
+func mainLoop(sdlWrap *sdlex.SdlWrap, eventProcessor *event.Processor, wrap sdlex.Wrap) {
   for sdlWrap.IsRunning() {
     eventProcessor.ProcessStates()
     sdlWrap.PrepareFrame()
-    sdlWrap.RenderFrame()
+    sdlWrap.RenderGenerics()
+    sdlWrap.RenderWrap(wrap)
     sdlWrap.ShowFrame()
   }
 
   return
 }
 
-func Run(save backend.Save, load backend.Load, makeProcessor MakeProcessor, render sdlex.Rendering) {
+func Run(save backend.Save, load backend.Load, makeProcessor MakeProcessor, wrap sdlex.Wrap) {
   var (
     err            error
     backendHandle *backend.Handle
-    sdlWrap       *sdlex.Wrap
+    sdlWrap       *sdlex.SdlWrap
     processor     *event.Processor
   )
 
-  sdlWrap, backendHandle, err = initialize(save, load, render)
+  if wrap == nil {
+    fmt.Fprintf(os.Stderr, "When calling run, you did not provide a wrap. Aborting.")
+  }
+
+  sdlWrap, backendHandle, err = initialize(save, load)
   if err != nil {
     return
   }
   defer backendHandle.Close()
   defer sdlWrap.Quit()
+  defer wrap.Destroy()
 
   processor, err = makeProcessor(backendHandle, sdlWrap)
   if err != nil {
@@ -98,6 +104,6 @@ func Run(save backend.Save, load backend.Load, makeProcessor MakeProcessor, rend
     return
   }
 
-  mainLoop(sdlWrap, processor)
+  mainLoop(sdlWrap, processor, wrap)
 }
 

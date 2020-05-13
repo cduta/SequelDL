@@ -51,11 +51,11 @@ func (scene *Scene) IsReady() bool {
 	return scene != nil && scene.Ready
 }
 
-func (sdlWrap Wrap) RenderSprite(sprite *backend.Sprite) {
+func (sdlWrap SdlWrap) RenderSprite(sprite *backend.Sprite) {
 	sdlWrap.renderer.Copy(sdlWrap.Scene.Images[sprite.Id].texture, sprite.SrcLayout, sprite.DestLayout)
 }
 
-func (sdlWrap Wrap) RenderScene() error {
+func (sdlWrap SdlWrap) RenderScene() error {
   var (
     err      error 
     sprites *backend.Sprites

@@ -60,7 +60,7 @@ func (process *Process) isActive(active bool) {
 
 type Processor struct {
   processes []Process
-  sdlWrap    *sdlex.Wrap
+  sdlWrap    *sdlex.SdlWrap
   lastTick    time.Time
 }
 
@@ -68,7 +68,7 @@ func (processor *Processor) Processes() []Process {
   return processor.processes
 }
 
-func NewProcessor(sdlWrap *sdlex.Wrap) *Processor {
+func NewProcessor(sdlWrap *sdlex.SdlWrap) *Processor {
   return &Processor{ processes: []Process{}, sdlWrap: sdlWrap, lastTick: time.Now() }
 }
 

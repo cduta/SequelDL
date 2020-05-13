@@ -6,14 +6,14 @@ import (
   "github.com/veandco/go-sdl2/gfx"
 )
 
-func (sdlWrap Wrap) RenderDot(dot *backend.Dot) {
+func (sdlWrap SdlWrap) RenderDot(dot *backend.Dot) {
   gfx.PixelRGBA(
     sdlWrap.renderer, 
     dot.Position.X, dot.Position.Y,
     dot.Color.R, dot.Color.G, dot.Color.B, dot.Color.A)
 }
 
-func (sdlWrap Wrap) RenderDots() error {
+func (sdlWrap SdlWrap) RenderDots() error {
   var (
     err   error 
     dots *backend.Dots

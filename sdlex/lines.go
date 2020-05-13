@@ -6,7 +6,7 @@ import (
   "github.com/veandco/go-sdl2/gfx"
 )
 
-func (sdlWrap Wrap) RenderLine(line *backend.Line) {
+func (sdlWrap SdlWrap) RenderLine(line *backend.Line) {
   gfx.PolygonRGBA(
     sdlWrap.renderer, 
     []int16{int16(line.Here.X), int16(line.There.X), int16(line.Here.X)},  
@@ -14,7 +14,7 @@ func (sdlWrap Wrap) RenderLine(line *backend.Line) {
     line.Color.R, line.Color.G, line.Color.B, line.Color.A)
 }
 
-func (sdlWrap Wrap) RenderLines() error {
+func (sdlWrap SdlWrap) RenderLines() error {
   var (
     err    error 
     lines *backend.Lines
