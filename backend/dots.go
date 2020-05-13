@@ -22,7 +22,7 @@ func InsertDot(handle *Handle, pos Position, color Color) (int64, error) {
     lastInsertId int64
   ) 
 
-  result, err = handle.exec(`
+  result, err = handle.Exec(`
 BEGIN IMMEDIATE;
 INSERT OR ROLLBACK INTO objects DEFAULT VALUES;
 `)
@@ -37,7 +37,7 @@ INSERT OR ROLLBACK INTO objects DEFAULT VALUES;
     return lastInsertId, err
   }
 
-  result, err = handle.exec(`
+  result, err = handle.Exec(`
 INSERT OR ROLLBACK INTO dots(object_id, x, y) VALUES (?, ?, ?);
 INSERT OR ROLLBACK INTO colors(object_id, r, g, b, a) VALUES (?, ?, ?, ?, ?);
 COMMIT;

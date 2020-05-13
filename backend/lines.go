@@ -23,7 +23,7 @@ func InsertLine(handle *Handle, here Position, there Position, color Color) (int
     lastInsertId int64
   ) 
 
-  result, err = handle.exec(`
+  result, err = handle.Exec(`
 BEGIN IMMEDIATE;
 INSERT OR ROLLBACK INTO objects DEFAULT VALUES;
 `)
@@ -36,7 +36,7 @@ INSERT OR ROLLBACK INTO objects DEFAULT VALUES;
     return lastInsertId, err
   }
 
-  _, err = handle.exec(`
+  _, err = handle.Exec(`
 INSERT OR ROLLBACK INTO lines(object_id, here_x, here_y, there_x, there_y) VALUES (?, ?, ?, ?, ?);
 INSERT OR ROLLBACK INTO colors(object_id, r, g, b, a) VALUES (?, ?, ?, ?, ?);
 COMMIT;
@@ -48,7 +48,7 @@ COMMIT;
 func UpdateLineThere(handle *Handle, lineId int64, there Position) error {
   var err error 
 
-  _, err = handle.exec(`
+  _, err = handle.Exec(`
 UPDATE lines   
 SET    there_x = ?, there_y = ? 
 WHERE  object_id = ?

@@ -26,7 +26,7 @@ WHERE  s.name = ?;
 func (handle *Handle) ScrollScene(sceneId int64, scrollX int32, scrollY int32) error {
 	var err error 
 
-	_, err = handle.exec(`
+	_, err = handle.Exec(`
 UPDATE scenes 
 SET    scroll_x = scroll_x + ? * scroll_speed,
        scroll_y = scroll_y + ? * scroll_speed 
