@@ -1,11 +1,15 @@
-package backend
+package object
+
+import (
+  "../../../backend"
+)
 
 import (
   "github.com/veandco/go-sdl2/sdl"
 )
 
 type Sprites struct {
-  *Rows
+  *backend.Rows
 }
 
 type Sprite struct {
@@ -15,10 +19,10 @@ type Sprite struct {
   DestLayout *sdl.Rect
 }
 
-func (handle *Handle) QuerySprites(sceneId int64) (*Sprites, error) {
+func QuerySprites(handle *backend.Handle, sceneId int64) (*Sprites, error) {
   var (
     err   error 
-    rows *Rows
+    rows *backend.Rows
   )
 
   rows, err = handle.QueryRows(`

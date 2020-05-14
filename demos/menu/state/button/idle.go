@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 
+  "../../object"
   "../../../../backend"
   "../../../../sdlex"
   . "../../../../event/state"
@@ -19,7 +20,7 @@ type Idle struct {
 func MakeIdle(buttonEntityId int64, handle *backend.Handle) (Idle, error) {
 	var err error
 
-	err = handle.ChangeState("button-idle", buttonEntityId)
+	err = object.ChangeState(handle, "button-idle", buttonEntityId)
 
   return Idle{ 
   	buttonEntityId : buttonEntityId, 
@@ -69,7 +70,7 @@ func (idle Idle) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
     case sdlex.BUTTON_PRESSED: 
       switch event.Button {
         case sdl.BUTTON_LEFT  : 
-        	collision, err = idle.handle.HasEntityPixelCollision(idle.buttonEntityId, backend.Position{X: event.X, Y: event.Y})
+        	collision, err = object.HasEntityPixelCollision(idle.handle, idle.buttonEntityId, backend.Position{X: event.X, Y: event.Y})
         	if err != nil {
     				fmt.Fprintf(os.Stderr, "Failed to check if the button was hit: %s\n", err)
         		return idle  

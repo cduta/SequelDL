@@ -4,6 +4,7 @@ import (
   "os"
   "fmt"
 
+  "../../object"
   "../../../../backend"
   "../../../../sdlex"
   "../../wrap"
@@ -14,7 +15,7 @@ import (
 
 type Init struct {
   scene    *wrap.Scene 
-  images   *backend.Images
+  images   *object.Images
   renderer *sdl.Renderer
   idle      Idle 
 }
@@ -22,10 +23,10 @@ type Init struct {
 func MakeInit(backendHandle *backend.Handle, scene *wrap.Scene, renderer *sdl.Renderer) (Init, error) {
   var (
     err        error 
-    images    *backend.Images
+    images    *object.Images
   )
 
-  images, err = backendHandle.QueryImages(scene.Id) 
+  images, err = object.QueryImages(backendHandle, scene.Id) 
 
   return Init{ scene: scene, images: images, renderer: renderer, idle: MakeIdle(backendHandle, scene) }, err
 }
@@ -44,7 +45,7 @@ func (init Init) cancelInit() State {
 func (init Init) loadNextImage() (State, error) {
   var (
     err           error 
-    backendImage *backend.Image
+    backendImage *object.Image
     sceneImage    wrap.Image
     absolutePath  string
   )

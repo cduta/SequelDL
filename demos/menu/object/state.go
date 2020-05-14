@@ -1,6 +1,10 @@
-package backend
+package object
 
-func (handle *Handle) ChangeState(stateName string, entityId int64) error {
+import (
+  "../../../backend"
+)
+
+func ChangeState(handle *backend.Handle, stateName string, entityId int64) error {
   var err error 
 
   _, err = handle.Exec(`

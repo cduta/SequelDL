@@ -1,9 +1,13 @@
-package backend
+package object
 
-func (handle *Handle) QuerySceneId(sceneName string) (int64, error) {
+import (
+  "../../../backend"
+)
+
+func QuerySceneId(handle *backend.Handle, sceneName string) (int64, error) {
 	var (
 		err      error 
-		row     *Row 
+		row     *backend.Row 
 		sceneId  int64 = -1
 	)
 
@@ -23,7 +27,7 @@ WHERE  s.name = ?;
   return sceneId, err
 }
 
-func (handle *Handle) ScrollScene(sceneId int64, scrollX int32, scrollY int32) error {
+func ScrollScene(handle *backend.Handle, sceneId int64, scrollX int32, scrollY int32) error {
 	var err error 
 
 	_, err = handle.Exec(`

@@ -4,6 +4,7 @@ import (
   "fmt"
   "os"
 
+  "../../object"
   "../../../../backend"
   "../../../../sdlex"
   . "../../../../event/state"
@@ -20,7 +21,7 @@ type Pressed struct {
 func MakePressed(idle Idle) (Pressed, error) {
 	var err error
 
-	err = idle.handle.ChangeState("button-pressed", idle.buttonEntityId)
+	err = object.ChangeState(idle.handle, "button-pressed", idle.buttonEntityId)
 
   return Pressed{ 
   	idle           : idle, 
@@ -77,7 +78,7 @@ func (pressed Pressed) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
     case sdlex.BUTTON_RELEASED: 
       switch event.Button {
         case sdl.BUTTON_LEFT  :  
-            err = pressed.handle.ChangeState("button-idle", pressed.idle.buttonEntityId)
+            err = object.ChangeState(pressed.handle, "button-idle", pressed.idle.buttonEntityId)
             if err != nil {
               fmt.Fprintf(os.Stderr, "Failed to release button: %s\n", err)
               return pressed

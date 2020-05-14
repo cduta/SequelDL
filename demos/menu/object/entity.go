@@ -1,9 +1,13 @@
-package backend
+package object
 
-func (handle *Handle) HasEntityPixelCollision(entityId int64, position Position) (bool, error) {
+import (
+  "../../../backend"
+)
+
+func HasEntityPixelCollision(handle *backend.Handle, entityId int64, position backend.Position) (bool, error) {
   var (
     err        error 
-    row       *Row
+    row       *backend.Row
     collision  bool = false 
   )
 

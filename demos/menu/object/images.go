@@ -1,7 +1,11 @@
-package backend
+package object
+
+import (
+  "../../../backend"
+)
 
 type Images struct {
-  *Rows
+  *backend.Rows
 }
 
 type Image struct {
@@ -10,10 +14,10 @@ type Image struct {
   ImagePath string
 }
 
-func (handle *Handle) QueryImages(sceneId int64) (*Images, error) {
+func QueryImages(handle *backend.Handle, sceneId int64) (*Images, error) {
   var (
     err   error 
-    rows *Rows
+    rows *backend.Rows
   )
 
   rows, err = handle.QueryRows(`

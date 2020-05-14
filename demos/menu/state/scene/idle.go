@@ -4,6 +4,7 @@ import (
   "os"
   "fmt"
 
+  "../../object"
   "../../../../backend"
   "../../../../sdlex"
   "../../wrap"
@@ -57,7 +58,7 @@ func (idle Idle) OnTick()   State {
   var err error 
 
   if idle.scrolling() {
-    err = idle.backendHandle.ScrollScene(idle.scene.Id, idle.scrollX, idle.scrollY)
+    err = object.ScrollScene(idle.backendHandle, idle.scene.Id, idle.scrollX, idle.scrollY)
     if err != nil {
       fmt.Fprintf(os.Stderr, "Could not scroll scene (%s) in (%d, %d) direction: %s\n", idle.scene.Name, idle.scrollX, idle.scrollY, err)
     }

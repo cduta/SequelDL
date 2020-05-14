@@ -1,6 +1,7 @@
 package wrap
 
 import (
+	"../object"
   "../../../backend"
   "../../../sdlex"
 )
@@ -18,7 +19,7 @@ func MakeScene(sceneName string, backendHandle *backend.Handle) (*Scene, error) 
 		sceneId int64 = 1
 	)
 
-	sceneId, err = backendHandle.QuerySceneId(sceneName)
+	sceneId, err = object.QuerySceneId(backendHandle, sceneName)
 	if err != nil {
 		return nil, err
 	}
@@ -52,22 +53,22 @@ func (scene *Scene) IsReady() bool {
 	return scene != nil && scene.Ready
 }
 
-func (menuWrap *MenuWrap) RenderSprite(sdlWrap *sdlex.SdlWrap, sprite *backend.Sprite) {
+func (menuWrap *MenuWrap) RenderSprite(sdlWrap *sdlex.SdlWrap, sprite *object.Sprite) {
 	sdlWrap.Renderer().Copy(menuWrap.scene.Images[sprite.Id].texture, sprite.SrcLayout, sprite.DestLayout)
 }
 
 func (menuWrap *MenuWrap) RenderScene(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error {
   var (
     err      error 
-    sprites *backend.Sprites
-    sprite  *backend.Sprite
+    sprites *object.Sprites
+    sprite  *object.Sprite
   )
 
   if !menuWrap.scene.IsReady() {
   	return err
   }
 
-  sprites, err = handle.QuerySprites(menuWrap.scene.Id)
+  sprites, err = object.QuerySprites(handle, menuWrap.scene.Id)
   if sprites == nil || err != nil {
     return err
   }
