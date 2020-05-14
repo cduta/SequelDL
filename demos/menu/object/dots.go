@@ -1,21 +1,22 @@
-package backend
+package object
 
 import (
+  "../../../backend"
   "database/sql"
 )
 
 type Dots struct {
-  *Rows
+  *backend.Rows
 }
 
 type Dot struct {
-  Object
-  Position
-  Color 
+  backend.Object
+  backend.Position
+  backend.Color 
   Id int64
 }
 
-func InsertDot(handle *Handle, pos Position, color Color) (int64, error) {
+func InsertDot(handle *backend.Handle, pos backend.Position, color backend.Color) (int64, error) {
   var (
     err          error
     result       sql.Result
@@ -46,10 +47,10 @@ COMMIT;
   return lastInsertId, err
 }
 
-func (handle *Handle) QueryDots() (*Dots, error) {
+func QueryDots(handle *backend.Handle) (*Dots, error) {
   var (
     err   error 
-    rows *Rows
+    rows *backend.Rows
   )
 
   rows, err = handle.QueryRows(`
@@ -71,9 +72,9 @@ func (dots Dots) Close() {
 func (dots Dots) Next() (*Dot, error) {
   var (
     err      error
-    object   Object   = Object{}
-    position Position = Position{}
-    color    Color    = Color{}
+    object   backend.Object   = backend.Object{}
+    position backend.Position = backend.Position{}
+    color    backend.Color    = backend.Color{}
     dotId    int64
   )
 

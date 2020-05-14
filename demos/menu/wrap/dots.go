@@ -1,13 +1,14 @@
 package wrap
 
 import (
+  "../object"
   "../../../backend"
   "../../../sdlex"
 
   "github.com/veandco/go-sdl2/gfx"
 )
 
-func (menuWrap *MenuWrap) RenderDot(sdlWrap *sdlex.SdlWrap, dot *backend.Dot) {
+func (menuWrap *MenuWrap) RenderDot(sdlWrap *sdlex.SdlWrap, dot *object.Dot) {
   gfx.PixelRGBA(
     sdlWrap.Renderer(), 
     dot.Position.X, dot.Position.Y,
@@ -17,11 +18,11 @@ func (menuWrap *MenuWrap) RenderDot(sdlWrap *sdlex.SdlWrap, dot *backend.Dot) {
 func (menuWrap *MenuWrap) RenderDots(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error {
   var (
     err   error 
-    dots *backend.Dots
-    dot  *backend.Dot
+    dots *object.Dots
+    dot  *object.Dot
   )
 
-  dots, err = handle.QueryDots()
+  dots, err = object.QueryDots(handle)
   if dots == nil || err != nil {
     return err
   }

@@ -4,6 +4,7 @@ import (
   "fmt"
   "os"
 
+  "../../object"
   "../../../../backend"
   "../../../../sdlex"
   . "../../../../event/state"
@@ -19,7 +20,7 @@ type Dot struct {
 func MakeDot(previousState State, backendHandle *backend.Handle, position backend.Position, color backend.Color) (Dot, error) {
   var err error
 
-	_, err = backend.InsertDot(backendHandle, position, color)
+	_, err = object.InsertDot(backendHandle, position, color)
 
   if err != nil {
   	return Dot{}, err
@@ -57,7 +58,7 @@ func (dot Dot) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
   var err error
 
   if sdlex.IsMouseMotionState(event.State, sdl.BUTTON_LEFT) {
-      _, err = backend.InsertDot(dot.backendHandle, backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8((event.Y+70)%256), B: uint8((event.X+140)%256), A: 255})
+      _, err = object.InsertDot(dot.backendHandle, backend.Position{X: event.X, Y: event.Y}, backend.Color{R: uint8(event.X%256), G: uint8((event.Y+70)%256), B: uint8((event.X+140)%256), A: 255})
       if err != nil {
         fmt.Fprintf(os.Stderr, "Could not draw dot at (%d,%d): %s\n", event.X, event.Y, err)
       }       
