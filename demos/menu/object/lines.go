@@ -1,22 +1,24 @@
-package backend
+package object
 
 import (
   "database/sql"
+
+  "../../../backend"
 )
 
 type Lines struct {
-  *Rows
+  *backend.Rows
 }
 
 type Line struct {
-  Object
-  Color 
+  backend.Object
+  backend.Color 
   Id     int64
-  Here   Position
-  There  Position
+  Here   backend.Position
+  There  backend.Position
 }
 
-func InsertLine(handle *Handle, here Position, there Position, color Color) (int64, error) {
+func InsertLine(handle *backend.Handle, here backend.Position, there backend.Position, color backend.Color) (int64, error) {
   var (
     err          error
     result       sql.Result
@@ -45,7 +47,7 @@ COMMIT;
   return lastInsertId, err
 }
 
-func UpdateLineThere(handle *Handle, lineId int64, there Position) error {
+func UpdateLineThere(handle *backend.Handle, lineId int64, there backend.Position) error {
   var err error 
 
   _, err = handle.Exec(`
@@ -57,10 +59,10 @@ WHERE  object_id = ?
   return err
 }
 
-func (handle *Handle) QueryLines() (*Lines, error) {
+func QueryLines(handle *backend.Handle) (*Lines, error) {
   var (
     err   error 
-    rows *Rows
+    rows *backend.Rows
   )
 
   rows, err = handle.QueryRows(`
@@ -83,11 +85,11 @@ func (lines Lines) Close() {
 func (lines Lines) Next() (*Line, error) {
   var (
     err      error
-    object   Object   = Object{}
-    color    Color    = Color{}
+    object   backend.Object   = backend.Object{}
+    color    backend.Color    = backend.Color{}
     lineId   int64
-    here     Position = Position{}
-    there    Position = Position{}
+    here     backend.Position = backend.Position{}
+    there    backend.Position = backend.Position{}
   )
 
   if !lines.Rows.Next() {

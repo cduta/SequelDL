@@ -4,6 +4,7 @@ import (
   "fmt"
   "os"
 
+  "../../object"
   "../../../../backend"
   "../../../../sdlex"
   . "../../../../event/state"
@@ -23,7 +24,7 @@ func MakeLine(previousState State, backendHandle *backend.Handle, here backend.P
     lastInsertId int64
   ) 
 
-  lastInsertId, err = backend.InsertLine(backendHandle, here, here, color)
+  lastInsertId, err = object.InsertLine(backendHandle, here, here, color)
 
   if err != nil {
     return Line{}, err
@@ -64,7 +65,7 @@ func (line Line) OnMouseMotionEvent(event *sdl.MouseMotionEvent) State {
   )
  
   if sdlex.IsMouseMotionState(event.State, sdl.BUTTON_RIGHT) {
-    err = backend.UpdateLineThere(line.backendHandle, line.objectId, backend.Position{X: event.X, Y: event.Y})
+    err = object.UpdateLineThere(line.backendHandle, line.objectId, backend.Position{X: event.X, Y: event.Y})
     if err != nil {
       fmt.Fprintf(os.Stderr, "Could not update line coordinates: %s\n", err)
     }
