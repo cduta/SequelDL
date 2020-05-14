@@ -52,11 +52,11 @@ func (scene *Scene) IsReady() bool {
 	return scene != nil && scene.Ready
 }
 
-func (menuWrap MenuWrap) RenderSprite(sdlWrap *sdlex.SdlWrap, sprite *backend.Sprite) {
+func (menuWrap *MenuWrap) RenderSprite(sdlWrap *sdlex.SdlWrap, sprite *backend.Sprite) {
 	sdlWrap.Renderer().Copy(menuWrap.scene.Images[sprite.Id].texture, sprite.SrcLayout, sprite.DestLayout)
 }
 
-func (menuWrap MenuWrap) RenderScene(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error {
+func (menuWrap *MenuWrap) RenderScene(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error {
   var (
     err      error 
     sprites *backend.Sprites

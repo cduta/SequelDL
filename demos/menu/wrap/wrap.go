@@ -37,9 +37,9 @@ func (menuWrap *MenuWrap) IsReady() bool {
 
 func (menuWrap *MenuWrap) Render(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error {
   var err error
-  
-  err = sdlWrap.RenderDots()
-  err = sdlWrap.RenderLines()
+
+  err = menuWrap.RenderDots(sdlWrap, handle)
+  err = menuWrap.RenderLines(sdlWrap, handle)
   err = menuWrap.RenderScene(sdlWrap, handle)
 
   return err
