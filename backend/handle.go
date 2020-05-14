@@ -59,20 +59,20 @@ func MakeHandle(save Save, load Load, saveFilePath string) (*Handle, error) {
     dbhandle: dbhandle,
     locked  : false}
 
-  err = handle.runSQLFile("backend/initialize.sql")
+  err = handle.runSQLFile("backend/sql/initialize.sql")
   if err != nil {
     dbhandle.Close()
     return nil, err
   }
 
   if saveFilePath == "" {
-    err = handle.runSQLFile("backend/options.sql")
+    err = handle.runSQLFile("backend/sql/options.sql")
     if err != nil {
       dbhandle.Close()
       return nil, err
     }
 
-    err = handle.runSQLFile("backend/ressources.sql")
+    err = handle.runSQLFile("backend/sql/ressources.sql")
     if err != nil {
       dbhandle.Close()
       return nil, err
