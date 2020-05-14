@@ -12,6 +12,13 @@ import (
   "github.com/veandco/go-sdl2/gfx"
 )
 
+type Wrap interface {
+  Destroy()
+  Initialize(sdlWrap *SdlWrap, handle *backend.Handle) error
+  IsReady() bool
+  Render(sdlWrap *SdlWrap, handle *backend.Handle) error
+}
+
 type sdlWrapArgs struct {
   DEFAULT_WINDOW_TITLE   string
   DEFAULT_WINDOW_WIDTH   int32
@@ -21,13 +28,6 @@ type sdlWrapArgs struct {
   DEFAULT_FPS            uint32 
   DEFAULT_SHOW_FPS       bool
   Handle                *backend.Handle
-}
-
-type Wrap interface {
-  Destroy()
-  Initialize(sdlWrap *SdlWrap, handle *backend.Handle) error
-  IsReady() bool
-  Render(sdlWrap *SdlWrap, handle *backend.Handle) error
 }
 
 type SdlWrap struct {
