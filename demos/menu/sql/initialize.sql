@@ -43,7 +43,7 @@ CREATE TABLE dots (
 );
 
 CREATE UNIQUE INDEX dots_object_id_idx ON dots(object_id);
-CREATE INDEX dots_position_idx ON dots(x,y);
+CREATE        INDEX dots_position_idx  ON dots(x,y);
 
 CREATE TABLE lines (
   id        integer NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -55,8 +55,8 @@ CREATE TABLE lines (
 );
 
 CREATE UNIQUE INDEX lines_object_id_idx ON lines(object_id);
-CREATE INDEX lines_here_idx ON lines(here_x,here_y);
-CREATE INDEX lines_there_idx ON lines(there_x,there_y);
+CREATE        INDEX lines_here_idx      ON lines(here_x,here_y);
+CREATE        INDEX lines_there_idx     ON lines(there_x,there_y);
 
 CREATE TABLE colors (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
@@ -86,13 +86,24 @@ CREATE TABLE entities (
 CREATE TABLE scenes (
   id           integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   name         text    NOT NULL UNIQUE,
-  x            integer NOT NULL CHECK (x        BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  y            integer NOT NULL CHECK (y        BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  scroll_x     integer NOT NULL CHECK (scroll_x BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  scroll_y     integer NOT NULL CHECK (scroll_y BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  width        integer NOT NULL CHECK (width    BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  height       integer NOT NULL CHECK (height   BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  scroll_speed integer NOT NULL CHECK (height   BETWEEN  0          AND 2147483647)  -- Golang's int32 constraint without negatives
+  x            integer NOT NULL CHECK (x            BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  y            integer NOT NULL CHECK (y            BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  scroll_x     integer NOT NULL CHECK (scroll_x     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  scroll_y     integer NOT NULL CHECK (scroll_y     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  width        integer NOT NULL CHECK (width        BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  height       integer NOT NULL CHECK (height       BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  scroll_speed integer NOT NULL CHECK (scroll_speed BETWEEN  0          AND 2147483647)  -- Golang's int32 constraint without negatives
+);
+
+CREATE TABLE sprites (
+  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
+  image_id   integer NOT NULL REFERENCES images(id),
+  name       text    NOT NULL UNIQUE,
+  relative_x integer NOT NULL CHECK (relative_x BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  relative_y integer NOT NULL CHECK (relative_y BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  level      integer NOT NULL CHECK (level      BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  width      integer NOT NULL CHECK (width      BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  height     integer NOT NULL CHECK (height     BETWEEN -2147483648 AND 2147483647)  -- Golang's int32 constraint
 );
 
 CREATE TABLE images (
@@ -111,17 +122,6 @@ CREATE TABLE entities_scenes (
   entity_id integer NOT NULL REFERENCES entities(id),      
   scene_id  integer NOT NULL REFERENCES scenes(id),
   PRIMARY KEY(entity_id, scene_id)
-);
-
-CREATE TABLE sprites (
-  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,  
-  image_id   integer NOT NULL REFERENCES images(id),
-  name       text    NOT NULL UNIQUE,
-  relative_x integer NOT NULL CHECK (relative_x BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  relative_y integer NOT NULL CHECK (relative_y BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  level      integer NOT NULL CHECK (level      BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  width      integer NOT NULL CHECK (width      BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  height     integer NOT NULL CHECK (height     BETWEEN -2147483648 AND 2147483647)  -- Golang's int32 constraint
 );
 
 CREATE TABLE hitboxes (
