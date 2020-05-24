@@ -92,7 +92,7 @@ CREATE TABLE scenes (
   scroll_y     integer NOT NULL CHECK (scroll_y     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
   width        integer NOT NULL CHECK (width        BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
   height       integer NOT NULL CHECK (height       BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  scroll_speed integer NOT NULL CHECK (scroll_speed BETWEEN  0          AND 2147483647)  -- Golang's int32 constraint without negatives
+  scroll_speed integer NOT NULL CHECK (scroll_speed BETWEEN           0 AND 2147483647)  -- Golang's unsigned int32 constraint
 );
 
 CREATE TABLE sprites (

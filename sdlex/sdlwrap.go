@@ -162,7 +162,7 @@ func (sdlWrap *SdlWrap) RenderWrap(wrap Wrap) {
   if wrap != nil && wrap.IsReady() {
     err = wrap.Render(sdlWrap, sdlWrap.Handle())
     if err != nil {
-      fmt.Fprintf(os.Stderr, "Failed to render objects: %s\n", err)
+      fmt.Fprintf(os.Stderr, "Failed to render: %s\n", err)
     }
   }
 }

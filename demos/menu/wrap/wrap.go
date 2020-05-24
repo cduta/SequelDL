@@ -13,7 +13,11 @@ func MakeMenuWrap() *MenuWrap {
 	return &MenuWrap{ scene: nil }
 }
 
-func (menuWrap *MenuWrap) Destroy() {}
+func (menuWrap *MenuWrap) Destroy() {
+  if menuWrap.scene != nil {
+    menuWrap.scene.Destroy()
+  }
+}
 
 func (menuWrap *MenuWrap) Initialize(sclWrap *sdlex.SdlWrap, handle *backend.Handle) error {
   var (
