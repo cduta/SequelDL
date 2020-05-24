@@ -5,20 +5,26 @@ import (
 	"../../../sdlex"
 )
 
-type WildfireWrap struct {}
+type WildfireWrap struct {
+    particles *Particles
+}
 
 func MakeWildfireWrap() *WildfireWrap {
-	return &WildfireWrap{}
+	return &WildfireWrap{ particles: &Particles{} }
 }
 
 func (wildfireWrap *WildfireWrap) Destroy() {}
-func (wildfireWrap *WildfireWrap) Initialize(sclWrap *sdlex.SdlWrap, handle *backend.Handle) error { return nil }
+func (wildfireWrap *WildfireWrap) Initialize(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error { return nil }
 func (wildfireWrap *WildfireWrap) IsReady() bool { return true }
 
 func (wildfireWrap *WildfireWrap) Render(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error { 
 	var err error 
 
-	err = wildfireWrap.RenderParticles(sdlWrap, handle)
+	err = wildfireWrap.RenderParticles(sdlWrap)
 
 	return err 
+}
+
+func (wildfireWrap *WildfireWrap) Particles() *Particles {
+	return wildfireWrap.particles
 }

@@ -22,8 +22,8 @@ func QueryParticles(handle *backend.Handle) (*Particles, error) {
 
   rows, err = handle.QueryRows(`
 SELECT p.id, 
-		   e.x + p.relative_x + offset.column1, 
-		   e.y + p.relative_y + offset.column2, 
+		   e.x + p.relative_x + offset_x.column1, 
+		   e.y + p.relative_y + offset_y.column1, 
 		   c_from.r + abs(random() % (abs(c_to.r-c_from.r)+1)), 
 		   c_from.g + abs(random() % (abs(c_to.g-c_from.g)+1)), 
 		   c_from.b + abs(random() % (abs(c_to.b-c_from.b)+1)), 
@@ -33,20 +33,18 @@ FROM   entities         AS e,
        particles        AS p,
        color_ranges     AS cr,
        colors           AS c_from,
-       colors           AS c_to, (
-       	 VALUES         
-  										  (-1,-2),( 0,-2),( 1,-2),
-       	        (-2,-1)                        ,(2,-1),
-       	        (-2, 0)                        ,(2, 0),
-       	        (-2, 1)                        ,(2, 1),
-       	                (-1, 2),( 0, 2),( 1, 2)
-       ) AS offset
+       colors           AS c_to, ( 
+         VALUES (-1),( 0),( 1)
+       ) AS offset_x, (
+         VALUES (-1),( 0),( 1)
+       ) AS offset_y
 WHERE  e.visible
 AND    e.state_id       = sp.state_id
 AND    sp.particle_id   = p.id
 AND    p.color_range_id = cr.id
 AND    cr.color_from    = c_from.id
-AND    cr.color_to      = c_to.id;`)
+AND    cr.color_to      = c_to.id
+AND    (offset_x.column1 = 0 OR offset_y.column1 = 0);`)
   if rows == nil || err != nil {
     return nil, err 
   }

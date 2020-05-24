@@ -4,6 +4,7 @@ import (
   "../../../../backend"
   "../../../../sdlex"
   . "../../../../event/state"
+  "../../wrap"
 
   "github.com/veandco/go-sdl2/sdl"
 
@@ -11,13 +12,25 @@ import (
   "os"
 )
 
-type Idle struct { backendHandle *backend.Handle }
+type Idle struct { 
+  particles     *wrap.Particles
+  backendHandle *backend.Handle 
+}
 
-func MakeIdle(backendHandle *backend.Handle) Idle { return Idle{ backendHandle: backendHandle } }
+func MakeIdle(particles *wrap.Particles, backendHandle *backend.Handle) Idle { 
+  return Idle{ 
+    particles    : particles,
+    backendHandle: backendHandle } 
+}
 
 func (idle Idle) Destroy() {}
 func (idle Idle) PreEvent()    State { return idle }
-func (idle Idle) OnTick()      State { return idle }
+
+func (idle Idle) OnTick()      State {
+  idle.particles.ReloadParticles(idle.backendHandle)
+  return idle 
+}
+
 func (idle Idle) TickDelayed() bool  { return false }
 func (idle Idle) OnTickDelay() State { return idle }
 func (idle Idle) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(idle) }

@@ -35,7 +35,8 @@ CREATE TABLE states (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   name       text    NOT NULL UNIQUE,
   next_state integer NOT NULL REFERENCES states(id),
-  ticks      integer          CHECK (ticks BETWEEN 0 AND 2147483647) -- Golang's unsigned int32 constraint
+  ticks_left integer          CHECK (ticks BETWEEN 0 AND 2147483647), -- Golang's unsigned int32 constraint
+  ticks      integer          CHECK (ticks BETWEEN 0 AND 2147483647)  -- Golang's unsigned int32 constraint
 );
 
 CREATE TABLE entities (

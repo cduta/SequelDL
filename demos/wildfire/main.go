@@ -9,14 +9,15 @@ import (
   "./state/idle"
 )
 
-func makeWildfireProcessor(handle *backend.Handle, sdlWrap *sdlex.SdlWrap, wrap sdlex.Wrap) (*event.Processor, error) {
+func makeWildfireProcessor(handle *backend.Handle, sdlWrap *sdlex.SdlWrap, sdlexWrap sdlex.Wrap) (*event.Processor, error) {
   var (
     err             error
+    wildfireWrap   *wrap.WildfireWrap = sdlexWrap.(*wrap.WildfireWrap)
     eventProcessor *event.Processor
   )
   
   eventProcessor = event.NewProcessor(sdlWrap)
-  eventProcessor.AddProcess(event.NewProcess(idle.MakeIdle(handle)))
+  eventProcessor.AddProcess(event.NewProcess(idle.MakeIdle(wildfireWrap.Particles(), handle)))
 
   return eventProcessor, err
 }
