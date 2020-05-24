@@ -17,7 +17,7 @@ func makeWildfireProcessor(handle *backend.Handle, sdlWrap *sdlex.SdlWrap, sdlex
   )
   
   eventProcessor = event.NewProcessor(sdlWrap)
-  eventProcessor.AddProcess(event.NewProcess(idle.MakeIdle(wildfireWrap.Particles(), handle)))
+  eventProcessor.AddProcess(event.NewProcess(idle.MakeIdle(1, wildfireWrap.Particles(), handle)))
 
   return eventProcessor, err
 }

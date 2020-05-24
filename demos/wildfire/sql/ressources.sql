@@ -13,7 +13,7 @@ particles(id, color_range_id, name     , relative_x, relative_y, level, width, h
 
 INSERT INTO 
 states(id, name     , next_state, ticks_left, ticks) VALUES
-      (1 , 'Burning', 1         , NULL      , NULL );
+      (1 , 'Burning', 1         , 3        , 3 );
 
 INSERT INTO 
 states_particles(state_id, particle_id) VALUES
