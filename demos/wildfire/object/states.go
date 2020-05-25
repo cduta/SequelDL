@@ -14,7 +14,8 @@ func QueryTicksLeft(handle *backend.Handle, stateId int64) (uint32, error) {
   row, err = handle.QueryRow(`
 SELECT s.ticks_left
 FROM   states AS s
-WHERE  s.id = ?;
+WHERE  s.ticks_left IS NOT NULL 
+AND    s.id = ?;
 `, stateId)
   if err != nil {
     return 0, err

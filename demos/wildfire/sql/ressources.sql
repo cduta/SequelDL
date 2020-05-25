@@ -13,12 +13,18 @@ particles(id, color_range_id, name     , relative_x, relative_y, level, width, h
 
 INSERT INTO 
 states(id, name     , next_state, ticks_left, ticks) VALUES
-      (1 , 'Burning', 1         , 3        , 3 );
+      (1 , 'Paper'  , NULL      , NULL      , NULL ),
+      (2 , 'Burning', 2         , 3         , 3    ),
+      (3 , 'Burnt'  , NULL      , NULL      , NULL );
+
+INSERT INTO
+entities(id, name   , x  , y  , level, visible) VALUES
+        (1 , 'torch', 200, 200, 1    , true   );
 
 INSERT INTO 
 states_particles(state_id, particle_id) VALUES
-                (1       , 1          );
-
-INSERT INTO
-entities(id, state_id, name   , x  , y  , level, visible) VALUES
-        (1 , 1       , 'torch', 200, 200, 1    , true);
+                (2       , 1          );
+                
+INSERT INTO 
+entities_states(entity_id, state_id) VALUES
+               (1        , 2       );

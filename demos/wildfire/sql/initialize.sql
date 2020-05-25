@@ -31,24 +31,6 @@ CREATE TABLE real_options (
   value real    NOT NULL
 );
 
-CREATE TABLE states (
-  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name       text    NOT NULL UNIQUE,
-  next_state integer NOT NULL REFERENCES states(id),
-  ticks_left integer          CHECK (ticks BETWEEN 0 AND 2147483647), -- Golang's unsigned int32 constraint
-  ticks      integer          CHECK (ticks BETWEEN 0 AND 2147483647)  -- Golang's unsigned int32 constraint
-);
-
-CREATE TABLE entities (
-  id            integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  state_id      integer NOT NULL REFERENCES states(id),
-  name          text    NOT NULL UNIQUE,
-  x             integer NOT NULL CHECK (x     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  y             integer NOT NULL CHECK (y     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  level         integer NOT NULL CHECK (level BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  visible       boolean NOT NULL
-);
-
 CREATE TABLE colors (
   id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   r  integer NOT NULL,
@@ -72,6 +54,28 @@ CREATE TABLE particles (
   level          integer NOT NULL CHECK (level      BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
   width          integer NOT NULL CHECK (width      BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
   height         integer NOT NULL CHECK (height     BETWEEN -2147483648 AND 2147483647)  -- Golang's int32 constraint
+);
+
+CREATE TABLE states (
+  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name       text    NOT NULL UNIQUE,
+  next_state integer          REFERENCES states(id),
+  ticks_left integer          CHECK (ticks BETWEEN 0 AND 2147483647), -- Golang's unsigned int32 constraint
+  ticks      integer          CHECK (ticks BETWEEN 0 AND 2147483647)  -- Golang's unsigned int32 constraint
+);
+
+CREATE TABLE entities (
+  id       integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name     text    NOT NULL UNIQUE,
+  x        integer NOT NULL CHECK (x     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  y        integer NOT NULL CHECK (y     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  level    integer NOT NULL CHECK (level BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  visible  boolean NOT NULL
+);
+
+CREATE TABLE entities_states (
+  entity_id integer NOT NULL REFERENCES entities(id),
+  state_id  integer NOT NULL REFERENCES states(id)
 );
 
 CREATE TABLE states_particles (

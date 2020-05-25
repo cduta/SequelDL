@@ -9,7 +9,7 @@ import (
 )
 
 type Particles struct {
-  loaded map[backend.Color][]sdl.Point 
+  fire map[backend.Color][]sdl.Point 
 }
 
 func (particles *Particles) ReloadParticles(handle *backend.Handle) error {
@@ -17,10 +17,10 @@ func (particles *Particles) ReloadParticles(handle *backend.Handle) error {
     err                error 
     objectParticles   *object.Particles
     objectParticle    *object.Particle
-    particleMap     map[backend.Color][]sdl.Point = make(map[backend.Color][]sdl.Point)
+    fireParticleMap    map[backend.Color][]sdl.Point = make(map[backend.Color][]sdl.Point)
   )
 
-  objectParticles, err = object.QueryParticles(handle)
+  objectParticles, err = object.QueryFireParticles(handle)
   if objectParticles == nil || err != nil {
     return err
   }
@@ -30,18 +30,18 @@ func (particles *Particles) ReloadParticles(handle *backend.Handle) error {
     if err != nil {
       return err
     }
-    particleMap[backend.Color{objectParticle.R, objectParticle.G, objectParticle.B, objectParticle.A}] = append(
-      particleMap[backend.Color{R:objectParticle.Color.R, G:objectParticle.Color.G, B:objectParticle.Color.B, A:objectParticle.Color.A}], 
+    fireParticleMap[backend.Color{objectParticle.R, objectParticle.G, objectParticle.B, objectParticle.A}] = append(
+      fireParticleMap[backend.Color{R:objectParticle.Color.R, G:objectParticle.Color.G, B:objectParticle.Color.B, A:objectParticle.Color.A}], 
       sdl.Point{X:objectParticle.Position.X, Y:objectParticle.Position.Y})
   }
 
-  particles.loaded = particleMap
+  particles.fire = fireParticleMap
 
   return err
 }
 
-func (particles *Particles) IsLoaded() bool {
-  return particles.loaded != nil
+func (particles *Particles) HasFireLoaded() bool {
+  return particles.fire != nil
 }
 
 func (wildfireWrap *WildfireWrap) RenderParticle(sdlWrap *sdlex.SdlWrap, color backend.Color, points []sdl.Point) error {
@@ -67,14 +67,12 @@ func (wildfireWrap *WildfireWrap) RenderParticles(sdlWrap *sdlex.SdlWrap) error 
     points []sdl.Point
   )
 
-  if !wildfireWrap.Particles().IsLoaded() {
-    return err
-  }
-
-  for color, points = range wildfireWrap.Particles().loaded {
-    err = wildfireWrap.RenderParticle(sdlWrap, color, points)
-    if err != nil {
-      return err
+  if wildfireWrap.Particles().HasFireLoaded() {
+    for color, points = range wildfireWrap.Particles().fire {
+      err = wildfireWrap.RenderParticle(sdlWrap, color, points)
+      if err != nil {
+        return err
+      }
     }
   }
 

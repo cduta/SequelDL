@@ -14,7 +14,7 @@ type Particle struct {
   Id int64
 }
 
-func QueryParticles(handle *backend.Handle) (*Particles, error) {
+func QueryFireParticles(handle *backend.Handle) (*Particles, error) {
   var (
     err   error 
     rows *backend.Rows
@@ -29,6 +29,7 @@ SELECT p.id,
 		   c_from.b + abs(random() % (abs(c_to.b-c_from.b)+1)), 
 		   c_from.a + abs(random() % (abs(c_to.a-c_from.a)+1))
 FROM   entities         AS e,
+       entities_states  AS es,
        states_particles AS sp,
        particles        AS p,
        color_ranges     AS cr,
@@ -39,7 +40,9 @@ FROM   entities         AS e,
          VALUES (-1),( 0),( 1)
        ) AS offset_y
 WHERE  e.visible
-AND    e.state_id       = sp.state_id
+AND    sp.state_id      = 2
+AND    e.id             = es.entity_id
+AND    es.state_id      = sp.state_id
 AND    sp.particle_id   = p.id
 AND    p.color_range_id = cr.id
 AND    cr.color_from    = c_from.id
