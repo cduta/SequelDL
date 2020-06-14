@@ -5,22 +5,30 @@ import (
   "../../../backend"
   "../../../sdlex"
 
-  "github.com/veandco/go-sdl2/sdl"
+  "github.com/veandco/go-sdl2/gfx"
+
+  "fmt"
+  "math/rand"
 )
 
-type Particles struct {
-  fire map[backend.Color][]sdl.Point 
+type Particle struct {
+  *object.Particle
+  Color backend.Color
 }
 
-func (particles *Particles) ReloadParticles(handle *backend.Handle) error {
+type Particles struct {
+  byPosition map[backend.Position]*Particle
+}
+
+func (particles *Particles) LoadParticles(handle *backend.Handle) error {
   var (
-    err                error 
-    objectParticles   *object.Particles
-    objectParticle    *object.Particle
-    fireParticleMap    map[backend.Color][]sdl.Point = make(map[backend.Color][]sdl.Point)
+    err              error 
+    objectParticles *object.Particles
+    objectParticle  *object.Particle
+    particlesByPos   map[backend.Position]*Particle = make(map[backend.Position]*Particle)
   )
 
-  objectParticles, err = object.QueryFireParticles(handle)
+  objectParticles, err = object.QueryVisibleParticles(handle)
   if objectParticles == nil || err != nil {
     return err
   }
@@ -30,49 +38,34 @@ func (particles *Particles) ReloadParticles(handle *backend.Handle) error {
     if err != nil {
       return err
     }
-    fireParticleMap[backend.Color{objectParticle.R, objectParticle.G, objectParticle.B, objectParticle.A}] = append(
-      fireParticleMap[backend.Color{R:objectParticle.Color.R, G:objectParticle.Color.G, B:objectParticle.Color.B, A:objectParticle.Color.A}], 
-      sdl.Point{X:objectParticle.Position.X, Y:objectParticle.Position.Y})
+    particlesByPos[objectParticle.Position] = &Particle{ 
+      Particle: objectParticle, 
+      Color: backend.Color{
+        R: objectParticle.From.R + uint8(rand.Intn(int(objectParticle.To.R-objectParticle.From.R+1))),
+        G: objectParticle.From.G + uint8(rand.Intn(int(objectParticle.To.G-objectParticle.From.G+1))),
+        B: objectParticle.From.B + uint8(rand.Intn(int(objectParticle.To.B-objectParticle.From.B+1))),
+        A: objectParticle.From.A + uint8(rand.Intn(int(objectParticle.To.A-objectParticle.From.A+1)))}}
   }
 
-  particles.fire = fireParticleMap
+  particles.byPosition = particlesByPos
 
-  return err
+  return err 
 }
 
-func (particles *Particles) HasFireLoaded() bool {
-  return particles.fire != nil
-}
-
-func (wildfireWrap *WildfireWrap) RenderParticle(sdlWrap *sdlex.SdlWrap, color backend.Color, points []sdl.Point) error {
-  var (
-    err       error
-    renderer *sdl.Renderer = sdlWrap.Renderer()
-  ) 
-
-  err = renderer.SetDrawColor(color.R, color.G, color.B, color.A)
-  if err != nil {
-    return err 
-  }
-
-  err = renderer.DrawPoints(points)
-
-  return err
+func (wildfireWrap *WildfireWrap) RenderParticle(sdlWrap *sdlex.SdlWrap, position backend.Position, color backend.Color) bool {
+  return gfx.PixelRGBA(sdlWrap.Renderer(), position.X, position.Y, color.R, color.G, color.B, color.A)
 }
 
 func (wildfireWrap *WildfireWrap) RenderParticles(sdlWrap *sdlex.SdlWrap) error {
   var (
     err      error 
-    color    backend.Color 
-    points []sdl.Point
+    position backend.Position
+    particle *Particle 
   )
 
-  if wildfireWrap.Particles().HasFireLoaded() {
-    for color, points = range wildfireWrap.Particles().fire {
-      err = wildfireWrap.RenderParticle(sdlWrap, color, points)
-      if err != nil {
-        return err
-      }
+  for position, particle = range wildfireWrap.Particles().byPosition {
+    if !wildfireWrap.RenderParticle(sdlWrap, position, particle.Color) {
+      return fmt.Errorf("Could not render particle at %v with color %v", position, particle.Color)
     }
   }
 

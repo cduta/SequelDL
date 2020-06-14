@@ -18,11 +18,7 @@ func (wildfireWrap *WildfireWrap) Initialize(sdlWrap *sdlex.SdlWrap, handle *bac
 func (wildfireWrap *WildfireWrap) IsReady() bool { return true }
 
 func (wildfireWrap *WildfireWrap) Render(sdlWrap *sdlex.SdlWrap, handle *backend.Handle) error { 
-	var err error 
-
-	err = wildfireWrap.RenderParticles(sdlWrap)
-
-	return err 
+	return wildfireWrap.RenderParticles(sdlWrap)
 }
 
 func (wildfireWrap *WildfireWrap) Particles() *Particles {

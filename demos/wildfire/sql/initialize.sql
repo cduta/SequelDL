@@ -40,45 +40,57 @@ CREATE TABLE colors (
 );
 
 CREATE TABLE color_ranges (
-  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  color_from integer NOT NULL REFERENCES colors(id),
-  color_to   integer NOT NULL REFERENCES colors(id)
+  id           integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  color_from   integer NOT NULL REFERENCES colors(id),
+  color_to     integer NOT NULL REFERENCES colors(id),
+  redraw_delay integer NOT NULL CHECK (redraw_delay BETWEEN -1 AND 2147483647) -- Here -1 equals ∞.
 );
 
 CREATE TABLE particles (
   id             integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   color_range_id integer NOT NULL REFERENCES color_ranges(id),
   name           text    NOT NULL,
-  relative_x     integer NOT NULL CHECK (relative_x BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  relative_y     integer NOT NULL CHECK (relative_y BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  level          integer NOT NULL CHECK (level      BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  width          integer NOT NULL CHECK (width      BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  height         integer NOT NULL CHECK (height     BETWEEN -2147483648 AND 2147483647)  -- Golang's int32 constraint
+  relative_x     integer NOT NULL CHECK (relative_x   BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  relative_y     integer NOT NULL CHECK (relative_y   BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  level          integer NOT NULL CHECK (level        BETWEEN -2147483648 AND 2147483647)  -- Golang's int32 constraint
 );
 
 CREATE TABLE states (
-  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name       text    NOT NULL UNIQUE,
-  next_state integer          REFERENCES states(id),
-  ticks_left integer          CHECK (ticks BETWEEN 0 AND 2147483647), -- Golang's unsigned int32 constraint
-  ticks      integer          CHECK (ticks BETWEEN 0 AND 2147483647)  -- Golang's unsigned int32 constraint
+  id           integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name         text    NOT NULL UNIQUE
 );
 
 CREATE TABLE entities (
-  id       integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-  name     text    NOT NULL UNIQUE,
-  x        integer NOT NULL CHECK (x     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  y        integer NOT NULL CHECK (y     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  level    integer NOT NULL CHECK (level BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
-  visible  boolean NOT NULL
+  id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name       text    NOT NULL UNIQUE,
+  x          integer NOT NULL CHECK (x     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  y          integer NOT NULL CHECK (y     BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  level      integer NOT NULL CHECK (level BETWEEN -2147483648 AND 2147483647), -- Golang's int32 constraint
+  visible    boolean NOT NULL
 );
 
 CREATE TABLE entities_states (
-  entity_id integer NOT NULL REFERENCES entities(id),
-  state_id  integer NOT NULL REFERENCES states(id)
+  entity_id  integer NOT NULL REFERENCES entities(id),
+  state_id   integer NOT NULL REFERENCES states(id),
+  PRIMARY KEY (entity_id, state_id)
 );
+
+CREATE TABLE old_entities_states (
+  entity_id  integer NOT NULL REFERENCES entities(id),
+  state_id   integer NOT NULL REFERENCES states(id),
+  PRIMARY KEY (entity_id, state_id)
+);
+
+CREATE TRIGGER  entities_states_changed 
+AFTER UPDATE ON entities_states 
+FOR EACH ROW 
+BEGIN 
+  INSERT INTO old_entities_states VALUES 
+  (OLD.entity_id, OLD.state_id);
+END;
 
 CREATE TABLE states_particles (
   state_id    integer NOT NULL REFERENCES states(id),
-  particle_id integer NOT NULL REFERENCES particles(id)
+  particle_id integer NOT NULL REFERENCES particles(id),
+  PRIMARY KEY (state_id, particle_id)
 );

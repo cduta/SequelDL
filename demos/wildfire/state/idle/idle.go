@@ -5,7 +5,6 @@ import (
   "../../../../sdlex"
   . "../../../../event/state"
   "../../wrap"
-  "../../object"
 
   "github.com/veandco/go-sdl2/sdl"
 
@@ -14,61 +13,30 @@ import (
 )
 
 type Idle struct { 
-  stateId        int64
   particles     *wrap.Particles
   backendHandle *backend.Handle 
 }
 
-func MakeIdle(stateId int64, particles *wrap.Particles, backendHandle *backend.Handle) Idle { 
+func MakeIdle(particles *wrap.Particles, backendHandle *backend.Handle) (Idle, error) { 
+  var err error
+
+  err = particles.LoadParticles(backendHandle)
+
   return Idle{ 
-    stateId      : stateId,
     particles    : particles,
-    backendHandle: backendHandle } 
+    backendHandle: backendHandle }, err
 }
 
 func (idle Idle) Destroy() {}
 func (idle Idle) PreEvent()    State { return idle }
 
 func (idle Idle) OnTick()      State {
-  var err error
-
-  err = idle.particles.ReloadParticles(idle.backendHandle)
-  if err != nil {
-    fmt.Fprintf(os.Stderr, "Failed to reload particles: %s\n", err) 
-  }
-
-  err = object.AdvanceTick(idle.backendHandle, idle.stateId)
-  if err != nil {
-    fmt.Fprintf(os.Stderr, "Failed advance tick after reloading particles: %s\n", err) 
-  }
-
+  //idle.particles.Animate()  
   return idle 
 }
 
-func (idle Idle) TickDelayed() bool  { 
-  var (
-    err       error 
-    ticksLeft uint32 
-  )
-
-  ticksLeft, err = object.QueryTicksLeft(idle.backendHandle, idle.stateId)
-  if err != nil {
-    fmt.Fprintf(os.Stderr, "Failed to query ticks left: %s\n", err) 
-  }
-
-  return ticksLeft > 0 
-}
-
-func (idle Idle) OnTickDelay() State { 
-  var err error 
-
-  err = object.AdvanceTick(idle.backendHandle, idle.stateId)
-  if err != nil {
-    fmt.Fprintf(os.Stderr, "Failed advance tick when delayed: %s\n", err) 
-  }
-  
-  return idle 
-}
+func (idle Idle) TickDelayed() bool  { return false }
+func (idle Idle) OnTickDelay() State { return idle }
 
 func (idle Idle) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(idle) }
 func (idle Idle) OnKeyboardEvent(event *sdl.KeyboardEvent) State {
