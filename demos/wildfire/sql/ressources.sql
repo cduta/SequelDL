@@ -7,9 +7,9 @@ colors(id, r  , g  , b  , a  ) VALUES
 
 INSERT INTO 
 color_ranges(id, color_from, color_to, redraw_delay) VALUES
-            (1 , 1         , 1       ,           -1),
+            (1 , 2         , 1       ,            0),
             (2 , 2         , 2       ,            3),
-            (3 , 3         , 4       ,           -1);            
+            (3 , 3         , 4       ,            0);            
 
 INSERT INTO 
 particles(id, color_range_id, name     , relative_x, relative_y, level) VALUES
@@ -43,7 +43,7 @@ x(pos) AS (
 y(pos) AS (
   SELECT 1 
     UNION ALL
-  SELECT y.pos + 1
+  SELECT y.pos + 1  
   FROM   y
   WHERE  y.pos < 200
 )

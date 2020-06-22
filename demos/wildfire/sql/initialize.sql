@@ -43,7 +43,7 @@ CREATE TABLE color_ranges (
   id           integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   color_from   integer NOT NULL REFERENCES colors(id),
   color_to     integer NOT NULL REFERENCES colors(id),
-  redraw_delay integer NOT NULL CHECK (redraw_delay BETWEEN -1 AND 2147483647) -- Here -1 equals ∞.
+  redraw_delay integer NOT NULL CHECK (redraw_delay BETWEEN 0 AND 2147483647) -- Golang's uint32 constraint
 );
 
 CREATE TABLE particles (

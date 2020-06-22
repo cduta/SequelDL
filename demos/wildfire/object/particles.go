@@ -10,10 +10,29 @@ type Particles struct {
 
 type Particle struct {
   backend.Position
-  From        backend.Color 
-  To          backend.Color
-  RedrawDelay int32
-  Id          int64
+  From         backend.Color 
+  To           backend.Color
+  CanBeRedrawn bool 
+  RedrawIn     uint32
+  RedrawDelay  uint32
+  Id           int64
+}
+
+func (particle *Particle) AdvanceRedrawDelay() bool {
+  var redraw bool = false
+
+  if !particle.CanBeRedrawn {
+    return redraw
+  }
+
+  particle.RedrawIn--
+
+  if particle.RedrawIn == 0 {
+    redraw = true
+    particle.RedrawIn = particle.RedrawDelay
+  }
+
+  return redraw
 }
 
 func QueryVisibleParticles(handle *backend.Handle) (*Particles, error) {
@@ -75,5 +94,5 @@ func (particles Particles) Next() (*Particle, error) {
     &colorTo.R  , &colorTo.G  , &colorTo.B  , &colorTo.A  ,     
     &redrawDelay)
 
-  return &Particle{ Position: position, From: colorFrom, To: colorTo, RedrawDelay: int32(redrawDelay), Id: particleId }, err
+  return &Particle{ Position: position, From: colorFrom, To: colorTo, CanBeRedrawn: redrawDelay > 0, RedrawIn: uint32(redrawDelay), RedrawDelay: uint32(redrawDelay), Id: particleId }, err
 }

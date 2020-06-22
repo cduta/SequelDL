@@ -36,7 +36,6 @@ func parseArgs() settings {
       fmt.Fprintf(os.Stderr, "Failed to inizialize profiler: %s\n", err)
     }
     pprof.StartCPUProfile(f)
-    defer pprof.StopCPUProfile()
   }
 
   return settings{ DEFAULT_SAVE_FILE_PATH: saveFilePath }
@@ -112,5 +111,6 @@ func Run(save backend.Save, load backend.Load, makeProcessor MakeProcessor, wrap
   }
 
   mainLoop(sdlWrap, processor, wrap)
+  pprof.StopCPUProfile()
 }
 

@@ -7,9 +7,6 @@ import (
   "../../event"
   "./wrap"
   "./state/idle"
-
-  "math/rand"
-  "time"
 )
 
 func makeWildfireProcessor(handle *backend.Handle, sdlWrap *sdlex.SdlWrap, sdlexWrap sdlex.Wrap) (*event.Processor, error) {
@@ -19,8 +16,6 @@ func makeWildfireProcessor(handle *backend.Handle, sdlWrap *sdlex.SdlWrap, sdlex
     eventProcessor *event.Processor
     idleState       idle.Idle 
   )
-
-  rand.Seed(time.Now().UTC().UnixNano())
   
   idleState, err = idle.MakeIdle(wildfireWrap.Particles(), handle)
   if err != nil {

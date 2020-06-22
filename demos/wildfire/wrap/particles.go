@@ -17,7 +17,15 @@ type Particle struct {
 }
 
 type Particles struct {
-  byPosition map[backend.Position]*Particle
+  byPosition  map[backend.Position]*Particle
+  randomizer *rand.Rand
+}
+
+func (particles *Particles) shuffleColorRange(current *backend.Color, from backend.Color, to backend.Color) {
+  current.R = from.R + uint8(particles.randomizer.Uint32() % (uint32(to.R-from.R+1)))
+  current.G = from.G + uint8(particles.randomizer.Uint32() % (uint32(to.G-from.G+1)))
+  current.B = from.B + uint8(particles.randomizer.Uint32() % (uint32(to.B-from.B+1)))
+  current.A = from.A + uint8(particles.randomizer.Uint32() % (uint32(to.A-from.A+1)))
 }
 
 func (particles *Particles) LoadParticles(handle *backend.Handle) error {
@@ -25,6 +33,7 @@ func (particles *Particles) LoadParticles(handle *backend.Handle) error {
     err              error 
     objectParticles *object.Particles
     objectParticle  *object.Particle
+    particle        *Particle
     particlesByPos   map[backend.Position]*Particle = make(map[backend.Position]*Particle)
   )
 
@@ -38,18 +47,30 @@ func (particles *Particles) LoadParticles(handle *backend.Handle) error {
     if err != nil {
       return err
     }
-    particlesByPos[objectParticle.Position] = &Particle{ 
+    particle = &Particle{ 
       Particle: objectParticle, 
-      Color: backend.Color{
-        R: objectParticle.From.R + uint8(rand.Intn(int(objectParticle.To.R-objectParticle.From.R+1))),
-        G: objectParticle.From.G + uint8(rand.Intn(int(objectParticle.To.G-objectParticle.From.G+1))),
-        B: objectParticle.From.B + uint8(rand.Intn(int(objectParticle.To.B-objectParticle.From.B+1))),
-        A: objectParticle.From.A + uint8(rand.Intn(int(objectParticle.To.A-objectParticle.From.A+1)))}}
+      Color   : backend.Color{}}
+    particles.shuffleColorRange(&particle.Color, objectParticle.From, objectParticle.To)
+    particlesByPos[objectParticle.Position] = particle
   }
 
   particles.byPosition = particlesByPos
 
   return err 
+}
+
+func (particles *Particles) Animate() {
+  var (
+    redraw    bool
+    particle *Particle 
+  )
+
+  for _, particle = range particles.byPosition {
+    redraw = particle.AdvanceRedrawDelay()
+    if redraw {
+       particles.shuffleColorRange(&particle.Color, particle.Particle.From, particle.Particle.To) 
+    }
+  }
 }
 
 func (wildfireWrap *WildfireWrap) RenderParticle(sdlWrap *sdlex.SdlWrap, position backend.Position, color backend.Color) bool {
@@ -58,8 +79,8 @@ func (wildfireWrap *WildfireWrap) RenderParticle(sdlWrap *sdlex.SdlWrap, positio
 
 func (wildfireWrap *WildfireWrap) RenderParticles(sdlWrap *sdlex.SdlWrap) error {
   var (
-    err      error 
-    position backend.Position
+    err       error 
+    position  backend.Position
     particle *Particle 
   )
 

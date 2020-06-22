@@ -3,6 +3,9 @@ package wrap
 import (
   "../../../backend"
 	"../../../sdlex"
+
+	"math/rand"
+	"time"
 )
 
 type WildfireWrap struct {
@@ -10,7 +13,7 @@ type WildfireWrap struct {
 }
 
 func MakeWildfireWrap() *WildfireWrap {
-	return &WildfireWrap{ particles: &Particles{} }
+	return &WildfireWrap{ particles: &Particles{ randomizer: rand.New(rand.NewSource(time.Now().UTC().UnixNano())) } }
 }
 
 func (wildfireWrap *WildfireWrap) Destroy() {}
