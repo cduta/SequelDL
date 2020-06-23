@@ -5,7 +5,7 @@ import (
   "../../../backend"
   "../../../sdlex"
 
-  "github.com/veandco/go-sdl2/gfx"
+  "github.com/veandco/go-sdl2/sdl"
 
   "fmt"
   "math/rand"
@@ -113,22 +113,39 @@ func (particles *Particles) Animate() {
   }
 }
 
-func (wildfireWrap *WildfireWrap) RenderParticle(sdlWrap *sdlex.SdlWrap, position backend.Position, color backend.Color) bool {
-  return gfx.PixelRGBA(sdlWrap.Renderer(), position.X, position.Y, color.R, color.G, color.B, color.A)
+func (wildfireWrap *WildfireWrap) RenderParticlesByColor(sdlWrap *sdlex.SdlWrap, color backend.Color, points []sdl.Point) error {
+  var err error
+
+  err = sdlWrap.Renderer().SetDrawColor(color.R, color.G, color.B, color.A)
+  if err != nil {
+    return err 
+  }
+
+  return sdlWrap.Renderer().DrawPoints(points)
 }
 
 func (wildfireWrap *WildfireWrap) RenderParticles(sdlWrap *sdlex.SdlWrap) error {
   var (
-    err             error 
-    position        backend.Position
-    particle       *Particle 
-    //particlesByPos  map[backend.Color]backend.Position = make(map[backend.Color]backend.Position)    
+    err                error 
+    position           backend.Position
+    particle          *Particle 
+    particlesByColor   map[backend.Color][]sdl.Point = make(map[backend.Color][]sdl.Point)  
+    color              backend.Color 
+    points           []sdl.Point  
   )
 
   for position, particle = range wildfireWrap.Particles().byPosition {
+    particlesByColor[particle.Color] = append(particlesByColor[particle.Color], 
+                                              sdl.Point{X: position.X, 
+                                                        Y: position.Y})
+  }
 
-    if !wildfireWrap.RenderParticle(sdlWrap, position, particle.Color) {
-      return fmt.Errorf("Could not render particle at %v with color %v", position, particle.Color)
+
+  for color, points = range particlesByColor {
+    err = wildfireWrap.RenderParticlesByColor(sdlWrap, color, points)
+    if err != nil {
+      fmt.Errorf("Could not render particle at %v with color %v.", points, particle.Color)
+      return err
     }
   }
 

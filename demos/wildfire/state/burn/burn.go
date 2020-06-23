@@ -51,6 +51,7 @@ func (burn Burn) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
       switch event.Button {
         case sdl.BUTTON_LEFT  : 
           err = object.IgnitePaper(burn.backendHandle, backend.Position{X: event.X, Y: event.Y})
+          burn.particles.UpdateParticles(burn.backendHandle)
           if err != nil {
             fmt.Fprintf(os.Stderr, "Error when trying to ignite paper: %s\n", err)
             return burn  
