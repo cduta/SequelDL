@@ -7,6 +7,7 @@ import (
   "../../event"
   "./wrap"
   "./state/idle"
+  "./state/burn"
 )
 
 func makeWildfireProcessor(handle *backend.Handle, sdlWrap *sdlex.SdlWrap, sdlexWrap sdlex.Wrap) (*event.Processor, error) {
@@ -15,6 +16,7 @@ func makeWildfireProcessor(handle *backend.Handle, sdlWrap *sdlex.SdlWrap, sdlex
     wildfireWrap   *wrap.WildfireWrap = sdlexWrap.(*wrap.WildfireWrap)
     eventProcessor *event.Processor
     idleState       idle.Idle 
+    burnState       burn.Burn 
   )
   
   idleState, err = idle.MakeIdle(wildfireWrap.Particles(), handle)
@@ -22,8 +24,14 @@ func makeWildfireProcessor(handle *backend.Handle, sdlWrap *sdlex.SdlWrap, sdlex
     return eventProcessor, err
   }
 
+  burnState, err = burn.MakeIdle(wildfireWrap.Particles(), handle)
+  if err != nil {
+    return eventProcessor, err
+  }
+
   eventProcessor = event.NewProcessor(sdlWrap)
   eventProcessor.AddProcess(event.NewProcess(idleState))
+  eventProcessor.AddProcess(event.NewProcess(burnState))
 
   return eventProcessor, err
 }

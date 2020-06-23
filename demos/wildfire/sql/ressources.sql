@@ -7,28 +7,29 @@ colors(id, r  , g  , b  , a  ) VALUES
 
 INSERT INTO 
 color_ranges(id, color_from, color_to, redraw_delay) VALUES
-            (1 , 2         , 1       ,            0),
-            (2 , 2         , 2       ,            3),
-            (3 , 3         , 4       ,            0);            
+            ( 1,          1,        1,            0),
+            ( 2,          2,        2,            0),
+            ( 3,          3,        4,            3);            
 
 INSERT INTO 
-particles(id, color_range_id, name     , relative_x, relative_y, level) VALUES
-         (1 , 1             , 'Paper'  ,  0        ,  0        , 1    ),
-         (2 , 2             , 'Burnt'  ,  0        ,  0        , 1    ),
-         (3 , 3             , '↖⚠'     , -1        , -1        , 2    ),
-         (4 , 3             , '↑⚠'     ,  0        , -1        , 2    ),
-         (5 , 3             , '↗⚠'     ,  1        , -1        , 2    ),
-         (6 , 3             , '←⚠'     , -1        ,  0        , 2    ),
-         (7 , 3             , '→⚠'     ,  1        ,  0        , 2    ),
-         (8 , 3             , '↙⚠'     , -1        ,  1        , 2    ),
-         (9 , 3             , '↓⚠'     ,  0        ,  1        , 2    ),
-         (10, 3             , '↘⚠'     ,  1        ,  1        , 2    );
+particles(id, color_range_id,      name, relative_x, relative_y, level) VALUES
+         (1 ,              1,   'Paper',          0,          0,     1),
+         (2 ,              2,   'Burnt',          0,          0,     1),
+         (3 ,              3,      '↖⚠',         -1,         -1,     2),
+         (4 ,              3,      '↑⚠',          0,         -1,     2),
+         (5 ,              3,      '↗⚠',          1,         -1,     2),
+         (6 ,              3,      '←⚠',         -1,          0,     2),
+         (7 ,              3,      '•⚠',          0,          0,     2),
+         (8 ,              3,      '→⚠',          1,          0,     2),
+         (9 ,              3,      '↙⚠',         -1,          1,     2),
+         (10,              3,      '↓⚠',          0,          1,     2),
+         (11,              3,      '↘⚠',          1,          1,     2);
 
 INSERT INTO 
-states(id, name     ) VALUES
-      (1 , 'Paper'  ),
+states(id,      name) VALUES
+      (1 ,   'Paper'),
       (2 , 'Burning'),
-      (3 , 'Burnt'  );
+      (3 ,   'Burnt');
 
 INSERT INTO
 entities(name, x, y, level, visible) 
@@ -53,9 +54,17 @@ FROM   x, y;
 
 INSERT INTO 
 states_particles(state_id, particle_id) VALUES
-                (1       , 1          ),
-                (2       , 2          ),
-                (3       , 3          );
+                (       1,           1),
+                (       2,           3),
+                (       2,           4),
+                (       2,           5),
+                (       2,           6),
+                (       2,           7),
+                (       2,           8),
+                (       2,           9),
+                (       2,          10),
+                (       2,          11),
+                (       3,           2);
 
 INSERT INTO
 entities_states(entity_id, state_id) 

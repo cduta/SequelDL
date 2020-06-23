@@ -59,6 +59,46 @@ func (particles *Particles) LoadParticles(handle *backend.Handle) error {
   return err 
 }
 
+func (particles *Particles) UpdateParticles(handle *backend.Handle) error {
+  var (
+    err               error 
+    oldParticles     *object.Particles
+    changedParticles *object.Particles
+    objectParticle   *object.Particle
+    updatedParticle  *Particle
+  )
+
+  oldParticles, err = object.QueryOldParticles(handle)
+  if oldParticles == nil || err != nil {
+    return err
+  }
+  defer oldParticles.Close() 
+
+  for objectParticle, err = oldParticles.Next(); err == nil && objectParticle != nil; objectParticle, err = oldParticles.Next() {
+    delete(particles.byPosition, objectParticle.Position)
+  }
+
+  oldParticles.Close() 
+
+  changedParticles, err = object.QueryChangedParticles(handle)
+  if changedParticles == nil || err != nil {
+    return err
+  }
+  defer changedParticles.Close()
+
+  for objectParticle, err = changedParticles.Next(); err == nil && objectParticle != nil; objectParticle, err = changedParticles.Next() {
+    updatedParticle = &Particle{ 
+      Particle: objectParticle, 
+      Color   : backend.Color{}}
+    particles.shuffleColorRange(&updatedParticle.Color, updatedParticle.Particle.From, updatedParticle.Particle.To) 
+    particles.byPosition[updatedParticle.Particle.Position] = updatedParticle
+  }
+
+  changedParticles.Close()
+
+  return object.ClearOldStates(handle) 
+} 
+
 func (particles *Particles) Animate() {
   var (
     redraw    bool
@@ -79,12 +119,14 @@ func (wildfireWrap *WildfireWrap) RenderParticle(sdlWrap *sdlex.SdlWrap, positio
 
 func (wildfireWrap *WildfireWrap) RenderParticles(sdlWrap *sdlex.SdlWrap) error {
   var (
-    err       error 
-    position  backend.Position
-    particle *Particle 
+    err             error 
+    position        backend.Position
+    particle       *Particle 
+    //particlesByPos  map[backend.Color]backend.Position = make(map[backend.Color]backend.Position)    
   )
 
   for position, particle = range wildfireWrap.Particles().byPosition {
+
     if !wildfireWrap.RenderParticle(sdlWrap, position, particle.Color) {
       return fmt.Errorf("Could not render particle at %v with color %v", position, particle.Color)
     }

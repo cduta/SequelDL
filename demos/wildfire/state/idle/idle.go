@@ -31,6 +31,7 @@ func (idle Idle) Destroy() {}
 func (idle Idle) PreEvent()    State { return idle }
 
 func (idle Idle) OnTick()      State {
+  idle.particles.UpdateParticles(idle.backendHandle)
   idle.particles.Animate()  
   return idle 
 }

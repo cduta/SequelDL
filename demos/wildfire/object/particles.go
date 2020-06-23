@@ -69,6 +69,91 @@ ORDER BY e.level, p.level;`)
   return &Particles{ Rows: rows }, err
 }
 
+func QueryOldParticles(handle *backend.Handle) (*Particles, error) {
+  var (
+    err   error 
+    rows *backend.Rows
+  )
+
+  rows, err = handle.QueryRows(`
+SELECT p.id, 
+       e.x + p.relative_x, e.y + p.relative_y, 
+       c_from.r, c_from.g, c_from.b, c_from.a,
+       c_to.r  , c_to.g  , c_to.b  , c_to.a, 
+       cr.redraw_delay
+FROM   (SELECT oes.entity_id AS entity_id, 
+               oes.state_id  AS state_id
+        FROM   old_entities_states AS oes) AS oes,
+       entities            AS e,
+       states_particles    AS sp,
+       particles           AS p,
+       color_ranges        AS cr,
+       colors              AS c_from,
+       colors              AS c_to
+WHERE  e.visible
+AND    e.id             = oes.entity_id
+AND    oes.state_id     = sp.state_id
+AND    sp.particle_id   = p.id
+AND    p.color_range_id = cr.id
+AND    cr.color_from    = c_from.id
+AND    cr.color_to      = c_to.id
+ORDER BY e.level, p.level;`)
+  if rows == nil || err != nil {
+    return nil, err 
+  }
+
+  return &Particles{ Rows: rows }, err
+}
+
+func QueryChangedParticles(handle *backend.Handle) (*Particles, error) {
+  var (
+    err   error 
+    rows *backend.Rows
+  )
+
+  rows, err = handle.QueryRows(`
+SELECT p.id, 
+       e.x + p.relative_x, e.y + p.relative_y, 
+       c_from.r, c_from.g, c_from.b, c_from.a,
+       c_to.r  , c_to.g  , c_to.b  , c_to.a, 
+       cr.redraw_delay
+FROM   (SELECT DISTINCT oes.entity_id AS entity_id
+        FROM   old_entities_states AS oes) AS oes,
+       entities            AS e,
+       entities_states     AS es,
+       states_particles    AS sp,
+       particles           AS p,
+       color_ranges        AS cr,
+       colors              AS c_from,
+       colors              AS c_to
+WHERE  e.visible
+AND    e.id             = oes.entity_id
+AND    e.id             = es.entity_id
+AND    es.state_id      = sp.state_id
+AND    sp.particle_id   = p.id
+AND    p.color_range_id = cr.id
+AND    cr.color_from    = c_from.id
+AND    cr.color_to      = c_to.id
+ORDER BY e.level, p.level;`)
+  if rows == nil || err != nil {
+    return nil, err 
+  }
+
+  return &Particles{ Rows: rows }, err
+}
+
+func ClearOldStates(handle *backend.Handle) error {
+  var err error
+
+  _, err = handle.Exec(`
+BEGIN IMMEDIATE;
+DELETE FROM old_entities_states;
+COMMIT;
+`)
+
+  return err
+}
+
 func (particles Particles) Close() {
   particles.Rows.Close()
 }
