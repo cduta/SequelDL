@@ -13,9 +13,12 @@ import (
   "os"
 )
 
+const TICKS_UNTIL_BURN = 2
+
 type Burn struct { 
   particles     *wrap.Particles
   backendHandle *backend.Handle 
+  burnTicks      int64
 }
 
 func MakeIdle(particles *wrap.Particles, backendHandle *backend.Handle) (Burn, error) { 
@@ -23,19 +26,44 @@ func MakeIdle(particles *wrap.Particles, backendHandle *backend.Handle) (Burn, e
 
   return Burn{ 
     particles    : particles,
-    backendHandle: backendHandle }, err
+    backendHandle: backendHandle,
+    burnTicks    : TICKS_UNTIL_BURN }, err
 }
 
 func (burn Burn) Destroy() {}
 func (burn Burn) PreEvent()    State { return burn }
 
 func (burn Burn) OnTick()      State {
-  //object.BurnPaper(...)  
+  var (
+    err   error 
+    burns int64 
+  )
+
+  burns, err = object.BurnPaper(burn.backendHandle)  
+  if err != nil {
+    fmt.Fprintf(os.Stderr, "Error when trying to burn paper: %s\n", err)
+  }
+
+  if err == nil && burns > 0 {
+    err = burn.particles.UpdateParticles(burn.backendHandle)
+    if err != nil {
+      fmt.Fprintf(os.Stderr, "Error when trying to update particles: %s\n", err)
+    }
+  }
+
+  burn.burnTicks = TICKS_UNTIL_BURN
+
   return burn 
 }
 
-func (burn Burn) TickDelayed() bool  { return false }
-func (burn Burn) OnTickDelay() State { return burn }
+func (burn Burn) TickDelayed() bool  { 
+  return burn.burnTicks >= 0
+}
+
+func (burn Burn) OnTickDelay() State { 
+  burn.burnTicks--
+  return burn 
+}
 
 func (burn Burn) OnQuit(event *sdl.QuitEvent) State { return MakeQuit(burn) }
 func (burn Burn)    OnKeyboardEvent(event *sdl.KeyboardEvent)    State { return burn }
@@ -51,10 +79,13 @@ func (burn Burn) OnMouseButtonEvent(event *sdl.MouseButtonEvent) State {
       switch event.Button {
         case sdl.BUTTON_LEFT  : 
           err = object.IgnitePaper(burn.backendHandle, backend.Position{X: event.X, Y: event.Y})
-          burn.particles.UpdateParticles(burn.backendHandle)
           if err != nil {
             fmt.Fprintf(os.Stderr, "Error when trying to ignite paper: %s\n", err)
             return burn  
+          }
+          err = burn.particles.UpdateParticles(burn.backendHandle)
+          if err != nil {
+            fmt.Fprintf(os.Stderr, "Error when trying to update particles: %s\n", err)
           }
         case sdl.BUTTON_RIGHT : 
         default               : 

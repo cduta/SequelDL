@@ -113,28 +113,36 @@ func QueryChangedParticles(handle *backend.Handle) (*Particles, error) {
 
   rows, err = handle.QueryRows(`
 SELECT p.id, 
-       e.x + p.relative_x, e.y + p.relative_y, 
+       e2.x + p.relative_x, e2.y + p.relative_y, 
        c_from.r, c_from.g, c_from.b, c_from.a,
        c_to.r  , c_to.g  , c_to.b  , c_to.a, 
        cr.redraw_delay
-FROM   (SELECT DISTINCT oes.entity_id AS entity_id
-        FROM   old_entities_states AS oes) AS oes,
-       entities            AS e,
+FROM   (SELECT DISTINCT e.x + p.relative_x AS x, e.y + p.relative_y AS y
+        FROM   old_entities_states AS oes,
+               entities            AS e,
+               entities_states     AS es,
+               states_particles    AS sp,
+               particles           AS p
+        WHERE  oes.entity_id  = e.id 
+        AND    oes.entity_id  = es.entity_id
+        AND    es.state_id    = sp.state_id
+        AND    sp.particle_id = p.id) AS e1,
+       entities            AS e2,
        entities_states     AS es,
        states_particles    AS sp,
        particles           AS p,
        color_ranges        AS cr,
        colors              AS c_from,
        colors              AS c_to
-WHERE  e.visible
-AND    e.id             = oes.entity_id
-AND    e.id             = es.entity_id
+WHERE  e2.visible 
+AND    (e1.x, e1.y)     = (e2.x + p.relative_x, e2.y + p.relative_y)
+AND    e2.id            = es.entity_id
 AND    es.state_id      = sp.state_id
-AND    sp.particle_id   = p.id
-AND    p.color_range_id = cr.id
-AND    cr.color_from    = c_from.id
-AND    cr.color_to      = c_to.id
-ORDER BY e.level, p.level;`)
+AND    sp.particle_id   = p.id 
+AND    p.color_range_id = cr.id 
+AND    cr.color_from    = c_from.id 
+AND    cr.color_to      = c_to.id 
+ORDER BY p.level, e2.level;`)
   if rows == nil || err != nil {
     return nil, err 
   }

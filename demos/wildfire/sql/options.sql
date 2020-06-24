@@ -2,7 +2,9 @@ INSERT INTO integer_options(id, name, value) VALUES
 (1, 'window width'     , 1024),
 (2, 'window height'    , 768 ),
 (3, 'default font size', 30  ),
-(4, 'fps'              , 60  );
+(4, 'fps'              , 60  ),
+(5, 'extinguish chance', 10  ), -- 0 <= x <= 100
+(6, 'spread chance'    ,  2  ); -- 0 <= x <= 100
 
 INSERT INTO text_options(id, name, value) VALUES 
 (1, 'window title' , 'Wildfire Demo'),
