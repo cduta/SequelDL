@@ -118,13 +118,22 @@ SELECT p.id,
        c_to.r  , c_to.g  , c_to.b  , c_to.a, 
        cr.redraw_delay
 FROM   (SELECT DISTINCT e.x + p.relative_x AS x, e.y + p.relative_y AS y
+        FROM   entities            AS e,
+               old_entities_states AS oes,
+               states_particles    AS sp,
+               particles           AS p
+        WHERE  e.id           = oes.entity_id 
+        AND    oes.state_id   = sp.state_id
+        AND    sp.particle_id = p.id
+          UNION 
+        SELECT DISTINCT e.x + p.relative_x AS x, e.y + p.relative_y AS y
         FROM   old_entities_states AS oes,
                entities            AS e,
                entities_states     AS es,
                states_particles    AS sp,
                particles           AS p
-        WHERE  oes.entity_id  = e.id 
-        AND    oes.entity_id  = es.entity_id
+        WHERE  e.id           = oes.entity_id 
+        AND    es.entity_id   = e.id
         AND    es.state_id    = sp.state_id
         AND    sp.particle_id = p.id) AS e1,
        entities            AS e2,

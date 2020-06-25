@@ -13,7 +13,7 @@ import (
   "os"
 )
 
-const TICKS_UNTIL_BURN = 2
+const TICKS_UNTIL_BURN = 8
 
 type Burn struct { 
   particles     *wrap.Particles

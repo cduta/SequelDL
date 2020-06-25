@@ -78,7 +78,6 @@ func (particles *Particles) UpdateParticles(handle *backend.Handle) error {
     if err != nil {
       return err;
     }
-    fmt.Println("Deleted:", objectParticle)
     delete(particles.byPosition, objectParticle.Position)
   }
 
@@ -94,14 +93,13 @@ func (particles *Particles) UpdateParticles(handle *backend.Handle) error {
     if err != nil {
       return err;
     }
-    fmt.Println("Changed:", objectParticle)
     updatedParticle = &Particle{ 
       Particle: objectParticle, 
       Color   : backend.Color{}}
     particles.shuffleColorRange(&updatedParticle.Color, updatedParticle.Particle.From, updatedParticle.Particle.To) 
     particles.byPosition[updatedParticle.Particle.Position] = updatedParticle
   }
-  
+
   changedParticles.Close()
 
   return object.ClearOldStates(handle) 
