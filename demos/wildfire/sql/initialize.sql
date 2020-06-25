@@ -55,10 +55,14 @@ CREATE TABLE particles (
   level          integer NOT NULL CHECK (level        BETWEEN -2147483648 AND 2147483647)  -- Golang's int32 constraint
 );
 
+CREATE INDEX particles_id_idx ON particles (id);
+
 CREATE TABLE states (
   id           integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   name         text    NOT NULL UNIQUE
 );
+
+CREATE INDEX states_id_idx ON states (id);
 
 CREATE TABLE entities (
   id         integer NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -69,11 +73,17 @@ CREATE TABLE entities (
   visible    boolean NOT NULL
 );
 
+CREATE INDEX entities_id_idx ON entities (id);
+CREATE INDEX entities_id_pos_idx ON entities (id,x,y);
+
 CREATE TABLE entities_states (
   entity_id  integer NOT NULL REFERENCES entities(id),
   state_id   integer NOT NULL REFERENCES states(id),
   PRIMARY KEY (entity_id, state_id)
 );
+
+CREATE INDEX entities_states_entity_id_idx ON entities_states (entity_id);
+CREATE INDEX entities_states_state_id_idx  ON entities_states (state_id);
 
 CREATE TABLE old_entities_states (
   entity_id  integer NOT NULL REFERENCES entities(id),
@@ -94,3 +104,6 @@ CREATE TABLE states_particles (
   particle_id integer NOT NULL REFERENCES particles(id),
   PRIMARY KEY (state_id, particle_id)
 );
+
+CREATE INDEX states_particles_entity_id_idx ON states_particles (state_id);
+CREATE INDEX states_particles_state_id_idx  ON states_particles (particle_id);

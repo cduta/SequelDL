@@ -38,9 +38,9 @@ BEGIN IMMEDIATE;
 UPDATE OR ROLLBACK entities_states 
 SET   state_id  = 3
 WHERE state_id  = 2
-AND   abs(random() % 101) <= (SELECT io.value
-                              FROM   integer_options AS io 
-                              WHERE  io.id = 5);
+AND   abs(random() % 101) < (SELECT io.value
+                             FROM   integer_options AS io 
+                             WHERE  io.id = 5);
 `)
 	if err != nil {
 		return 0, err
@@ -56,20 +56,20 @@ UPDATE OR ROLLBACK entities_states
 SET   state_id  = 2
 WHERE state_id  = 1
 AND   EXISTS (SELECT 1
-							FROM   entities         AS e1,
-							       entities_states  AS es,
-							       states_particles AS sp,
-							       particles        AS p,
-							       entities         AS e2
-							WHERE  es.entity_id   = e1.id 
+							FROM   entities        AS e1,
+								     entities_states AS es,
+							       (VALUES (-1,-1),( 0,-1),( 1,-1),
+							               (-1, 0),( 0, 0),( 1, 0),
+							               (-1, 1),( 0, 1),( 1, 1)) AS d,
+							       entities        AS e2
+							WHERE  e1.id          = es.entity_id
 							AND    es.state_id    = 2
-							AND    es.state_id    = sp.state_id 
-							AND    sp.particle_id = p.id  
 							AND    e2.id          = entities_states.entity_id
-							AND    (e2.x, e2.y)   = (e1.x + p.relative_x, e1.y + p.relative_y))
-AND   abs(random() % 101) <= (SELECT io.value
-                              FROM   integer_options AS io 
-                              WHERE  io.id = 6);
+							AND    (e2.x, e2.y)   = (e1.x + d.column1, e1.y + d.column2)
+						  LIMIT 1)
+AND   abs(random() % 101) < (SELECT io.value
+                             FROM   integer_options AS io 
+                             WHERE  io.id = 6);
 
 COMMIT;
 `)
