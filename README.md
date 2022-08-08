@@ -1,5 +1,5 @@
 # SequelDL
-Simple and clean SDL-based engine with database-supported backend.
+Simple and clean SDL-based engine with integrated RDBMS backend using SQL.
 
 # Try it 
 Various demos are in `demos/`.
